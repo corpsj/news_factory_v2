@@ -48,7 +48,20 @@ export async function GET(
     return withCors(NextResponse.json({ error: "Article not found" }, { status: 404 }));
   }
 
-  const response = NextResponse.json({ article: data });
+  const article = {
+    id: data.id,
+    title: data.title,
+    summary: data.subtitle,
+    content: data.body,
+    category: data.category,
+    source: data.source,
+    source_url: data.source_url,
+    images: data.images,
+    published_at: data.created_at,
+    processed_at: data.created_at,
+  };
+
+  const response = NextResponse.json({ article });
 
   for (const [key, value] of Object.entries(getRateLimitHeaders(auth.client.id))) {
     response.headers.set(key, value);

@@ -38,9 +38,10 @@ export async function GET(request: Request) {
     return withCors(NextResponse.json({ error: error.message }, { status: 500 }));
   }
 
-  const uniqueRegions = [...new Set((data || []).map((row) => row.source))].sort();
+  const uniqueSources = [...new Set((data || []).map((row) => row.source))].sort();
+  const regions = uniqueSources.map((name) => ({ code: name, name }));
 
-  const response = NextResponse.json({ regions: uniqueRegions });
+  const response = NextResponse.json({ regions });
 
   for (const [key, value] of Object.entries(getRateLimitHeaders(auth.client.id))) {
     response.headers.set(key, value);

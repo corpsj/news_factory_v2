@@ -81,8 +81,21 @@ export async function GET(request: Request) {
     return withCors(NextResponse.json({ error: error.message }, { status: 500 }));
   }
 
+  const articles = (data || []).map((row) => ({
+    id: row.id,
+    title: row.title,
+    summary: row.subtitle,
+    content: row.body,
+    category: row.category,
+    source: row.source,
+    source_url: row.source_url,
+    images: row.images,
+    published_at: row.created_at,
+    processed_at: row.created_at,
+  }));
+
   const response = NextResponse.json({
-    articles: data || [],
+    articles,
     total: count ?? 0,
     limit,
     offset,

@@ -15,7 +15,22 @@ export async function GET(request: Request) {
   const rateLimitResponse = checkRateLimit(auth.client.id);
   if (rateLimitResponse) return withCors(rateLimitResponse);
 
-  const response = NextResponse.json({ categories: [...ARTICLE_CATEGORIES] });
+  const CATEGORY_NAMES: Record<string, string> = {
+    economy: "경제",
+    politics: "정치",
+    society: "사회",
+    sports: "스포츠",
+    culture: "문화",
+    opinion: "오피니언",
+    editorial: "사설",
+  };
+
+  const categories = ARTICLE_CATEGORIES.map((code) => ({
+    code,
+    name: CATEGORY_NAMES[code] ?? code,
+  }));
+
+  const response = NextResponse.json({ categories });
 
   for (const [key, value] of Object.entries(getRateLimitHeaders(auth.client.id))) {
     response.headers.set(key, value);
