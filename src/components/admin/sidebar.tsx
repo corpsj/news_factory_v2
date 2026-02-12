@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/admin/articles", label: "기사", icon: "▤" },
   { href: "/admin/clients", label: "클라이언트", icon: "⊡" },
   { href: "/admin/stats", label: "통계", icon: "◫" },
+  { href: "/admin/monitoring", label: "모니터링", icon: "◉" },
 ] as const;
 
 export function AdminSidebar() {
