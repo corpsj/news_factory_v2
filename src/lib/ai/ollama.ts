@@ -8,7 +8,7 @@ import { buildArticleGenerationUserPrompt, KOREAN_REPORTER_SYSTEM_PROMPT } from 
 
 const OLLAMA_CHAT_ENDPOINT = "/api/chat";
 const OLLAMA_ARTICLE_MODEL = "ingu627/exaone4.0:32b";
-const OLLAMA_TIMEOUT_MS = 120_000;
+const OLLAMA_TIMEOUT_MS = 300_000;
 
 type OllamaChatResponse = {
   message?: {
@@ -21,11 +21,22 @@ function getApiBaseUrl() {
   return (process.env.OLLAMA_API_URL ?? "http://localhost:11434").replace(/\/$/, "");
 }
 
-function stripMarkdownCodeBlocks(raw: string) {
-  return raw
-    .replace(/^```(?:json)?\s*/i, "")
-    .replace(/\s*```$/, "")
-    .trim();
+function extractJsonFromResponse(raw: string): string {
+  let cleaned = raw.replace(/<\/?[Tt]hought>[\s\S]*?<\/[Tt]hought>/g, "");
+  cleaned = cleaned.replace(/^[\s\S]*?<\/[Tt]hought>\s*/i, "");
+  cleaned = cleaned.replace(/[Tt]hought:[\s\S]*?(?=```|{)/i, "");
+
+  const codeBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (codeBlockMatch) {
+    return codeBlockMatch[1].trim();
+  }
+
+  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    return jsonMatch[0].trim();
+  }
+
+  return cleaned.trim();
 }
 
 function toStringArray(value: unknown) {
@@ -47,7 +58,7 @@ function normalizeCategory(value: unknown): ArticleCategory {
 }
 
 function parseGeneratedArticle(raw: string): GeneratedArticle {
-  const payload = JSON.parse(stripMarkdownCodeBlocks(raw)) as Record<string, unknown>;
+  const payload = JSON.parse(extractJsonFromResponse(raw)) as Record<string, unknown>;
 
   const title = typeof payload.title === "string" ? payload.title.trim() : "";
   const subtitle = typeof payload.subtitle === "string" ? payload.subtitle.trim() : "";
