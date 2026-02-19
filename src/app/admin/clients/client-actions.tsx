@@ -75,7 +75,7 @@ export function ClientActions() {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
       <input
         type="text"
         value={name}

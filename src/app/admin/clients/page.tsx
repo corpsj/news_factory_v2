@@ -33,16 +33,16 @@ export default async function ClientsPage() {
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-           <h2 className="text-[28px] font-semibold tracking-tight text-white">클라이언트</h2>
-           <p className="mt-1 text-sm text-white/40">등록된 언론사 {clients.length}곳</p>
-        </div>
-        <ClientActions />
-      </div>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+         <div>
+            <h2 className="text-[28px] font-semibold tracking-tight text-white">클라이언트</h2>
+            <p className="mt-1 text-sm text-white/40">등록된 언론사 {clients.length}곳</p>
+         </div>
+         <ClientActions />
+       </div>
 
-      <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
-        <table className="w-full text-left text-sm">
+       <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-white/[0.02]">
+         <table className="min-w-[480px] w-full text-left text-sm">
           <thead>
             <tr className="border-b border-white/[0.06]">
               <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">이름</th>

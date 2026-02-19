@@ -14,8 +14,8 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-[#09090b] text-white/90">
       <AdminSidebar />
-      <main className="ml-60 min-h-screen">
-        <div className="mx-auto max-w-6xl px-10 py-10">{children}</div>
+      <main className="ml-0 min-h-screen md:ml-60">
+        <div className="mx-auto max-w-6xl px-5 py-6 md:px-10 md:py-10">{children}</div>
       </main>
     </div>
   );

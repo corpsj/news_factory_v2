@@ -64,11 +64,11 @@ export default async function PressReleaseDetailPage({
     <div>
         <div className="mb-6">
           <Link
-            href="/admin/press-releases"
-            className="text-sm text-white/30 transition-colors hover:text-white/70 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b]"
-          >
-            &larr; 보도자료 목록
-          </Link>
+             href="/admin/press-releases"
+             className="inline-block py-2 text-sm text-white/30 transition-colors hover:text-white/70 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b]"
+           >
+             &larr; 보도자료 목록
+           </Link>
         </div>
 
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-8">

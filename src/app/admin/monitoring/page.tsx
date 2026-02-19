@@ -220,7 +220,7 @@ export default async function MonitoringPage() {
          </p>
        </div>
 
-      <div className="mb-8 grid grid-cols-4 gap-3">
+       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
          <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.05] px-4 py-3">
            <div className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
            <div>

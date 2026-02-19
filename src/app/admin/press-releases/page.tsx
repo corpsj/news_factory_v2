@@ -84,8 +84,8 @@ export default async function PressReleasesPage({
           ))}
         </div>
 
-       <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
-         <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-white/[0.02]">
+          <table className="min-w-[640px] w-full text-left text-sm">
            <thead>
              <tr className="border-b border-white/[0.06]">
                <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">출처</th>
