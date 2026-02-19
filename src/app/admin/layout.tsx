@@ -12,15 +12,10 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="min-h-screen bg-[#09090b] text-white/90">
       <AdminSidebar />
-      <main className="ml-56 min-h-screen">
-        <header className="sticky top-0 z-30 flex h-14 items-center border-b border-white/10 bg-zinc-950/80 px-8 backdrop-blur-xl">
-          <h1 className="text-sm font-medium text-zinc-300">
-            News Factory v2
-          </h1>
-        </header>
-        <div className="p-8">{children}</div>
+      <main className="ml-60 min-h-screen">
+        <div className="mx-auto max-w-6xl px-10 py-10">{children}</div>
       </main>
     </div>
   );
