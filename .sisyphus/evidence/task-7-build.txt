@@ -1,0 +1,42 @@
+
+> news-factory_v2@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1233.3ms
+  Running TypeScript ...
+  Collecting page data using 27 workers ...
+  Generating static pages using 27 workers (0/17) ...
+  Generating static pages using 27 workers (4/17) 
+  Generating static pages using 27 workers (8/17) 
+  Generating static pages using 27 workers (12/17) 
+✓ Generating static pages using 27 workers (17/17) in 302.2ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /admin
+├ ƒ /admin/articles
+├ ○ /admin/clients
+├ ○ /admin/crawl
+├ ○ /admin/monitoring
+├ ƒ /admin/press-releases
+├ ○ /admin/stats
+├ ƒ /api/admin/clients
+├ ƒ /api/admin/crawl
+├ ƒ /api/admin/crawl-status
+├ ƒ /api/cron/crawl
+├ ƒ /api/process
+├ ƒ /api/v1/articles
+├ ƒ /api/v1/articles/[id]
+├ ƒ /api/v1/categories
+└ ƒ /api/v1/regions
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
