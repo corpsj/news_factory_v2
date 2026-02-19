@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export type ParserType =
   | "gwangju-do"
   | "gwangju-es"
+  | "namgu"
   | "jeonnam-do"
   | "jeonnam-si"
   | "suncheon"

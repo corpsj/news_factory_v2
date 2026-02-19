@@ -3,10 +3,10 @@ import { parseWithPattern } from "./common";
 
 export const parseWando: SiteParser = async (ctx) => {
   return parseWithPattern(ctx, {
-    listSelectors: ["table tbody tr"],
-    titleSelectors: ["td a"],
-    dateSelectors: ["td"],
-    dateColumnIndex: 3,
+    listSelectors: ["div.tbl_type"],
+    titleSelectors: ["span.span_tit a", "a"],
+    dateSelectors: ["span.span_date", "td"],
+    dateColumnIndex: 0,
     contentSelectors: [".board_view", ".view_content"],
   });
 };

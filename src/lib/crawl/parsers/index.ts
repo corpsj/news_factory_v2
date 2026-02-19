@@ -8,6 +8,7 @@ import { parseHaenam } from "./haenam";
 import { parseHwasun } from "./hwasun";
 import { parseJeonnamDo } from "./jeonnam-do";
 import { parseJeonnamSi } from "./jeonnam-si";
+import { parseNamgu } from "./namgu";
 import { parseSuncheon } from "./suncheon";
 import { parseWando } from "./wando";
 import { parseYeonggwang } from "./yeonggwang";
@@ -15,6 +16,7 @@ import { parseYeonggwang } from "./yeonggwang";
 export const PARSERS: Record<ParserType, SiteParser> = {
   "gwangju-do": parseGwangjuDo,
   "gwangju-es": parseGwangjuEs,
+  namgu: parseNamgu,
   "jeonnam-do": parseJeonnamDo,
   "jeonnam-si": parseJeonnamSi,
   suncheon: parseSuncheon,
