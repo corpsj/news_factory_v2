@@ -32,6 +32,7 @@ export type SiteConfig = {
   detailUrlTemplate: string;
   idPattern: RegExp;
   selectors: SiteSelectorConfig;
+  paginationParam?: string;
 };
 
 export type ParsedArticle = {
@@ -60,6 +61,8 @@ export type CrawlOptions = {
   limitPerSite?: number;
   delayMs?: number;
   siteConcurrency?: number;
+  maxPages?: number;
+  dateRange?: { from: string; to: string };
 };
 
 export type CrawlSiteResult = {

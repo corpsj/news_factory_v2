@@ -91,7 +91,7 @@ async function writeCrawlLog(
 async function crawlSite(
   site: SiteConfig,
   deps: CrawlerDependencies,
-  options: Required<Omit<CrawlOptions, "siteIds">>,
+  options: Required<Omit<CrawlOptions, "siteIds" | "dateRange">> & { dateRange?: CrawlOptions["dateRange"] },
 ): Promise<CrawlSiteResult> {
   const startedAt = new Date().toISOString();
   let errorMessage: string | undefined;
@@ -173,10 +173,12 @@ export async function runCrawler(
     fetchHtml: dependencies.fetchHtml ?? http.fetchHtml,
   };
 
-  const normalizedOptions: Required<Omit<CrawlOptions, "siteIds">> = {
+  const normalizedOptions: Required<Omit<CrawlOptions, "siteIds" | "dateRange">> & { dateRange?: CrawlOptions["dateRange"] } = {
     limitPerSite: options.limitPerSite ?? DEFAULT_LIMIT_PER_SITE,
     delayMs: options.delayMs ?? DEFAULT_DELAY_MS,
     siteConcurrency: options.siteConcurrency ?? DEFAULT_SITE_CONCURRENCY,
+    maxPages: options.maxPages ?? 1,
+    dateRange: options.dateRange,
   };
 
   const sites = pickSites(options.siteIds);
