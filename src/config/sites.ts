@@ -97,6 +97,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.gwangju.go.kr/boardView.do?pageId=www789&boardId=BD_0000000027&seq={id}",
     idPattern: /seq=(\d+)/,
     selectors: GWANGJU_DO_SELECTORS,
+    paginationParam: "pageIndex",
   },
   {
     id: "donggu",
@@ -106,6 +107,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.donggu.kr/board.es?mid=a10102040100&bid=0243&act=view&list_no={id}",
     idPattern: /list_no=(\d+)/,
     selectors: GWANGJU_ES_SELECTORS,
+    paginationParam: "nPage",
   },
   {
     id: "seogu",
@@ -115,6 +117,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.seogu.gwangju.kr/board.es?mid=a10612000000&bid=0154&act=view&list_no={id}",
     idPattern: /list_no=(\d+)/,
     selectors: GWANGJU_ES_SELECTORS,
+    paginationParam: "nPage",
   },
   {
     id: "namgu",
@@ -133,6 +136,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://bukgu.gwangju.kr/board.es?mid=a10201020000&bid=0275&act=view&list_no={id}",
     idPattern: /list_no=(\d+)/,
     selectors: GWANGJU_ES_SELECTORS,
+    paginationParam: "nPage",
   },
   {
     id: "gwangsan",
@@ -142,6 +146,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.gwangsan.go.kr/boardView.do?pageId=www3&boardId=NEWS_NEW&seq={id}",
     idPattern: /seq=(\d+)/,
     selectors: GWANGJU_DO_SELECTORS,
+    paginationParam: "pageIndex",
   },
   {
     id: "jeonnam-province",
@@ -151,6 +156,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.jeonnam.go.kr/M7116/boardView.do?menuId=jeonnam0202000000&seq={id}",
     idPattern: /seq=(\d+)/,
     selectors: JEONNAM_DO_SELECTORS,
+    paginationParam: "pageIndex",
   },
   {
     id: "mokpo",
@@ -160,6 +166,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.mokpo.go.kr/www/mokpo_news/press_release/report_material?idx={id}&mode=view",
     idPattern: /idx=(\d+)/,
     selectors: JEONNAM_SI_SELECTORS,
+    paginationParam: "pageNo",
   },
   {
     id: "yeosu",
@@ -169,6 +176,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.yeosu.go.kr/www/govt/news/release?idx={id}",
     idPattern: /idx=(\d+)/,
     selectors: JEONNAM_SI_SELECTORS,
+    paginationParam: "pageNo",
   },
   {
     id: "suncheon",
@@ -178,6 +186,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.suncheon.go.kr/kr/news/0006/0001/?mode=view&seq={id}",
     idPattern: /seq=(\d+)/,
     selectors: SUNCHEON_SELECTORS,
+    paginationParam: "pageNo",
   },
   {
     id: "naju",
@@ -187,6 +196,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.naju.go.kr/www/administration/reporting?idx={id}",
     idPattern: /idx=(\d+)/,
     selectors: JEONNAM_SI_SELECTORS,
+    paginationParam: "pageNo",
   },
   {
     id: "gwangyang",
@@ -196,6 +206,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://gwangyang.go.kr/kor/board.es?mid=a11007000000&bid=0057&act=view&list_no={id}",
     idPattern: /list_no=(\d+)/,
     selectors: GWANGJU_ES_SELECTORS,
+    paginationParam: "nPage",
   },
   {
     id: "damyang",
@@ -205,6 +216,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.damyang.go.kr/board/detail?boardId=BBS_0000007&domainId=DOM_0000001&menuCd=DOM_000000190001005001&contentsSid=12&dataSid={id}",
     idPattern: /dataSid=(\d+)/,
     selectors: DAMYANG_SELECTORS,
+    paginationParam: "pageIndex",
   },
   {
     id: "gokseong",
@@ -232,6 +244,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.goheung.go.kr/boardView.do?boardId=BD_00025&pageId=www102&seq={id}",
     idPattern: /seq=(\d+)/,
     selectors: GWANGJU_DO_SELECTORS,
+    paginationParam: "pageIndex",
   },
   {
     id: "boseong",
@@ -241,6 +254,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.boseong.go.kr/www/open_administration/city_news/press_release?idx={id}&mode=view",
     idPattern: /idx=(\d+)/,
     selectors: JEONNAM_SI_SELECTORS,
+    paginationParam: "pageNo",
   },
   {
     id: "hwasun",
@@ -268,6 +282,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.gangjin.go.kr/www/government/news/press?idx={id}",
     idPattern: /idx=(\d+)/,
     selectors: JEONNAM_SI_SELECTORS,
+    paginationParam: "pageNo",
   },
   {
     id: "haenam",
@@ -286,6 +301,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.muan.go.kr/www/openmuan/new/report?idx={id}",
     idPattern: /idx=(\d+)/,
     selectors: JEONNAM_SI_SELECTORS,
+    paginationParam: "pageNo",
   },
   {
     id: "hampyeong",
@@ -295,6 +311,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.hampyeong.go.kr/boardView.do?boardId=NEWS&pageId=www275&seq={id}",
     idPattern: /seq=(\d+)/,
     selectors: GWANGJU_DO_SELECTORS,
+    paginationParam: "pageIndex",
   },
   {
     id: "yeonggwang",
@@ -313,6 +330,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.jangseong.go.kr/home/www/news/jangseong/bodo/show/{id}",
     idPattern: /show\/(\d+)/,
     selectors: JEONNAM_SI_SELECTORS,
+    paginationParam: "pageNo",
   },
   {
     id: "wando",
@@ -331,6 +349,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.shinan.go.kr/home/www/openinfo/participation_07/participation_07_03/show/{id}",
     idPattern: /show\/(\d+)/,
     selectors: JEONNAM_SI_SELECTORS,
+    paginationParam: "pageNo",
   },
 ];
 
