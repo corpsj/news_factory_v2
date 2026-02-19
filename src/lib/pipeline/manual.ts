@@ -1,9 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { runCrawler } from "@/lib/crawl/crawler";
-import { embedCollectedPressReleases, type BatchEmbedResult } from "@/lib/ai/batch-embed";
+import { embedCollectedPressReleases } from "@/lib/ai/batch-embed";
 import { generateEmbeddedPressReleaseArticles } from "@/lib/ai/batch-generate";
-import type { BatchGenerateResult } from "@/types/article";
-import type { CrawlRunResult } from "@/types/crawler";
 import type { CrawlOptions } from "@/types/crawler";
 
 export type ManualCrawlOptions = {
