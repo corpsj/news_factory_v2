@@ -1,0 +1,5 @@
+Total articles: 23
+With images: 18
+Without images: 5
+✅ No orphans: all articles without images have empty source PRs
+✅ QA verification complete
