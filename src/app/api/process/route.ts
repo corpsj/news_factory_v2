@@ -29,13 +29,10 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       press_release_id: result.pressRelease.id,
-      title: result.generated.title,
-      subtitle: result.generated.subtitle,
-      body: result.generated.body,
-      category: result.generated.category,
-      summary_lines: result.generated.summary_lines,
-      title_candidates: result.generated.title_candidates,
-      rag_count: result.ragCount,
+      title: result.pressRelease.title,
+      body: result.pressRelease.content,
+      category: "society",
+      source: result.pressRelease.source,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown processing error";

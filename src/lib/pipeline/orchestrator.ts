@@ -16,6 +16,7 @@ export type PipelineStageLog = {
 };
 
 export type PipelineOptions = {
+  siteIds?: string[];
   limitPerSite?: number;
   embedLimit?: number;
   generateLimit?: number;
@@ -84,6 +85,7 @@ async function runCrawlStage(
   try {
     const result = await runCrawler(
       {
+        siteIds: options.siteIds,
         limitPerSite: options.limitPerSite ?? 5,
         siteConcurrency: options.siteConcurrency ?? 5,
       },

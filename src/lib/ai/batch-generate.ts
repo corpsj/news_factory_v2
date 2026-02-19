@@ -1,7 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
-import { fetchRagContextForPressRelease } from "@/lib/ai/rag";
-import { generateArticleWithOllama } from "@/lib/ai/ollama";
 import type {
   BatchGenerateOptions,
   BatchGenerateResult,
@@ -37,33 +35,32 @@ function getSupabaseClient(client?: SupabaseClient) {
   });
 }
 
-async function fetchEmbeddedPressReleases(supabase: SupabaseClient, limit: number) {
+async function fetchUnprocessedPressReleases(supabase: SupabaseClient, limit: number) {
   const response = await supabase
     .from("press_releases")
     .select("id,source,title,content,link,images,published_at")
-    .eq("status", "embedded")
+    .in("status", ["collected", "embedded"])
     .order("published_at", { ascending: true })
     .limit(limit);
 
   if (response.error) {
-    throw new Error(`Failed to fetch embedded press releases: ${response.error.message}`);
+    throw new Error(`Failed to fetch press releases: ${response.error.message}`);
   }
 
   return (response.data ?? []) as PressReleaseForArticleGeneration[];
 }
 
-async function saveGeneratedArticle(
+async function savePassthroughArticle(
   supabase: SupabaseClient,
   pressRelease: PressReleaseForArticleGeneration,
-  generated: Awaited<ReturnType<typeof generateArticleWithOllama>>,
 ) {
   const insertResponse = await supabase.from("articles").insert({
     press_release_id: pressRelease.id,
-    title: generated.title,
-    subtitle: generated.subtitle,
-    body: generated.body,
+    title: pressRelease.title,
+    subtitle: null,
+    body: pressRelease.content,
     images: pressRelease.images,
-    category: generated.category,
+    category: "society",
     source: pressRelease.source,
     source_url: pressRelease.link,
     status: "generated",
@@ -105,33 +102,22 @@ export async function generateSingleArticle(
     throw new Error("Press release not found");
   }
 
-  if (response.data.status !== "embedded") {
-    throw new Error(`Press release status must be 'embedded' but got '${response.data.status}'`);
+  const status = response.data.status as string;
+  if (status !== "collected" && status !== "embedded") {
+    throw new Error(`Press release status must be 'collected' or 'embedded' but got '${status}'`);
   }
 
   const pressRelease = response.data as PressReleaseForArticleGeneration;
 
-  const rag = await fetchRagContextForPressRelease(pressRelease, supabase);
   if (options.verbose) {
-    console.log(`Found ${rag.count} related press releases for context`);
+    console.log(`Creating article from press release: ${pressRelease.title}`);
   }
 
-  const generated = await generateArticleWithOllama({
-    pressRelease,
-    ragReferences: rag.references,
-  });
-
-  if (options.verbose) {
-    console.log("Article generated with RAG context");
-  }
-
-  await saveGeneratedArticle(supabase, pressRelease, generated);
+  await savePassthroughArticle(supabase, pressRelease);
   await markPressReleaseProcessed(supabase, pressRelease.id);
 
   return {
     pressRelease,
-    generated,
-    ragCount: rag.count,
   };
 }
 
@@ -141,27 +127,18 @@ export async function generateEmbeddedPressReleaseArticles(
 ): Promise<BatchGenerateResult> {
   const supabase = getSupabaseClient(client);
   const limit = normalizeLimit(options.limit);
-  const queue = await fetchEmbeddedPressReleases(supabase, limit);
+  const queue = await fetchUnprocessedPressReleases(supabase, limit);
 
   let generated = 0;
   let failed = 0;
 
   for (const pressRelease of queue) {
     try {
-      const rag = await fetchRagContextForPressRelease(pressRelease, supabase);
       if (options.verbose) {
-        console.log(`Found ${rag.count} related press releases for context`);
+        console.log(`Creating article from press release: ${pressRelease.title}`);
       }
 
-      const article = await generateArticleWithOllama({
-        pressRelease,
-        ragReferences: rag.references,
-      });
-      if (options.verbose) {
-        console.log("Article generated with RAG context");
-      }
-
-      await saveGeneratedArticle(supabase, pressRelease, article);
+      await savePassthroughArticle(supabase, pressRelease);
       await markPressReleaseProcessed(supabase, pressRelease.id);
       generated += 1;
     } catch (error) {
