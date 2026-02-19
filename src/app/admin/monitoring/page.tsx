@@ -214,41 +214,41 @@ export default async function MonitoringPage() {
   return (
     <div>
       <div className="mb-8">
-        <h2 className="text-2xl font-bold tracking-tight text-white">크롤러 모니터링</h2>
-        <p className="mt-1 text-sm text-zinc-400">
-          {SITES.length}개 사이트 실시간 상태
-        </p>
-      </div>
+         <h2 className="text-[28px] font-semibold tracking-tight text-white">크롤러 모니터링</h2>
+         <p className="mt-1 text-sm text-white/40">
+           {SITES.length}개 사이트 실시간 상태
+         </p>
+       </div>
 
       <div className="mb-8 grid grid-cols-4 gap-3">
-        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 backdrop-blur-xl">
-          <div className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-          <div>
-            <p className="text-xs text-zinc-400">정상</p>
-            <p className="text-xl font-bold text-emerald-400">{summary.healthy}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 backdrop-blur-xl">
-          <div className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-          <div>
-            <p className="text-xs text-zinc-400">주의</p>
-            <p className="text-xl font-bold text-amber-400">{summary.warning}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 backdrop-blur-xl">
-          <div className="h-2.5 w-2.5 rounded-full bg-red-400" />
-          <div>
-            <p className="text-xs text-zinc-400">위험</p>
-            <p className="text-xl font-bold text-red-400">{summary.critical}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 rounded-xl border border-zinc-700 bg-zinc-800/30 px-4 py-3 backdrop-blur-xl">
-          <div className="h-2.5 w-2.5 rounded-full bg-zinc-600" />
-          <div>
-            <p className="text-xs text-zinc-400">미확인</p>
-            <p className="text-xl font-bold text-zinc-400">{summary.unknown}</p>
-          </div>
-        </div>
+         <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.05] px-4 py-3">
+           <div className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+           <div>
+             <p className="text-[11px] text-white/30">정상</p>
+             <p className="text-xl font-bold text-emerald-400">{summary.healthy}</p>
+           </div>
+         </div>
+         <div className="flex items-center gap-3 rounded-xl border border-amber-500/20 bg-amber-500/[0.05] px-4 py-3">
+           <div className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+           <div>
+             <p className="text-[11px] text-white/30">주의</p>
+             <p className="text-xl font-bold text-amber-400">{summary.warning}</p>
+           </div>
+         </div>
+         <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/[0.05] px-4 py-3">
+           <div className="h-2.5 w-2.5 rounded-full bg-red-400" />
+           <div>
+             <p className="text-[11px] text-white/30">위험</p>
+             <p className="text-xl font-bold text-red-400">{summary.critical}</p>
+           </div>
+         </div>
+         <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3">
+           <div className="h-2.5 w-2.5 rounded-full bg-zinc-600" />
+           <div>
+             <p className="text-[11px] text-white/30">미확인</p>
+             <p className="text-xl font-light text-white/40">{summary.unknown}</p>
+           </div>
+         </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -257,16 +257,16 @@ export default async function MonitoringPage() {
 
           return (
             <a
-              key={site.site_id}
-              href={site.list_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`block rounded-xl border ${cfg.border} bg-white/5 p-4 backdrop-blur-xl transition-colors hover:bg-white/[0.07]`}
+               key={site.site_id}
+               href={site.list_url}
+               target="_blank"
+               rel="noopener noreferrer"
+               className={`block rounded-xl border ${cfg.border} bg-white/[0.03] p-4 transition-colors hover:bg-white/[0.05]`}
             >
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-white truncate pr-2">
-                  {site.site_name}
-                </h3>
+                 <h3 className="text-sm font-medium text-white/90 truncate pr-2">
+                   {site.site_name}
+                 </h3>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <div className={`h-2 w-2 rounded-full ${cfg.dot}`} />
                   <span className={`text-xs font-medium ${cfg.color}`}>
@@ -276,55 +276,55 @@ export default async function MonitoringPage() {
               </div>
 
               <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between text-zinc-400">
-                  <span>마지막 크롤링</span>
-                  <span className="text-zinc-300">
-                    {site.last_crawl_at
-                      ? formatRelativeTime(site.last_crawl_at)
-                      : "—"}
-                  </span>
-                </div>
-                <div className="flex justify-between text-zinc-400">
-                  <span>수집 건수</span>
-                  <span className="text-zinc-300">
-                    {site.articles_found}건
-                    {site.articles_new > 0 && (
-                      <span className="ml-1 text-emerald-400">
-                        (+{site.articles_new})
-                      </span>
-                    )}
-                  </span>
-                </div>
-                {site.crawl_duration_ms !== null && (
-                  <div className="flex justify-between text-zinc-400">
-                    <span>소요 시간</span>
-                    <span className="text-zinc-300">
-                      {formatDuration(site.crawl_duration_ms)}
-                    </span>
-                  </div>
-                )}
-                {site.consecutive_failures > 0 && (
-                  <div className="flex justify-between text-zinc-400">
-                    <span>연속 실패</span>
-                    <span className="text-red-400">
-                      {site.consecutive_failures}회
-                    </span>
-                  </div>
-                )}
-              </div>
+                 <div className="flex justify-between text-white/30">
+                   <span>마지막 크롤링</span>
+                   <span className="text-white/50">
+                     {site.last_crawl_at
+                       ? formatRelativeTime(site.last_crawl_at)
+                       : "—"}
+                   </span>
+                 </div>
+                 <div className="flex justify-between text-white/30">
+                   <span>수집 건수</span>
+                   <span className="text-white/50">
+                     {site.articles_found}건
+                     {site.articles_new > 0 && (
+                       <span className="ml-1 text-emerald-400">
+                         (+{site.articles_new})
+                       </span>
+                     )}
+                   </span>
+                 </div>
+                 {site.crawl_duration_ms !== null && (
+                   <div className="flex justify-between text-white/30">
+                     <span>소요 시간</span>
+                     <span className="text-white/50">
+                       {formatDuration(site.crawl_duration_ms)}
+                     </span>
+                   </div>
+                 )}
+                 {site.consecutive_failures > 0 && (
+                   <div className="flex justify-between text-white/30">
+                     <span>연속 실패</span>
+                     <span className="text-red-400">
+                       {site.consecutive_failures}회
+                     </span>
+                   </div>
+                 )}
+               </div>
 
               {site.failure_reason && (
-                <div className="mt-3 rounded-lg bg-red-500/10 px-2.5 py-1.5">
-                  <p className="text-xs text-red-400">
-                    {FAILURE_LABELS[site.failure_reason]}
-                  </p>
-                  {site.error_message && (
-                    <p className="mt-0.5 truncate text-[10px] text-red-400/70">
-                      {site.error_message}
-                    </p>
-                  )}
-                </div>
-              )}
+                 <div className="mt-3 rounded-lg bg-red-500/[0.07] px-2.5 py-1.5">
+                   <p className="text-xs text-red-400">
+                     {FAILURE_LABELS[site.failure_reason]}
+                   </p>
+                   {site.error_message && (
+                     <p className="mt-0.5 truncate text-[10px] text-red-400/70">
+                       {site.error_message}
+                     </p>
+                   )}
+                 </div>
+               )}
             </a>
           );
         })}

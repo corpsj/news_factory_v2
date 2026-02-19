@@ -12,13 +12,13 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  economy: "bg-blue-500",
-  politics: "bg-red-500",
-  society: "bg-emerald-500",
-  sports: "bg-orange-500",
-  culture: "bg-violet-500",
-  opinion: "bg-cyan-500",
-  editorial: "bg-amber-500",
+  economy: "bg-blue-400/60",
+  politics: "bg-red-400/60",
+  society: "bg-emerald-400/60",
+  sports: "bg-orange-400/60",
+  culture: "bg-violet-400/60",
+  opinion: "bg-cyan-400/60",
+  editorial: "bg-amber-400/60",
 };
 
 type CategoryStat = { category: string; count: number };
@@ -70,46 +70,46 @@ export default async function StatsPage() {
   return (
     <div>
       <div className="mb-8">
-        <h2 className="text-2xl font-bold tracking-tight text-white">통계</h2>
-        <p className="mt-1 text-sm text-zinc-400">시스템 현황 분석</p>
-      </div>
+         <h2 className="text-[28px] font-semibold tracking-tight text-white">통계</h2>
+         <p className="mt-1 text-sm text-white/40">시스템 현황 분석</p>
+       </div>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
-          <p className="text-xs text-zinc-400">보도자료</p>
-          <p className="mt-1 text-3xl font-bold text-white">{totalPR}</p>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
-          <p className="text-xs text-zinc-400">생성 기사</p>
-          <p className="mt-1 text-3xl font-bold text-white">{totalArticles}</p>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
-          <p className="text-xs text-zinc-400">크롤링 성공률</p>
-          <p className="mt-1 text-3xl font-bold text-white">{successRate}%</p>
-        </div>
-      </div>
+      <div className="mb-8 grid gap-5 sm:grid-cols-3">
+         <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
+           <p className="text-[11px] text-white/30">보도자료</p>
+           <p className="mt-1 text-4xl font-light text-white">{totalPR}</p>
+         </div>
+         <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
+           <p className="text-[11px] text-white/30">생성 기사</p>
+           <p className="mt-1 text-4xl font-light text-white">{totalArticles}</p>
+         </div>
+         <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
+           <p className="text-[11px] text-white/30">크롤링 성공률</p>
+           <p className="mt-1 text-4xl font-light text-white">{successRate}%</p>
+         </div>
+       </div>
 
-      <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-        <h3 className="mb-6 text-lg font-semibold text-white">카테고리별 기사 분포</h3>
+      <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-6">
+         <h3 className="mb-6 text-base font-medium text-white">카테고리별 기사 분포</h3>
         <div className="space-y-3">
-          {categoryCounts.map((item) => (
-            <div key={item.category} className="flex items-center gap-3">
-              <span className="w-16 text-right text-xs text-zinc-400">
-                {CATEGORY_LABELS[item.category] ?? item.category}
-              </span>
-              <div className="flex-1">
-                <div className="h-6 overflow-hidden rounded-full bg-white/5">
-                  <div
-                    className={`h-full rounded-full ${CATEGORY_COLORS[item.category] ?? "bg-zinc-500"} transition-all duration-500`}
-                    style={{ width: `${(item.count / maxCount) * 100}%` }}
-                  />
-                </div>
-              </div>
-              <span className="w-10 text-right text-sm font-medium text-white">
-                {item.count}
-              </span>
-            </div>
-          ))}
+           {categoryCounts.map((item) => (
+             <div key={item.category} className="flex items-center gap-3">
+               <span className="w-16 text-right text-xs text-white/30">
+                 {CATEGORY_LABELS[item.category] ?? item.category}
+               </span>
+               <div className="flex-1">
+                 <div className="h-6 overflow-hidden rounded-full bg-white/[0.04]">
+                   <div
+                     className={`h-full rounded-full ${CATEGORY_COLORS[item.category] ?? "bg-zinc-500"} transition-all duration-500`}
+                     style={{ width: `${(item.count / maxCount) * 100}%` }}
+                   />
+                 </div>
+               </div>
+               <span className="w-10 text-right text-sm font-light text-white">
+                 {item.count}
+               </span>
+             </div>
+           ))}
         </div>
       </div>
     </div>

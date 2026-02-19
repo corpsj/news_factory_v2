@@ -35,47 +35,47 @@ export default async function ClientsPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">클라이언트</h2>
-          <p className="mt-1 text-sm text-zinc-400">등록된 언론사 {clients.length}곳</p>
+           <h2 className="text-[28px] font-semibold tracking-tight text-white">클라이언트</h2>
+           <p className="mt-1 text-sm text-white/40">등록된 언론사 {clients.length}곳</p>
         </div>
         <ClientActions />
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl">
+      <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-white/10">
-              <th className="px-4 py-3 text-xs font-medium text-zinc-400">이름</th>
-              <th className="px-4 py-3 text-xs font-medium text-zinc-400">상태</th>
-              <th className="px-4 py-3 text-xs font-medium text-zinc-400">등록일</th>
+            <tr className="border-b border-white/[0.06]">
+              <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">이름</th>
+              <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">상태</th>
+              <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">등록일</th>
             </tr>
           </thead>
           <tbody>
             {clients.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-12 text-center text-zinc-500">
+                <td colSpan={3} className="px-5 py-16 text-center text-white/20">
                   등록된 클라이언트가 없습니다
                 </td>
               </tr>
             ) : (
               clients.map((client) => (
-                <tr
-                  key={client.id}
-                  className="border-b border-white/5 transition-colors hover:bg-white/5"
-                >
-                  <td className="px-4 py-3 text-white">{client.name}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs ${
-                        client.is_active
-                          ? "bg-emerald-500/20 text-emerald-300"
-                          : "bg-red-500/20 text-red-300"
-                      }`}
-                    >
+                 <tr
+                   key={client.id}
+                   className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03]"
+                 >
+                   <td className="px-5 py-4 text-white/80">{client.name}</td>
+                   <td className="px-5 py-4">
+                     <span
+                       className={`rounded-full px-2 py-0.5 text-xs ${
+                         client.is_active
+                           ? "bg-emerald-500/10 text-emerald-400/70"
+                           : "bg-red-500/10 text-red-400/70"
+                       }`}
+                     >
                       {client.is_active ? "활성" : "비활성"}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-zinc-400">
+                   <td className="px-5 py-4 text-white/30">
                     {new Date(client.created_at).toLocaleDateString("ko-KR")}
                   </td>
                 </tr>

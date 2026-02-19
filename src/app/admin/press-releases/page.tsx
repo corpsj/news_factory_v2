@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 
 type PressReleaseRow = {
@@ -10,10 +11,10 @@ type PressReleaseRow = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  collected: "bg-yellow-500/20 text-yellow-300",
-  embedded: "bg-blue-500/20 text-blue-300",
-  processed: "bg-emerald-500/20 text-emerald-300",
-  failed: "bg-red-500/20 text-red-300",
+  collected: "bg-white/[0.06] text-white/50",
+  embedded: "bg-blue-500/10 text-blue-300/70",
+  processed: "bg-emerald-500/10 text-emerald-400/70",
+  failed: "bg-red-500/10 text-red-400/70",
 };
 
 async function getPressReleases(
@@ -60,70 +61,75 @@ export default async function PressReleasesPage({
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">보도자료</h2>
-          <p className="mt-1 text-sm text-zinc-400">수집된 보도자료 {total}건</p>
-        </div>
-      </div>
+       <div className="mb-6 flex items-center justify-between">
+         <div>
+           <h2 className="text-[28px] font-semibold tracking-tight text-white">보도자료</h2>
+           <p className="mt-1 text-sm text-white/40">수집된 보도자료 {total}건</p>
+         </div>
+       </div>
 
-      <div className="mb-4 flex gap-2">
-        {["", "collected", "embedded", "processed", "failed"].map((s) => (
-          <a
-            key={s}
-            href={s ? `/admin/press-releases?status=${s}` : "/admin/press-releases"}
-            className={`rounded-lg px-3 py-1.5 text-xs transition-colors ${
-              currentStatus === s
-                ? "bg-white/10 text-white"
-                : "text-zinc-400 hover:bg-white/5 hover:text-white"
-            }`}
-          >
-            {s || "전체"}
-          </a>
-        ))}
-      </div>
+       <div className="mb-4 flex gap-2">
+         {["", "collected", "embedded", "processed", "failed"].map((s) => (
+           <a
+             key={s}
+             href={s ? `/admin/press-releases?status=${s}` : "/admin/press-releases"}
+             className={`rounded-lg px-3 py-1.5 text-xs transition-colors ${
+               currentStatus === s
+                 ? "bg-white/[0.08] text-white"
+                 : "text-white/30 hover:bg-white/[0.04] hover:text-white/60"
+             }`}
+           >
+             {s || "전체"}
+           </a>
+         ))}
+       </div>
 
-      <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-white/10">
-              <th className="px-4 py-3 text-xs font-medium text-zinc-400">출처</th>
-              <th className="px-4 py-3 text-xs font-medium text-zinc-400">제목</th>
-              <th className="px-4 py-3 text-xs font-medium text-zinc-400">상태</th>
-              <th className="px-4 py-3 text-xs font-medium text-zinc-400">날짜</th>
-            </tr>
-          </thead>
-          <tbody>
-            {releases.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="px-4 py-12 text-center text-zinc-500">
-                  데이터 없음
-                </td>
-              </tr>
-            ) : (
-              releases.map((pr) => (
-                <tr
-                  key={pr.id}
-                  className="border-b border-white/5 transition-colors hover:bg-white/5"
-                >
-                  <td className="px-4 py-3 text-zinc-300">{pr.source}</td>
-                  <td className="max-w-md truncate px-4 py-3 text-white">
-                    {pr.title}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[pr.status] ?? "bg-zinc-700 text-zinc-300"}`}
-                    >
-                      {pr.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-zinc-400">
-                    {new Date(pr.published_at).toLocaleDateString("ko-KR")}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
+       <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
+         <table className="w-full text-left text-sm">
+           <thead>
+             <tr className="border-b border-white/[0.06]">
+               <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">출처</th>
+               <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">제목</th>
+               <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">상태</th>
+               <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">날짜</th>
+             </tr>
+           </thead>
+           <tbody>
+             {releases.length === 0 ? (
+               <tr>
+                 <td colSpan={4} className="px-5 py-16 text-center text-white/20">
+                   데이터 없음
+                 </td>
+               </tr>
+             ) : (
+               releases.map((pr) => (
+                 <tr
+                   key={pr.id}
+                   className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03]"
+                 >
+                   <td className="px-5 py-4 text-white/50">{pr.source}</td>
+                   <td className="max-w-md truncate px-5 py-4">
+                     <Link
+                       href={`/admin/press-releases/${pr.id}`}
+                       className="text-white/80 hover:text-white transition-colors"
+                     >
+                       {pr.title}
+                     </Link>
+                   </td>
+                   <td className="px-5 py-4">
+                     <span
+                       className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[pr.status] ?? "bg-zinc-700 text-zinc-300"}`}
+                     >
+                       {pr.status}
+                     </span>
+                   </td>
+                   <td className="px-5 py-4 text-white/30">
+                     {new Date(pr.published_at).toLocaleDateString("ko-KR")}
+                   </td>
+                 </tr>
+               ))
+             )}
+           </tbody>
         </table>
       </div>
     </div>
