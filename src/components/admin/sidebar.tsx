@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/admin/clients", label: "클라이언트", icon: "⊡" },
   { href: "/admin/stats", label: "통계", icon: "◫" },
   { href: "/admin/monitoring", label: "모니터링", icon: "◉" },
+  { href: "/admin/crawl", label: "크롤링", icon: "⟳" },
 ] as const;
 
 export function AdminSidebar() {
