@@ -100,14 +100,57 @@ async function crawlSite(
 
   try {
     const parser = PARSERS[site.type];
-    const listHtml = await deps.fetchHtml(site.listUrl);
-    const articles = await parser({
-      site,
-      listHtml,
-      fetchHtml: deps.fetchHtml,
-      limit: options.limitPerSite,
-      delayMs: options.delayMs,
-    });
+    const maxPages = Math.min(options.maxPages ?? 1, 5);
+    const allArticles: ParsedArticle[] = [];
+    const seenIds = new Set<string>();
+    const totalPages = site.paginationParam ? maxPages : 1;
+
+    for (let page = 1; page <= totalPages; page += 1) {
+      const pageUrl =
+        !site.paginationParam || page === 1
+          ? site.listUrl
+          : site.listUrl +
+            (site.listUrl.includes("?") ? "&" : "?") +
+            site.paginationParam +
+            "=" +
+            page;
+
+      const listHtml = await deps.fetchHtml(pageUrl);
+      const pageArticles = await parser({
+        site,
+        listHtml,
+        fetchHtml: deps.fetchHtml,
+        limit: options.limitPerSite,
+        delayMs: options.delayMs,
+      });
+
+      if (pageArticles.length === 0) {
+        break;
+      }
+
+      for (const article of pageArticles) {
+        if (seenIds.has(article.originId)) {
+          continue;
+        }
+        seenIds.add(article.originId);
+        allArticles.push(article);
+      }
+
+      if (
+        options.dateRange?.from &&
+        pageArticles.every((article) => article.date < options.dateRange!.from)
+      ) {
+        break;
+      }
+    }
+
+    const articles = options.dateRange
+      ? allArticles.filter(
+          (article) =>
+            article.date >= options.dateRange!.from &&
+            article.date <= options.dateRange!.to,
+        )
+      : allArticles;
 
     console.log(`Found ${articles.length} articles from ${site.name}`);
 
