@@ -80,7 +80,7 @@ export default async function PressReleaseDetailPage({
             <p className="mt-2 text-base text-white/50">{pr.source}</p>
           </div>
           <span
-            className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[pr.status] ?? "bg-zinc-700 text-zinc-300"}`}
+            className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[pr.status] ?? "bg-white/[0.06] text-white/50"}`}
           >
             {pr.status}
           </span>

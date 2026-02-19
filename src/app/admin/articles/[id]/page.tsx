@@ -101,12 +101,12 @@ export default async function ArticleDetailPage({
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <span
-              className={`rounded-full px-2 py-0.5 text-xs ${CATEGORY_COLORS[article.category] ?? "bg-zinc-700 text-zinc-300"}`}
+              className={`rounded-full px-2 py-0.5 text-xs ${CATEGORY_COLORS[article.category] ?? "bg-white/[0.06] text-white/50"}`}
             >
               {CATEGORY_LABELS[article.category] ?? article.category}
             </span>
             <span
-              className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[article.status] ?? "bg-zinc-700 text-zinc-300"}`}
+              className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[article.status] ?? "bg-white/[0.06] text-white/50"}`}
             >
               {article.status}
             </span>

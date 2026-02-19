@@ -136,9 +136,9 @@ export default async function ArticlesPage({
                      </Link>
                    </td>
                    <td className="px-5 py-4">
-                     <span
-                       className={`rounded-full px-2 py-0.5 text-xs ${CATEGORY_COLORS[article.category] ?? "bg-zinc-700 text-zinc-300"}`}
-                     >
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs ${CATEGORY_COLORS[article.category] ?? "bg-white/[0.06] text-white/50"}`}
+                      >
                        {CATEGORY_LABELS[article.category] ?? article.category}
                      </span>
                    </td>

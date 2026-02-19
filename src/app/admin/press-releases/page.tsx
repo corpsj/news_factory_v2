@@ -117,9 +117,9 @@ export default async function PressReleasesPage({
                      </Link>
                    </td>
                    <td className="px-5 py-4">
-                     <span
-                       className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[pr.status] ?? "bg-zinc-700 text-zinc-300"}`}
-                     >
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[pr.status] ?? "bg-white/[0.06] text-white/50"}`}
+                      >
                        {pr.status}
                      </span>
                    </td>

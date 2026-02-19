@@ -37,7 +37,7 @@ const HEALTH_CONFIG: Record<HealthStatus, { color: string; border: string; dot: 
     label: "위험",
   },
   unknown: {
-    color: "text-zinc-500",
+    color: "text-white/25",
     border: "border-zinc-700",
     dot: "bg-zinc-600",
     label: "미확인",
