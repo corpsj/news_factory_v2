@@ -40,7 +40,7 @@ function getSupabaseClient(client?: SupabaseClient) {
 async function fetchEmbeddedPressReleases(supabase: SupabaseClient, limit: number) {
   const response = await supabase
     .from("press_releases")
-    .select("id,source,title,content,link,published_at")
+    .select("id,source,title,content,link,images,published_at")
     .eq("status", "embedded")
     .order("published_at", { ascending: true })
     .limit(limit);
@@ -62,7 +62,7 @@ async function saveGeneratedArticle(
     title: generated.title,
     subtitle: generated.subtitle,
     body: generated.body,
-    images: [],
+    images: pressRelease.images,
     category: generated.category,
     source: pressRelease.source,
     source_url: pressRelease.link,
@@ -97,7 +97,7 @@ export async function generateSingleArticle(
 
   const response = await supabase
     .from("press_releases")
-    .select("id,source,title,content,link,published_at,status")
+    .select("id,source,title,content,link,images,published_at,status")
     .eq("id", pressReleaseId)
     .single();
 

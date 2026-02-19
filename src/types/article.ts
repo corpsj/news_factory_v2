@@ -16,6 +16,7 @@ export type PressReleaseForArticleGeneration = {
   title: string;
   content: string;
   link: string;
+  images: string[];
   published_at: string;
 };
 
