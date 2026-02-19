@@ -1,10 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-import { SITES } from "@/config/sites";
+import { SITES, SITES_BY_ID } from "@/config/sites";
 import type { HealthStatus, CrawlStatus, FailureReason } from "@/lib/services/crawl-monitor";
 
 interface SiteStatusCard {
   site_id: string;
   site_name: string;
+  list_url: string;
   health: HealthStatus;
   status: CrawlStatus | null;
   last_crawl_at: string | null;
@@ -77,6 +78,7 @@ async function getSiteStatuses(): Promise<{
     const emptySites: SiteStatusCard[] = SITES.map((s) => ({
       site_id: s.id,
       site_name: s.name,
+      list_url: s.listUrl,
       health: "unknown" as HealthStatus,
       status: null,
       last_crawl_at: null,
@@ -105,6 +107,7 @@ async function getSiteStatuses(): Promise<{
     const fallback: SiteStatusCard[] = SITES.map((s) => ({
       site_id: s.id,
       site_name: s.name,
+      list_url: s.listUrl,
       health: "unknown" as HealthStatus,
       status: null,
       last_crawl_at: null,
@@ -179,6 +182,7 @@ async function getSiteStatuses(): Promise<{
     return {
       site_id: site.id,
       site_name: site.name,
+      list_url: site.listUrl,
       health,
       status: latest?.status ?? null,
       last_crawl_at: latest?.completed_at ?? null,
@@ -252,9 +256,12 @@ export default async function MonitoringPage() {
           const cfg = HEALTH_CONFIG[site.health];
 
           return (
-            <div
+            <a
               key={site.site_id}
-              className={`rounded-xl border ${cfg.border} bg-white/5 p-4 backdrop-blur-xl transition-colors hover:bg-white/[0.07]`}
+              href={site.list_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`block rounded-xl border ${cfg.border} bg-white/5 p-4 backdrop-blur-xl transition-colors hover:bg-white/[0.07]`}
             >
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white truncate pr-2">
@@ -318,7 +325,7 @@ export default async function MonitoringPage() {
                   )}
                 </div>
               )}
-            </div>
+            </a>
           );
         })}
       </div>
