@@ -96,7 +96,7 @@ export default async function AdminDashboardPage() {
 
       <div className="mt-10 rounded-xl border border-white/[0.06] bg-white/[0.03] p-6">
          <h3 className="text-base font-medium text-white">파이프라인 상태</h3>
-         <div className="mt-4 flex items-center gap-4">
+         <div className="mt-4 flex flex-wrap items-center gap-4">
            {["크롤링", "임베딩", "기사생성", "배포"].map((step, idx) => (
              <div key={step} className="flex items-center gap-2">
                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] text-xs font-bold text-white">

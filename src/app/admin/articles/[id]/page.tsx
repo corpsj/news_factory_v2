@@ -80,14 +80,14 @@ export default async function ArticleDetailPage({
 
   return (
     <div>
-       <div className="mb-6">
-         <Link
-           href="/admin/articles"
-           className="text-sm text-white/30 transition-colors hover:text-white/70"
-         >
-           &larr; 기사 목록
-         </Link>
-       </div>
+        <div className="mb-6">
+          <Link
+            href="/admin/articles"
+            className="text-sm text-white/30 transition-colors hover:text-white/70 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b]"
+          >
+            &larr; 기사 목록
+          </Link>
+        </div>
 
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-8">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -130,23 +130,23 @@ export default async function ArticleDetailPage({
           </div>
           <div>
             <p className="text-[11px] text-white/25">원본 링크</p>
-            <a
-              href={article.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-0.5 block truncate text-white/50 underline underline-offset-2 decoration-white/20 transition-colors hover:text-white/80"
-            >
-              원본 보기 &rarr;
-            </a>
+             <a
+               href={article.source_url}
+               target="_blank"
+               rel="noopener noreferrer"
+               className="mt-0.5 block truncate text-white/50 underline underline-offset-2 decoration-white/20 transition-colors hover:text-white/80 cursor-pointer"
+             >
+               원본 보기 &rarr;
+             </a>
           </div>
           <div>
             <p className="text-[11px] text-white/25">원본 보도자료</p>
-            <Link
-              href={`/admin/press-releases/${article.press_release_id}`}
-              className="mt-0.5 block truncate text-white/50 underline underline-offset-2 decoration-white/20 transition-colors hover:text-white/80"
-            >
-              보도자료 보기 &rarr;
-            </Link>
+             <Link
+               href={`/admin/press-releases/${article.press_release_id}`}
+               className="mt-0.5 block truncate text-white/50 underline underline-offset-2 decoration-white/20 transition-colors hover:text-white/80 cursor-pointer"
+             >
+               보도자료 보기 &rarr;
+             </Link>
           </div>
         </div>
 

@@ -37,7 +37,7 @@ export function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`relative flex items-center rounded-lg px-4 py-2.5 text-[13px] transition-colors ${
+              className={`relative flex items-center rounded-lg px-4 py-2.5 text-[13px] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] ${
                 isActive
                   ? "bg-white/[0.08] font-medium text-white"
                   : "text-white/40 hover:bg-white/[0.04] hover:text-white/70"

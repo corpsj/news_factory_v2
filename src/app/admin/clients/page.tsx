@@ -33,7 +33,7 @@ export default async function ClientsPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-8 flex items-center justify-between">
         <div>
            <h2 className="text-[28px] font-semibold tracking-tight text-white">클라이언트</h2>
            <p className="mt-1 text-sm text-white/40">등록된 언론사 {clients.length}곳</p>
@@ -53,8 +53,12 @@ export default async function ClientsPage() {
           <tbody>
             {clients.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-5 py-16 text-center text-white/20">
-                  등록된 클라이언트가 없습니다
+                <td colSpan={3} className="px-5 py-16 text-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-4xl text-white/10">⊡</span>
+                    <p className="text-sm text-white/30">등록된 클라이언트가 없습니다</p>
+                    <p className="text-xs text-white/20">위 '새 클라이언트 등록' 버튼으로 등록해 주세요</p>
+                  </div>
                 </td>
               </tr>
             ) : (

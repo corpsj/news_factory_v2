@@ -247,14 +247,14 @@ export function CrawlForm({ sites }: { sites: SiteOption[] }) {
         </div>
       </div>
 
-      <button
-         type="button"
-         onClick={handleSubmit}
-         disabled={loading}
-         className="rounded-lg bg-white px-6 py-3 font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
-       >
-         {loading ? "크롤링 진행 중... (수분 소요될 수 있습니다)" : "크롤링 시작"}
-       </button>
+        <button
+           type="button"
+           onClick={handleSubmit}
+           disabled={loading}
+           className="rounded-lg bg-white px-6 py-2.5 font-medium text-black transition-colors hover:bg-white/90 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+         >
+           {loading ? "크롤링 진행 중... (수분 소요될 수 있습니다)" : "크롤링 시작"}
+         </button>
 
        {error && (
          <div className="rounded-xl border border-red-500/20 bg-red-500/[0.07] p-4">

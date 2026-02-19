@@ -61,28 +61,28 @@ export default async function PressReleasesPage({
 
   return (
     <div>
-       <div className="mb-6 flex items-center justify-between">
+       <div className="mb-8 flex items-center justify-between">
          <div>
            <h2 className="text-[28px] font-semibold tracking-tight text-white">보도자료</h2>
            <p className="mt-1 text-sm text-white/40">수집된 보도자료 {total}건</p>
          </div>
        </div>
 
-       <div className="mb-4 flex gap-2">
-         {["", "collected", "embedded", "processed", "failed"].map((s) => (
-           <a
-             key={s}
-             href={s ? `/admin/press-releases?status=${s}` : "/admin/press-releases"}
-             className={`rounded-lg px-3 py-1.5 text-xs transition-colors ${
-               currentStatus === s
-                 ? "bg-white/[0.08] text-white"
-                 : "text-white/30 hover:bg-white/[0.04] hover:text-white/60"
-             }`}
-           >
-             {s || "전체"}
-           </a>
-         ))}
-       </div>
+        <div className="mb-4 flex gap-2">
+          {["", "collected", "embedded", "processed", "failed"].map((s) => (
+            <a
+              key={s}
+              href={s ? `/admin/press-releases?status=${s}` : "/admin/press-releases"}
+              className={`rounded-lg px-3 py-1.5 text-xs transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b] ${
+                currentStatus === s
+                  ? "bg-white/[0.08] text-white"
+                  : "text-white/30 hover:bg-white/[0.04] hover:text-white/60"
+              }`}
+            >
+              {s || "전체"}
+            </a>
+          ))}
+        </div>
 
        <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
          <table className="w-full text-left text-sm">
@@ -95,27 +95,31 @@ export default async function PressReleasesPage({
              </tr>
            </thead>
            <tbody>
-             {releases.length === 0 ? (
-               <tr>
-                 <td colSpan={4} className="px-5 py-16 text-center text-white/20">
-                   데이터 없음
-                 </td>
-               </tr>
-             ) : (
+              {releases.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-5 py-16 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <span className="text-4xl text-white/10">◇</span>
+                      <p className="text-sm text-white/30">수집된 보도자료가 없습니다</p>
+                      <p className="text-xs text-white/20">크롤링을 실행하면 자동으로 수집됩니다</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
                releases.map((pr) => (
                  <tr
                    key={pr.id}
                    className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03]"
                  >
                    <td className="px-5 py-4 text-white/50">{pr.source}</td>
-                   <td className="max-w-md truncate px-5 py-4">
-                     <Link
-                       href={`/admin/press-releases/${pr.id}`}
-                       className="text-white/80 hover:text-white transition-colors"
-                     >
-                       {pr.title}
-                     </Link>
-                   </td>
+                    <td className="max-w-md truncate px-5 py-4">
+                      <Link
+                        href={`/admin/press-releases/${pr.id}`}
+                        className="text-white/80 hover:text-white transition-colors cursor-pointer"
+                      >
+                        {pr.title}
+                      </Link>
+                    </td>
                    <td className="px-5 py-4">
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[pr.status] ?? "bg-white/[0.06] text-white/50"}`}

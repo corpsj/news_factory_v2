@@ -256,13 +256,13 @@ export default async function MonitoringPage() {
           const cfg = HEALTH_CONFIG[site.health];
 
           return (
-            <a
-               key={site.site_id}
-               href={site.list_url}
-               target="_blank"
-               rel="noopener noreferrer"
-               className={`block rounded-xl border ${cfg.border} bg-white/[0.03] p-4 transition-colors hover:bg-white/[0.05]`}
-            >
+             <a
+                key={site.site_id}
+                href={site.list_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`block rounded-xl border ${cfg.border} bg-white/[0.03] p-4 transition-colors hover:bg-white/[0.05] cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]`}
+             >
               <div className="mb-3 flex items-center justify-between">
                  <h3 className="text-sm font-medium text-white/90 truncate pr-2">
                    {site.site_name}

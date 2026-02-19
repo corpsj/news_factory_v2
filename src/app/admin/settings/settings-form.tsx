@@ -156,30 +156,30 @@ export function SettingsForm({ initial }: { initial: CrawlSettings | null }) {
                {enabledCount}/{sites.length}
              </span>
            </div>
-           <button
-             type="button"
-             onClick={() => toggleGroupAll(sites)}
-             className="text-xs text-white/30 transition-colors hover:text-white/70"
-           >
-             {allEnabled ? "전체 해제" : "전체 선택"}
-           </button>
+            <button
+              type="button"
+              onClick={() => toggleGroupAll(sites)}
+              className="text-xs text-white/30 transition-colors hover:text-white/70 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b] active:scale-[0.98]"
+            >
+              {allEnabled ? "전체 해제" : "전체 선택"}
+            </button>
          </div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {sites.map((site) => {
             const checked = enabledSites.has(site.id);
             return (
               <button
-                key={site.id}
-                type="button"
-                onClick={() => toggleSite(site.id)}
-                className={`rounded-lg px-3 py-2 text-left text-xs transition-colors ${
-                   checked
-                     ? "bg-white/[0.10] text-white ring-1 ring-white/[0.15]"
-                     : "bg-white/[0.02] text-white/25 hover:bg-white/[0.05] hover:text-white/50"
-                 }`}
-              >
-                {site.name}
-              </button>
+                 key={site.id}
+                 type="button"
+                 onClick={() => toggleSite(site.id)}
+                 className={`rounded-lg px-3 py-2 text-left text-xs transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b] active:scale-[0.98] ${
+                    checked
+                      ? "bg-white/[0.10] text-white ring-1 ring-white/[0.15]"
+                      : "bg-white/[0.02] text-white/25 hover:bg-white/[0.05] hover:text-white/50"
+                  }`}
+               >
+                 {site.name}
+               </button>
             );
           })}
         </div>
@@ -205,18 +205,18 @@ export function SettingsForm({ initial }: { initial: CrawlSettings | null }) {
           {HOURS.map((h) => {
             const active = scheduleHours.has(h);
             return (
-              <button
-                key={h}
-                type="button"
-                onClick={() => toggleHour(h)}
-                className={`rounded-lg px-2 py-2.5 text-center text-xs font-medium transition-colors ${
-                   active
-                     ? "bg-white/[0.10] text-white ring-1 ring-white/[0.15]"
-                     : "bg-white/[0.02] text-white/25 hover:bg-white/[0.05] hover:text-white/50"
-                 }`}
-              >
-                {String(h).padStart(2, "0")}시
-              </button>
+               <button
+                 key={h}
+                 type="button"
+                 onClick={() => toggleHour(h)}
+                 className={`rounded-lg px-2 py-2.5 text-center text-xs font-medium transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b] active:scale-[0.98] ${
+                    active
+                      ? "bg-white/[0.10] text-white ring-1 ring-white/[0.15]"
+                      : "bg-white/[0.02] text-white/25 hover:bg-white/[0.05] hover:text-white/50"
+                  }`}
+               >
+                 {String(h).padStart(2, "0")}시
+               </button>
             );
           })}
         </div>
@@ -234,13 +234,13 @@ export function SettingsForm({ initial }: { initial: CrawlSettings | null }) {
              <span className="text-xs text-white/20">
                {enabledSites.size}/{ALL_SITE_IDS.length}
              </span>
-             <button
-               type="button"
-               onClick={toggleAll}
-               className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white"
-             >
-               {enabledSites.size === ALL_SITE_IDS.length ? "전체 해제" : "전체 선택"}
-             </button>
+              <button
+                type="button"
+                onClick={toggleAll}
+                className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b] active:scale-[0.98]"
+              >
+                {enabledSites.size === ALL_SITE_IDS.length ? "전체 해제" : "전체 선택"}
+              </button>
            </div>
          </div>
         <div className="space-y-4">
@@ -250,14 +250,14 @@ export function SettingsForm({ initial }: { initial: CrawlSettings | null }) {
       </div>
 
       <div className="flex items-center gap-4">
-         <button
-           type="button"
-           onClick={handleSave}
-           disabled={isPending}
-           className="rounded-lg bg-white px-6 py-2.5 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:opacity-50"
-         >
-           {isPending ? "저장 중..." : "설정 저장"}
-         </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isPending}
+            className="rounded-lg bg-white px-6 py-2.5 text-sm font-medium text-black transition-colors hover:bg-white/90 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] active:scale-[0.98] disabled:opacity-50"
+          >
+            {isPending ? "저장 중..." : "설정 저장"}
+          </button>
         {saved && (
           <span className="text-sm text-emerald-400">저장되었습니다</span>
         )}

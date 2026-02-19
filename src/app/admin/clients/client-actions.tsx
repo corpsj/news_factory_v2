@@ -48,16 +48,16 @@ export function ClientActions() {
          <p className="mt-2 text-xs text-amber-400/80">
           이 키는 다시 표시되지 않습니다. 안전한 곳에 저장하세요.
         </p>
-         <button
-           type="button"
-           onClick={() => {
-             setApiKey(null);
-             setShowForm(false);
-           }}
-           className="mt-3 rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-white/60 transition-colors hover:bg-white/[0.04] hover:text-white"
-         >
-           닫기
-         </button>
+          <button
+            type="button"
+            onClick={() => {
+              setApiKey(null);
+              setShowForm(false);
+            }}
+            className="mt-3 rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-white/60 transition-colors hover:bg-white/[0.04] hover:text-white cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] active:scale-[0.98]"
+          >
+            닫기
+          </button>
       </div>
     );
   }
@@ -67,7 +67,7 @@ export function ClientActions() {
        <button
          type="button"
          onClick={() => setShowForm(true)}
-         className="rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-black transition-colors hover:bg-white/90"
+         className="rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-black transition-colors hover:bg-white/90 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] active:scale-[0.98]"
        >
          새 클라이언트 등록
        </button>
@@ -83,21 +83,21 @@ export function ClientActions() {
         placeholder="언론사 이름"
          className="rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/20 focus:border-white/[0.15] focus:outline-none transition-colors"
       />
-      <button
-        type="button"
-        onClick={handleCreate}
-        disabled={loading || !name.trim()}
-         className="rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:opacity-50"
-      >
-        {loading ? "..." : "등록"}
-      </button>
-      <button
-        type="button"
-        onClick={() => setShowForm(false)}
-         className="rounded-lg px-3 py-2 text-sm text-white/40 transition-colors hover:text-white"
-      >
-        취소
-      </button>
+       <button
+         type="button"
+         onClick={handleCreate}
+         disabled={loading || !name.trim()}
+          className="rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:opacity-50 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] active:scale-[0.98]"
+       >
+         {loading ? "..." : "등록"}
+       </button>
+       <button
+         type="button"
+         onClick={() => setShowForm(false)}
+          className="rounded-lg px-3 py-2 text-sm text-white/40 transition-colors hover:text-white cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] active:scale-[0.98]"
+       >
+         취소
+       </button>
       {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
   );

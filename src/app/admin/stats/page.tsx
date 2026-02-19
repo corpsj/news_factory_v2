@@ -74,20 +74,20 @@ export default async function StatsPage() {
          <p className="mt-1 text-sm text-white/40">시스템 현황 분석</p>
        </div>
 
-      <div className="mb-8 grid gap-5 sm:grid-cols-3">
-         <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
-           <p className="text-[11px] text-white/30">보도자료</p>
-           <p className="mt-1 text-4xl font-light text-white">{totalPR}</p>
-         </div>
-         <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
-           <p className="text-[11px] text-white/30">생성 기사</p>
-           <p className="mt-1 text-4xl font-light text-white">{totalArticles}</p>
-         </div>
-         <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
-           <p className="text-[11px] text-white/30">크롤링 성공률</p>
-           <p className="mt-1 text-4xl font-light text-white">{successRate}%</p>
-         </div>
-       </div>
+       <div className="mb-8 grid gap-5 sm:grid-cols-3">
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-6">
+            <p className="text-[11px] text-white/30">보도자료</p>
+            <p className="mt-1 text-4xl font-light text-white">{totalPR}</p>
+          </div>
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-6">
+            <p className="text-[11px] text-white/30">생성 기사</p>
+            <p className="mt-1 text-4xl font-light text-white">{totalArticles}</p>
+          </div>
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-6">
+            <p className="text-[11px] text-white/30">크롤링 성공률</p>
+            <p className="mt-1 text-4xl font-light text-white">{successRate}%</p>
+          </div>
+        </div>
 
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-6">
          <h3 className="mb-6 text-base font-medium text-white">카테고리별 기사 분포</h3>

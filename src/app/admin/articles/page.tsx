@@ -73,36 +73,36 @@ export default async function ArticlesPage({
 
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-8">
          <h2 className="text-[28px] font-semibold tracking-tight text-white">기사</h2>
          <p className="mt-1 text-sm text-white/40">기사 {total}건</p>
        </div>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-         <a
-           href="/admin/articles"
-           className={`rounded-lg px-3 py-1.5 text-xs transition-colors ${
-             !currentCategory
-               ? "bg-white/[0.08] text-white"
-               : "text-white/30 hover:bg-white/[0.04] hover:text-white/60"
-           }`}
-         >
-           전체
-         </a>
-         {ARTICLE_CATEGORIES.map((cat) => (
-           <a
-             key={cat}
-             href={`/admin/articles?category=${cat}`}
-             className={`rounded-lg px-3 py-1.5 text-xs transition-colors ${
-               currentCategory === cat
-                 ? "bg-white/[0.08] text-white"
-                 : "text-white/30 hover:bg-white/[0.04] hover:text-white/60"
-             }`}
-           >
-             {CATEGORY_LABELS[cat] ?? cat}
-           </a>
-         ))}
-      </div>
+       <div className="mb-4 flex flex-wrap gap-2">
+          <a
+            href="/admin/articles"
+            className={`rounded-lg px-3 py-1.5 text-xs transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b] ${
+              !currentCategory
+                ? "bg-white/[0.08] text-white"
+                : "text-white/30 hover:bg-white/[0.04] hover:text-white/60"
+            }`}
+          >
+            전체
+          </a>
+          {ARTICLE_CATEGORIES.map((cat) => (
+            <a
+              key={cat}
+              href={`/admin/articles?category=${cat}`}
+              className={`rounded-lg px-3 py-1.5 text-xs transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b] ${
+                currentCategory === cat
+                  ? "bg-white/[0.08] text-white"
+                  : "text-white/30 hover:bg-white/[0.04] hover:text-white/60"
+              }`}
+            >
+              {CATEGORY_LABELS[cat] ?? cat}
+            </a>
+          ))}
+       </div>
 
        <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
          <table className="w-full text-left text-sm">
@@ -115,26 +115,30 @@ export default async function ArticlesPage({
              </tr>
            </thead>
            <tbody>
-             {articles.length === 0 ? (
-               <tr>
-                 <td colSpan={4} className="px-5 py-16 text-center text-white/20">
-                   데이터 없음
-                 </td>
-               </tr>
-             ) : (
+              {articles.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-5 py-16 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <span className="text-4xl text-white/10">▤</span>
+                      <p className="text-sm text-white/30">아직 생성된 기사가 없습니다</p>
+                      <p className="text-xs text-white/20">크롤링을 먼저 실행해 주세요</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
                articles.map((article) => (
                  <tr
                    key={article.id}
                    className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03]"
                  >
-                   <td className="max-w-md truncate px-5 py-4">
-                     <Link
-                       href={`/admin/articles/${article.id}`}
-                       className="text-white/80 hover:text-white transition-colors"
-                     >
-                       {article.title}
-                     </Link>
-                   </td>
+                    <td className="max-w-md truncate px-5 py-4">
+                      <Link
+                        href={`/admin/articles/${article.id}`}
+                        className="text-white/80 hover:text-white transition-colors cursor-pointer"
+                      >
+                        {article.title}
+                      </Link>
+                    </td>
                    <td className="px-5 py-4">
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs ${CATEGORY_COLORS[article.category] ?? "bg-white/[0.06] text-white/50"}`}

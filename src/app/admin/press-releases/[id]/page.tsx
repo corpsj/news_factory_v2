@@ -62,14 +62,14 @@ export default async function PressReleaseDetailPage({
 
   return (
     <div>
-       <div className="mb-6">
-         <Link
-           href="/admin/press-releases"
-           className="text-sm text-white/30 transition-colors hover:text-white/70"
-         >
-           &larr; 보도자료 목록
-         </Link>
-       </div>
+        <div className="mb-6">
+          <Link
+            href="/admin/press-releases"
+            className="text-sm text-white/30 transition-colors hover:text-white/70 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b]"
+          >
+            &larr; 보도자료 목록
+          </Link>
+        </div>
 
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-8">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -121,14 +121,14 @@ export default async function PressReleaseDetailPage({
           )}
           <div>
             <p className="text-[11px] text-white/25">원본 링크</p>
-            <a
-              href={pr.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-0.5 block truncate text-white/50 underline underline-offset-2 decoration-white/20 transition-colors hover:text-white/80"
-            >
-              원본 보기 &rarr;
-            </a>
+             <a
+               href={pr.link}
+               target="_blank"
+               rel="noopener noreferrer"
+               className="mt-0.5 block truncate text-white/50 underline underline-offset-2 decoration-white/20 transition-colors hover:text-white/80 cursor-pointer"
+             >
+               원본 보기 &rarr;
+             </a>
           </div>
         </div>
 
@@ -166,15 +166,15 @@ export default async function PressReleaseDetailPage({
             <h2 className="mb-3 text-xs uppercase tracking-wider text-white/30 font-medium">첨부파일</h2>
             <div className="space-y-2">
               {pr.attachments.map((attachment) => (
-                <a
-                  key={attachment}
-                  href={attachment}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block rounded-lg border border-white/[0.04] bg-white/[0.02] px-4 py-2 text-sm text-white/50 underline underline-offset-2 decoration-white/20 transition-colors hover:bg-white/[0.04] hover:text-white/80"
-                >
-                  {attachment.split("/").pop() ?? "첨부파일"} &rarr;
-                </a>
+                 <a
+                   key={attachment}
+                   href={attachment}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="block rounded-lg border border-white/[0.04] bg-white/[0.02] px-4 py-2 text-sm text-white/50 underline underline-offset-2 decoration-white/20 transition-colors hover:bg-white/[0.04] hover:text-white/80 cursor-pointer"
+                 >
+                   {attachment.split("/").pop() ?? "첨부파일"} &rarr;
+                 </a>
               ))}
             </div>
           </div>
