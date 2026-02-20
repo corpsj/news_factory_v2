@@ -58,6 +58,7 @@ export function CrawlForm({ sites }: { sites: SiteOption[] }) {
   } = usePipeline();
 
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
+  const [expandedSite, setExpandedSite] = useState<string | null>(null);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [activePreset, setActivePreset] = useState<string | null>(null);
@@ -295,10 +296,17 @@ export function CrawlForm({ sites }: { sites: SiteOption[] }) {
                       ? { dot: "bg-amber-400", border: "border-amber-500/20", bg: "bg-amber-500/[0.04]", text: "text-amber-400/70", label: "부분" }
                       : { dot: "bg-white/15", border: "border-white/[0.04]", bg: "bg-white/[0.02]", text: "text-white/20", label: "대기" };
 
+              const hasError = !!site.errorMessage;
+              const isExpanded = expandedSite === siteId;
+
               return (
-                <div
+                <button
+                  type="button"
                   key={siteId}
-                  className={`rounded-lg border ${cfg.border} ${cfg.bg} px-3 py-2.5 transition-all duration-500`}
+                  onClick={hasError ? () => setExpandedSite(isExpanded ? null : siteId) : undefined}
+                  className={`rounded-lg border text-left ${cfg.border} ${cfg.bg} px-3 py-2.5 transition-all duration-500 ${
+                    hasError ? "cursor-pointer hover:border-red-500/30" : ""
+                  } ${isExpanded ? "col-span-2 sm:col-span-3" : ""}`}
                 >
                   <div className="flex items-center justify-between gap-1">
                     <div className="flex min-w-0 items-center gap-1.5">
@@ -314,9 +322,13 @@ export function CrawlForm({ sites }: { sites: SiteOption[] }) {
                     </div>
                   )}
                   {site.errorMessage && (
-                    <p className="mt-1 truncate text-[10px] text-red-400/60">{site.errorMessage}</p>
+                    isExpanded ? (
+                      <p className="mt-2 break-all text-[11px] leading-relaxed text-red-400/80">{site.errorMessage}</p>
+                    ) : (
+                      <p className="mt-1 truncate text-[10px] text-red-400/60">{site.errorMessage}</p>
+                    )
                   )}
-                </div>
+                </button>
               );
             })}
           </div>
