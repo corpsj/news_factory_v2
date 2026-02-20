@@ -48,13 +48,11 @@ export function createHttpClient(clientOptions?: HttpClientOptions) {
   const baseDelay = clientOptions?.baseDelayMs ?? BASE_DELAY_MS;
   const signal = clientOptions?.signal;
 
-  const httpsAgent = allowInsecureTls
-    ? new https.Agent({ rejectUnauthorized: false })
-    : undefined;
-
-  if (allowInsecureTls) {
-    console.warn("ALLOW_INSECURE_TLS=1 detected. TLS certificate validation is disabled.");
-  }
+  const httpsAgent = new https.Agent({
+    keepAlive: true,
+    maxSockets: 5,
+    ...(allowInsecureTls ? { rejectUnauthorized: false } : {}),
+  });
 
   return {
     async fetchHtml(url: string, attempts = maxAttempts): Promise<string> {

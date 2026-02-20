@@ -141,7 +141,7 @@ export function MonitoringPanel({ initial }: { initial: MonitoringData }) {
     <div>
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-[28px] font-semibold tracking-tight text-white">크롤러 모니터링</h2>
+          <h2 className="text-[28px] font-semibold tracking-tight text-white">수집 현황</h2>
           <p className="mt-1 text-sm text-white/40">
             {data.sites.length}개 사이트 상태 현황
           </p>
@@ -245,7 +245,7 @@ export function MonitoringPanel({ initial }: { initial: MonitoringData }) {
 
                       <div className="space-y-1.5 text-xs">
                         <div className="flex justify-between text-white/30">
-                          <span>마지막 크롤링</span>
+                          <span>마지막 수집</span>
                           <span className="text-white/50">
                             {site.last_crawl_at
                               ? formatRelativeTime(site.last_crawl_at)

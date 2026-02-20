@@ -204,7 +204,7 @@ export function CrawlForm({ sites }: { sites: SiteOption[] }) {
         disabled={running}
         className="rounded-lg bg-white px-6 py-2.5 font-medium text-black transition-colors hover:bg-white/90 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {running ? "파이프라인 실행 중..." : "크롤링 시작"}
+        {running ? "파이프라인 실행 중..." : "수집 시작"}
       </button>
 
       {error && (
@@ -379,7 +379,7 @@ export function CrawlForm({ sites }: { sites: SiteOption[] }) {
                 onClick={resetPipeline}
                 className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-5 py-2 text-sm text-white/60 transition-colors hover:bg-white/[0.08] hover:text-white/80 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]"
               >
-                새로운 크롤링
+                새로운 수집
               </button>
             </div>
           )}

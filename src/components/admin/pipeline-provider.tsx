@@ -23,9 +23,9 @@ export interface PipelineConfig {
 
 export const STAGE_KEYS = ["crawl", "embed", "generate"] as const;
 export const STAGE_LABELS: Record<string, string> = {
-  crawl: "크롤링",
-  embed: "임베딩",
-  generate: "기사 생성",
+  crawl: "수집",
+  embed: "분석",
+  generate: "생성",
 };
 
 export const DETAIL_KEY_LABELS: Record<string, string> = {

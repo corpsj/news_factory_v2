@@ -194,7 +194,7 @@ export function SettingsForm({ initial }: { initial: CrawlSettings | null }) {
            <div>
              <h2 className="text-base font-medium text-white">수집 시간</h2>
              <p className="mt-1 text-xs text-white/30">
-               선택한 시간(KST)에 정기 크롤링이 실행됩니다
+               선택한 시간(KST)에 정기 수집이 실행됩니다
              </p>
            </div>
            <span className="text-xs text-white/20">
@@ -227,7 +227,7 @@ export function SettingsForm({ initial }: { initial: CrawlSettings | null }) {
            <div>
              <h2 className="text-base font-medium text-white">대상 지역</h2>
              <p className="mt-1 text-xs text-white/30">
-               정기 크롤링에 포함할 지역을 선택하세요
+               정기 수집에 포함할 지역을 선택하세요
              </p>
            </div>
            <div className="flex items-center gap-3">

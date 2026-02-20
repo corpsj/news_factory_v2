@@ -37,7 +37,7 @@ export default async function SettingsPage() {
   return (
     <div>
       <div className="mb-8">
-         <h2 className="text-[28px] font-semibold tracking-tight text-white">정기 크롤링 설정</h2>
+         <h2 className="text-[28px] font-semibold tracking-tight text-white">정기 수집 설정</h2>
          <p className="mt-1 text-sm text-white/40">
            수집 시간과 대상 지역을 설정합니다
          </p>

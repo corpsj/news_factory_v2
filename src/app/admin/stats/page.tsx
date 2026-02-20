@@ -82,11 +82,11 @@ export default async function StatsPage() {
             <p className="mt-1 text-4xl font-light text-white">{totalPR}</p>
           </div>
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-6">
-            <p className="text-[11px] text-white/30">생성 기사</p>
+            <p className="text-[11px] text-white/30">기사</p>
             <p className="mt-1 text-4xl font-light text-white">{totalArticles}</p>
           </div>
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-6">
-            <p className="text-[11px] text-white/30">크롤링 성공률</p>
+            <p className="text-[11px] text-white/30">수집 성공률</p>
             <p className="mt-1 text-4xl font-light text-white">{successRate}%</p>
           </div>
         </div>

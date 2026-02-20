@@ -44,9 +44,9 @@ async function getDashboardStats() {
 
 const STAT_CARDS = [
   { key: "pressReleases", label: "보도자료", icon: "◇", color: "from-blue-500/20 to-blue-600/5" },
-  { key: "articles", label: "생성 기사", icon: "▤", color: "from-emerald-500/20 to-emerald-600/5" },
+  { key: "articles", label: "기사", icon: "▤", color: "from-emerald-500/20 to-emerald-600/5" },
   { key: "clients", label: "클라이언트", icon: "⊡", color: "from-violet-500/20 to-violet-600/5" },
-  { key: "crawl", label: "최근 크롤링", icon: "◫", color: "from-amber-500/20 to-amber-600/5" },
+  { key: "crawl", label: "최근 수집", icon: "◫", color: "from-amber-500/20 to-amber-600/5" },
 ] as const;
 
 export default async function AdminDashboardPage() {
@@ -97,7 +97,7 @@ export default async function AdminDashboardPage() {
       <div className="mt-10 rounded-xl border border-white/[0.06] bg-white/[0.03] p-6">
          <h3 className="text-base font-medium text-white">파이프라인 상태</h3>
          <div className="mt-4 flex flex-wrap items-center gap-4">
-           {["크롤링", "임베딩", "기사생성", "배포"].map((step, idx) => (
+           {["수집", "분석", "생성", "배포"].map((step, idx) => (
              <div key={step} className="flex items-center gap-2">
                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] text-xs font-bold text-white">
                  {idx + 1}

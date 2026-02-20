@@ -104,7 +104,7 @@ export default async function PressReleasesPage({
                      <div className="flex flex-col items-center gap-2">
                        <span className="text-4xl text-white/10">◇</span>
                        <p className="text-sm text-white/30">수집된 보도자료가 없습니다</p>
-                       <p className="text-xs text-white/20">크롤링을 실행하면 자동으로 수집됩니다</p>
+                       <p className="text-xs text-white/20">수집을 실행하면 자동으로 추가됩니다</p>
                      </div>
                    </td>
                  </tr>

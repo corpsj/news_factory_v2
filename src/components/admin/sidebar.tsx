@@ -6,12 +6,12 @@ import { useState } from "react";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "대시보드" },
-  { href: "/admin/crawl", label: "크롤링" },
-  { href: "/admin/press-releases", label: "수집 보도자료" },
-  { href: "/admin/articles", label: "생성 기사" },
+  { href: "/admin/crawl", label: "수집 실행" },
+  { href: "/admin/press-releases", label: "보도자료" },
+  { href: "/admin/articles", label: "기사" },
   { href: "/admin/clients", label: "클라이언트" },
   { href: "/admin/stats", label: "통계" },
-  { href: "/admin/monitoring", label: "모니터링" },
+  { href: "/admin/monitoring", label: "수집 현황" },
   { href: "/admin/settings", label: "설정" },
 ] as const;
 

@@ -126,7 +126,7 @@ export default async function ArticlesPage({
                      <div className="flex flex-col items-center gap-2">
                        <span className="text-4xl text-white/10">▤</span>
                        <p className="text-sm text-white/30">아직 생성된 기사가 없습니다</p>
-                       <p className="text-xs text-white/20">크롤링을 먼저 실행해 주세요</p>
+                       <p className="text-xs text-white/20">수집을 먼저 실행해 주세요</p>
                      </div>
                    </td>
                  </tr>
