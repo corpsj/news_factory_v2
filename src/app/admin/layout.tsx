@@ -4,7 +4,7 @@ import { PipelineProvider } from "@/components/admin/pipeline-provider";
 import { PipelineToast } from "@/components/admin/pipeline-toast";
 
 export const metadata: Metadata = {
-  title: "News Factory Admin",
+  title: "News Factory",
   description: "News Factory v2 관리 대시보드",
 };
 
