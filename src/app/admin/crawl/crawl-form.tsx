@@ -122,7 +122,7 @@ export function CrawlForm({ sites }: { sites: SiteOption[] }) {
           {SITE_GROUPS.map((group) => (
             <div key={group.label}>
               <p className="mb-2 text-[11px] font-medium text-white/25">{group.label}</p>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {group.ids.map((id) => {
                   const checked = selectedSites.includes(id);
                   return (
@@ -202,7 +202,7 @@ export function CrawlForm({ sites }: { sites: SiteOption[] }) {
         type="button"
         onClick={handleSubmit}
         disabled={running}
-        className="rounded-lg bg-white px-6 py-2.5 font-medium text-black transition-colors hover:bg-white/90 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-lg bg-white px-6 py-2.5 font-medium text-black transition-colors hover:bg-white/90 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
       >
         {running ? "파이프라인 실행 중..." : "수집 시작"}
       </button>

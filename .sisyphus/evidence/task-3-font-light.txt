@@ -1,0 +1,1 @@
+90:               <p className="text-4xl font-light text-white">{card.value}</p>

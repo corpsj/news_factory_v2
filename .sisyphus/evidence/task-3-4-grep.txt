@@ -1,0 +1,5 @@
+=== T3 empty state verification ===
+GOOD: 0 matches (old text removed)
+123:                      <p className="text-sm text-white/30">아직 생성된 기사가 없습니다</p>
+103:                      <p className="text-sm text-white/30">수집된 보도자료가 없습니다</p>
+tsc exit: 0

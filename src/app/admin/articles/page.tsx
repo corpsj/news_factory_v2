@@ -128,58 +128,91 @@ export default async function ArticlesPage({
           <SourceFilter currentSource={currentSource} currentCategory={currentCategory} />
        </div>
 
-        <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-white/[0.02]">
-           <table className="min-w-[640px] w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-white/[0.06]">
-                <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">제목</th>
-                <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">카테고리</th>
-                <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">출처</th>
-                <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">생성일</th>
-              </tr>
-            </thead>
-            <tbody>
-               {articles.length === 0 ? (
-                 <tr>
-                   <td colSpan={4} className="px-5 py-16 text-center">
-                     <div className="flex flex-col items-center gap-2">
-                       <span className="text-4xl text-white/10">▤</span>
-                       <p className="text-sm text-white/30">아직 생성된 기사가 없습니다</p>
-                       <p className="text-xs text-white/20">수집을 먼저 실행해 주세요</p>
-                     </div>
-                   </td>
-                 </tr>
-               ) : (
-                articles.map((article) => (
-                  <tr
-                    key={article.id}
-                    className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03]"
+        <div className="md:hidden space-y-3">
+          {articles.length === 0 ? (
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-16 text-center">
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-4xl text-white/10">▤</span>
+                <p className="text-sm text-white/30">아직 생성된 기사가 없습니다</p>
+                <p className="text-xs text-white/20">수집을 먼저 실행해 주세요</p>
+              </div>
+            </div>
+          ) : (
+            articles.map((article) => (
+              <Link
+                key={article.id}
+                href={`/admin/articles/${article.id}`}
+                className="block rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 transition-colors hover:bg-white/[0.05]"
+              >
+                <p className="text-sm font-medium text-white/80 line-clamp-2">{article.title}</p>
+                <div className="mt-2.5 flex items-center gap-2">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[11px] ${CATEGORY_COLORS[article.category] ?? "bg-white/[0.06] text-white/50"}`}
                   >
-                     <td className="max-w-md truncate px-5 py-4">
-                       <Link
-                         href={`/admin/articles/${article.id}`}
-                         className="text-white/80 hover:text-white transition-colors cursor-pointer"
-                       >
-                         {article.title}
-                       </Link>
-                     </td>
-                    <td className="px-5 py-4">
-                       <span
-                         className={`rounded-full px-2 py-0.5 text-xs ${CATEGORY_COLORS[article.category] ?? "bg-white/[0.06] text-white/50"}`}
-                       >
-                        {CATEGORY_LABELS[article.category] ?? article.category}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 text-white/50">{article.source}</td>
-                    <td className="px-5 py-4 text-white/30">
-                      {new Date(article.created_at).toLocaleDateString("ko-KR")}
+                    {CATEGORY_LABELS[article.category] ?? article.category}
+                  </span>
+                  <span className="text-xs text-white/30">{article.source}</span>
+                </div>
+                <p className="mt-2 text-[11px] text-white/20">
+                  {new Date(article.created_at).toLocaleDateString("ko-KR")}
+                </p>
+              </Link>
+            ))
+          )}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto rounded-xl border border-white/[0.06] bg-white/[0.02]">
+            <table className="min-w-[640px] w-full text-left text-sm">
+             <thead>
+               <tr className="border-b border-white/[0.06]">
+                 <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">제목</th>
+                 <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">카테고리</th>
+                 <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">출처</th>
+                 <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">생성일</th>
+               </tr>
+             </thead>
+             <tbody>
+                {articles.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-5 py-16 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <span className="text-4xl text-white/10">▤</span>
+                        <p className="text-sm text-white/30">아직 생성된 기사가 없습니다</p>
+                        <p className="text-xs text-white/20">수집을 먼저 실행해 주세요</p>
+                      </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-         </table>
-       </div>
+                ) : (
+                 articles.map((article) => (
+                   <tr
+                     key={article.id}
+                     className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03]"
+                   >
+                      <td className="max-w-md truncate px-5 py-4">
+                        <Link
+                          href={`/admin/articles/${article.id}`}
+                          className="text-white/80 hover:text-white transition-colors cursor-pointer"
+                        >
+                          {article.title}
+                        </Link>
+                      </td>
+                     <td className="px-5 py-4">
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs ${CATEGORY_COLORS[article.category] ?? "bg-white/[0.06] text-white/50"}`}
+                        >
+                         {CATEGORY_LABELS[article.category] ?? article.category}
+                       </span>
+                     </td>
+                     <td className="px-5 py-4 text-white/50">{article.source}</td>
+                     <td className="px-5 py-4 text-white/30">
+                       {new Date(article.created_at).toLocaleDateString("ko-KR")}
+                     </td>
+                   </tr>
+                 ))
+               )}
+             </tbody>
+          </table>
+        </div>
 
        {totalPages > 1 && (
          <div className="mt-4 flex items-center justify-between">

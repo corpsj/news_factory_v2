@@ -1,0 +1,38 @@
+TASK 9: Redesign crawl pages - Monochromatic toggles & white primary button
+
+VERIFICATION RESULTS:
+=====================
+
+1. backdrop-blur check:
+   Command: grep -n "backdrop-blur" src/app/admin/crawl/page.tsx src/app/admin/crawl/crawl-form.tsx
+   Result: 0 matches ✅
+
+2. White primary button check:
+   Command: grep -n "bg-white px-6\|bg-white.*text-black" src/app/admin/crawl/crawl-form.tsx
+   Result: 1 match at line 254 ✅
+   Content: className="rounded-lg bg-white px-6 py-3 font-medium text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+
+3. bg-white/10 check:
+   Command: grep -n "bg-white/10" src/app/admin/crawl/crawl-form.tsx
+   Result: 0 matches ✅
+
+4. TypeScript check:
+   Command: npx tsc --noEmit
+   Result: exit 0 ✅
+
+CHANGES APPLIED:
+================
+
+page.tsx:
+- text-2xl font-bold → text-[28px] font-semibold
+- text-zinc-400 → text-white/40
+
+crawl-form.tsx:
+- Site selection card: removed backdrop-blur-xl, updated borders/bg
+- Site toggles: emerald → monochromatic white
+- Options card: removed backdrop-blur-xl, updated inputs
+- Submit button: emerald-600 → white with text-black
+- Result section: updated badges and text colors
+- All zinc-400/500 → white/XX opacity values
+
+All requirements met.

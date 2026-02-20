@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "대시보드" },
@@ -70,6 +70,17 @@ export function AdminSidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   return (
     <>
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-60 flex-col border-r border-white/[0.06] bg-[#09090b] md:flex">
@@ -90,20 +101,22 @@ export function AdminSidebar() {
         <span className="text-base leading-none">☰</span>
       </button>
 
-      {open && (
-        <button
-          type="button"
-          className="fixed inset-0 z-40 bg-black/60 md:hidden"
-          onClick={() => setOpen(false)}
-          aria-label="메뉴 닫기"
-        />
-      )}
+      <button
+        type="button"
+        className={`fixed inset-0 z-40 bg-black/60 transition-opacity duration-300 md:hidden ${
+          open ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={() => setOpen(false)}
+        aria-label="메뉴 닫기"
+      />
 
-      {open && (
-        <aside className="fixed left-0 top-0 z-50 flex h-screen w-60 flex-col border-r border-white/[0.06] bg-[#09090b] md:hidden">
-          <SidebarContent pathname={pathname} onNavClick={() => setOpen(false)} />
-        </aside>
-      )}
+      <aside
+        className={`fixed left-0 top-0 z-50 flex h-screen w-60 flex-col border-r border-white/[0.06] bg-[#09090b] transition-transform duration-300 ease-in-out md:hidden ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <SidebarContent pathname={pathname} onNavClick={() => setOpen(false)} />
+      </aside>
     </>
   );
 }

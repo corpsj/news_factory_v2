@@ -1,0 +1,5 @@
+/Users/zoopark-studio/Documents/dev/news-factory_v2/src/types/crawler.ts:59:export type CrawlOptions = {
+/Users/zoopark-studio/Documents/dev/news-factory_v2/src/lib/crawl/crawler.ts:6:  CrawlOptions,
+/Users/zoopark-studio/Documents/dev/news-factory_v2/src/lib/crawl/crawler.ts:94:  options: Required<Omit<CrawlOptions, "siteIds" | "dateRange">> & { dateRange?: CrawlOptions["dateRange"] },
+/Users/zoopark-studio/Documents/dev/news-factory_v2/src/lib/crawl/crawler.ts:163:  options: CrawlOptions,
+/Users/zoopark-studio/Documents/dev/news-factory_v2/src/lib/crawl/crawler.ts:176:  const normalizedOptions: Required<Omit<CrawlOptions, "siteIds" | "dateRange">> & { dateRange?: CrawlOptions["dateRange"] } = {

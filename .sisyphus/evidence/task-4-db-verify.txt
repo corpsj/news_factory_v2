@@ -1,0 +1,42 @@
+=== DB VERIFICATION ===
+Total articles: 23
+Articles WITH images: 18
+Articles WITHOUT images: 5
+
+--- Articles WITH images (showing up to 5) ---
+  30baff7e... [광주 광산구] — 6 image(s)
+    Title: 광주 광산구, 2026년 빈용기 무인회수기 구매지원 사업 안내...
+    First: https://www.gwangsan.go.kr/home/www/images/sub/layout/ico_sns_blog.png...
+  894c1bdd... [함평군] — 2 image(s)
+    Title: 신광면 지역사회보장협의체, 설 명절 맞아 장수 어르신·다문화가정에 선물 전달...
+    First: https://www.hampyeong.go.kr/imageView/KVed7qykaNn3Y01vJ-C6vNvZYOwGlDWO7K0Gw3d2wo...
+  20c11c67... [함평군] — 2 image(s)
+    Title: 함평군, 설 명절 맞아 병문안 문화 개선 캠페인 전개...
+    First: https://www.hampyeong.go.kr/imageView/WV6achEJcI_VJ_PvBa-2MP-a_holcDxn7Odu5_T3Qt...
+  48549e93... [전라남도] — 1 image(s)
+    Title: 전남, 1조 원 규모 ESS 입찰물량 휩쓸어...
+    First: https://www.jeonnam.go.kr/home/bbs/img/new_img_opentype01.png...
+  d4292c82... [광양시] — 1 image(s)
+    Title: 광양시, 설 명절 맞아 광양5일시장에서 도로명주소 홍보 활동 실시...
+    First: https://gwangyang.go.kr/upload/editor/202602/20260212164359915.jpg...
+
+--- Cross-check: articles.images vs press_releases.images ---
+  30baff7e... — MATCH ✅ (6 images)
+  894c1bdd... — MATCH ✅ (2 images)
+  20c11c67... — MATCH ✅ (2 images)
+  48549e93... — MATCH ✅ (1 images)
+  d4292c82... — MATCH ✅ (1 images)
+  d9eeac46... — MATCH ✅ (3 images)
+  e7c1a5a9... — MATCH ✅ (6 images)
+  80f293b9... — MATCH ✅ (6 images)
+  b8ad78e8... — MATCH ✅ (1 images)
+  47332d88... — MATCH ✅ (1 images)
+
+Cross-check result: 10 match, 0 mismatch
+
+--- Articles WITHOUT images: checking source press_releases ---
+  c4d1c5e3... [전라남도] — ✅ PR also empty
+  08d7fd21... [무안군] — ✅ PR also empty
+  23f58a7d... [무안군] — ✅ PR also empty
+  ac9bbef9... [무안군] — ✅ PR also empty
+  aac8672e... [광주시] — ✅ PR also empty

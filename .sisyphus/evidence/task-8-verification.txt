@@ -1,0 +1,49 @@
+TASK 8: Redesign src/app/admin/monitoring/page.tsx
+
+VERIFICATION RESULTS:
+=====================
+
+1. Backdrop-blur removal:
+   Command: grep -n "backdrop-blur" src/app/admin/monitoring/page.tsx
+   Result: (no output - ZERO backdrop-blur found) ✓
+
+2. Health colors preserved:
+   Command: grep -n "text-emerald-400\|text-amber-400\|text-red-400" src/app/admin/monitoring/page.tsx
+   Result: 10 matches found ✓
+   - Line 22: HEALTH_CONFIG emerald-400 (constant)
+   - Line 28: HEALTH_CONFIG amber-400 (constant)
+   - Line 34: HEALTH_CONFIG red-400 (constant)
+   - Line 228: Summary healthy count (emerald-400)
+   - Line 235: Summary warning count (amber-400)
+   - Line 242: Summary critical count (red-400)
+   - Line 292: New articles count (emerald-400)
+   - Line 309: Consecutive failures (red-400)
+   - Line 318: Failure reason label (red-400)
+   - Line 322: Error message (red-400/70)
+
+3. TypeScript check:
+   Command: npx tsc --noEmit
+   Result: exit 0 ✓
+
+4. HEALTH_CONFIG constant:
+   Status: UNCHANGED ✓
+   Lines 20-45 remain identical
+
+CHANGES APPLIED:
+================
+✓ Heading: text-2xl font-bold → text-[28px] font-semibold
+✓ Subtitle: text-zinc-400 → text-white/40
+✓ Summary cards: removed backdrop-blur-xl
+✓ Summary cards: updated bg colors (emerald/amber/red/white)
+✓ Summary labels: text-xs text-zinc-400 → text-[11px] text-white/30
+✓ Unknown count: text-zinc-400 → text-white/40 with font-light
+✓ Site cards: removed backdrop-blur-xl
+✓ Site cards: bg-white/5 → bg-white/[0.03]
+✓ Site cards: hover:bg-white/[0.07] → hover:bg-white/[0.05]
+✓ Site name: text-sm font-semibold → text-sm font-medium text-white/90
+✓ Info labels: text-zinc-400 → text-white/30
+✓ Info values: text-zinc-300 → text-white/50
+✓ Failure box: bg-red-500/10 → bg-red-500/[0.07]
+✓ Health colors (emerald/amber/red): PRESERVED in all locations
+
+STATUS: COMPLETE ✓

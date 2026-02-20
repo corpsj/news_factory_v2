@@ -1,0 +1,8 @@
+=== T6 verification ===
+src/app/admin/articles/page.tsx:107:        <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-white/[0.02]">
+src/app/admin/press-releases/page.tsx:87:        <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-white/[0.02]">
+src/app/admin/clients/page.tsx:44:       <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-white/[0.02]">
+src/app/admin/articles/page.tsx:108:          <table className="min-w-[640px] w-full text-left text-sm">
+src/app/admin/press-releases/page.tsx:88:          <table className="min-w-[640px] w-full text-left text-sm">
+src/app/admin/clients/page.tsx:45:         <table className="min-w-[480px] w-full text-left text-sm">
+tsc exit: 1

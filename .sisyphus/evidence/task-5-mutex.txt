@@ -1,0 +1,4 @@
+47:let manualRunning = false;
+53:  if (manualRunning) {
+66:  manualRunning = true;
+166:    manualRunning = false;
