@@ -12,6 +12,55 @@ type ParserOverrides = {
 };
 
 const FILE_LINK_PATTERN = /\.(pdf|hwp|hwpx|doc|docx|xls|xlsx|zip|rar|7z|ppt|pptx)$/i;
+
+/**
+ * URL or alt-text patterns for images that are NOT article content:
+ * - 공공누리 (Korea Open Government License) badges
+ * - SNS share icons
+ * - File-type icons (hwp.png, jpg.png, etc.)
+ * - Site logos, watermarks, layout decorations
+ */
+const NON_CONTENT_URL_PATTERNS = [
+  // 공공누리 license badges
+  /img_open(?:type|code)\d*/i,
+  /new_img_open(?:type|code)\d*/i,
+  /gongnuri/i,
+  /open_?type/i,
+  /ccl[_/.\-]/i,
+  // SNS / share icons
+  /ico_sns_/i,
+  /icon_sns/i,
+  /btn_(?:facebook|twitter|kakao|naver|blog|share)/i,
+  // File-extension icons (e.g. /skin/board/basic/hwp.png)
+  /\/skin\/.*\/(?:hwp|pdf|doc|docx|xls|xlsx|zip|jpg|png|gif|ppt|pptx)\.(?:png|gif|jpg)$/i,
+  // Logos, watermarks, layout images
+  /\/logo[_.\-/]/i,
+  /watermark/i,
+  /copyright/i,
+];
+
+const NON_CONTENT_ALT_PATTERNS = [
+  /공공누리/,
+  /저작권/,
+  /CCL/i,
+  /크리에이티브\s*커먼즈/,
+  /creative\s*commons/i,
+  /open\s*government/i,
+];
+
+/** Returns true if the image is NOT article content (copyright badge, icon, etc.) */
+export function isNonContentImage(url: string, alt?: string): boolean {
+  if (NON_CONTENT_URL_PATTERNS.some((p) => p.test(url))) {
+    return true;
+  }
+
+  if (alt && NON_CONTENT_ALT_PATTERNS.some((p) => p.test(alt))) {
+    return true;
+  }
+
+  return false;
+}
+
 const DEFAULT_CONTENT_SELECTORS = [
   ".board_view_con",
   ".board_view_contents",
@@ -147,7 +196,7 @@ function extractImages(detailHtml: string, contentSelectors: string[], detailUrl
     contentNode.find("img").each((_, image) => {
       const src = $(image).attr("src");
       const abs = toAbsoluteUrl(src, detailUrl);
-      if (abs) {
+      if (abs && !isNonContentImage(abs, $(image).attr("alt"))) {
         urls.add(abs);
       }
     });

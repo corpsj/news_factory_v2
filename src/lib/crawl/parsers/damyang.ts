@@ -1,6 +1,7 @@
 import axios from "axios";
 import { load } from "cheerio";
 import https from "node:https";
+import { isNonContentImage } from "@/lib/crawl/parsers/common";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 type DamyangApiArticle = {
@@ -84,7 +85,7 @@ function extractImageUrlsFromHtml(contentHtml: string, baseUrl: string): string[
   $("img").each((_, image) => {
     const src = $(image).attr("src");
     const abs = toAbsoluteUrl(src, baseUrl);
-    if (abs) {
+    if (abs && !isNonContentImage(abs, $(image).attr("alt"))) {
       urls.add(abs);
     }
   });

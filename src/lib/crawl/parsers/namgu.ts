@@ -1,5 +1,6 @@
 import { load } from "cheerio";
 import { parseKoreanDate } from "@/lib/crawl/date";
+import { isNonContentImage } from "@/lib/crawl/parsers/common";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 const FILE_LINK_PATTERN = /\.(pdf|hwp|hwpx|doc|docx|xls|xlsx|zip|rar|7z|ppt|pptx)$/i;
@@ -74,7 +75,7 @@ function extractImages(detailHtml: string, detailUrl: string): string[] {
     contentNode.find("img").each((_, image) => {
       const src = $(image).attr("src");
       const abs = toAbsoluteUrl(src, detailUrl);
-      if (abs) {
+      if (abs && !isNonContentImage(abs, $(image).attr("alt"))) {
         urls.add(abs);
       }
     });
