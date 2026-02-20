@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { EMBEDDING_DIMENSIONS, OLLAMA_DEFAULT_API_URL } from "@/types/embedding";
+import { EMBEDDING_DIMENSIONS } from "@/types/embedding";
 import { generateEmbedding } from "@/lib/ai/embedding";
 
 type BatchEmbedOptions = {
@@ -53,25 +53,10 @@ async function storeEmbedding(supabase: SupabaseClient, releaseId: string, embed
   }
 }
 
-async function isOllamaReachable(): Promise<boolean> {
-  const baseUrl = (process.env.OLLAMA_API_URL ?? OLLAMA_DEFAULT_API_URL).replace(/\/$/, "");
-  try {
-    const res = await fetch(`${baseUrl}/api/version`, { signal: AbortSignal.timeout(500) });
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
-
 export async function embedCollectedPressReleases(
   supabase: SupabaseClient,
   options: BatchEmbedOptions = {},
 ): Promise<BatchEmbedResult> {
-  if (!(await isOllamaReachable())) {
-    console.log("Ollama not reachable — skipping embedding stage");
-    return { total: 0, embedded: 0, failed: 0 };
-  }
-
   const limit = normalizeLimit(options.limit);
   const pending = await fetchPendingEmbeddings(supabase, limit);
 

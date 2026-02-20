@@ -1,8 +1,6 @@
 import { loadEnvConfig } from "@next/env";
 import { createClient } from "@supabase/supabase-js";
 import { embedCollectedPressReleases } from "@/lib/ai/batch-embed";
-import { checkRequiredOllamaModels } from "@/lib/ai/embedding";
-import { OLLAMA_EMBED_MODEL } from "@/types/embedding";
 
 type CliOptions = {
   limit?: number;
@@ -36,13 +34,6 @@ async function main() {
   loadEnvConfig(process.cwd());
 
   const options = parseArgs(process.argv.slice(2));
-  const modelCheck = await checkRequiredOllamaModels();
-  if (modelCheck.missing.includes(OLLAMA_EMBED_MODEL)) {
-    throw new Error("Model qwen3-embedding not found. Run: ollama pull qwen3-embedding");
-  }
-  if (modelCheck.missing.length > 0) {
-    console.warn(`Missing optional Ollama model(s): ${modelCheck.missing.join(", ")}`);
-  }
 
   const supabase = createClient(requiredEnv("SUPABASE_URL"), requiredEnv("SUPABASE_SERVICE_KEY"), {
     auth: {

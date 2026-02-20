@@ -1,7 +1,5 @@
-export const OLLAMA_DEFAULT_API_URL = "http://localhost:11434";
-export const OLLAMA_EMBED_MODEL = "qwen3-embedding";
 export const EMBEDDING_DIMENSIONS = 1024;
-export const REQUIRED_OLLAMA_MODELS = ["exaone4.0", OLLAMA_EMBED_MODEL] as const;
+export const DEFAULT_EMBED_MODEL = "openai/text-embedding-3-small";
 
 export type EmbeddingInput = {
   title: string;
@@ -29,9 +27,4 @@ export type DuplicateCheckResult = {
   isDuplicate: boolean;
   similarity: number;
   matchedId: string | null;
-};
-
-export type OllamaModelCheckResult = {
-  installed: string[];
-  missing: string[];
 };
