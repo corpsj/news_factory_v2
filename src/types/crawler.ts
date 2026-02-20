@@ -63,6 +63,9 @@ export type CrawlOptions = {
   siteConcurrency?: number;
   maxPages?: number;
   dateRange?: { from: string; to: string };
+  httpTimeoutMs?: number;
+  httpAttempts?: number;
+  signal?: AbortSignal;
 };
 
 export type CrawlSiteResult = {

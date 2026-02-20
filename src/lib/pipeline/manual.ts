@@ -12,12 +12,14 @@ export type ManualCrawlOptions = {
   delayMs?: number;
 };
 
+const PIPELINE_DEADLINE_MS = 50_000;
+
 export type PipelineEvent =
   | { type: "pipeline_start"; totalSites: number; siteIds: string[]; siteNames: string[] }
   | { type: "stage_start"; stage: "crawl" | "embed" | "generate" }
   | { type: "site_complete"; siteId: string; siteName: string; found: number; inserted: number; failed: number; status: string; durationMs: number; errorMessage?: string }
   | { type: "stage_complete"; stage: "crawl" | "embed" | "generate"; durationMs: number; detail: Record<string, unknown> }
-  | { type: "pipeline_complete"; success: boolean; totalDurationMs: number }
+  | { type: "pipeline_complete"; success: boolean; totalDurationMs: number; partial?: boolean; message?: string }
   | { type: "error"; message: string };
 
 export type ManualCrawlResult = {
@@ -72,6 +74,12 @@ export async function executeManualCrawl(
 
   manualRunning = true;
   const pipelineStart = Date.now();
+  const deadline = new AbortController();
+  const deadlineTimer = setTimeout(() => deadline.abort(), PIPELINE_DEADLINE_MS);
+
+  function remainingMs() {
+    return PIPELINE_DEADLINE_MS - (Date.now() - pipelineStart);
+  }
 
   try {
     const supabase = getSupabaseClient();
@@ -89,7 +97,8 @@ export async function executeManualCrawl(
       siteNames: targetSites.map((s) => s!.name),
     });
 
-    // Stage 1: Crawl
+    let partial = false;
+
     onProgress?.({ type: "stage_start", stage: "crawl" });
     const crawlStart = Date.now();
     let crawlStatus: "success" | "failed" | "skipped" = "success";
@@ -102,6 +111,9 @@ export async function executeManualCrawl(
         maxPages: options.maxPages,
         dateRange: options.dateRange,
         delayMs: options.delayMs,
+        httpTimeoutMs: 8_000,
+        httpAttempts: 1,
+        signal: deadline.signal,
       };
 
       const onSiteComplete = (result: CrawlSiteResult) => {
@@ -126,70 +138,98 @@ export async function executeManualCrawl(
         totalInserted: crawlResult.totalInserted,
         totalFailed: crawlResult.totalFailed,
       };
+
+      if (deadline.signal.aborted) {
+        partial = true;
+      }
     } catch (error) {
       crawlStatus = "failed";
       crawlDetail = {
         error: error instanceof Error ? error.message : "Unknown crawl error",
       };
+      if (deadline.signal.aborted) {
+        partial = true;
+      }
     }
 
     const crawlDurationMs = Date.now() - crawlStart;
     onProgress?.({ type: "stage_complete", stage: "crawl", durationMs: crawlDurationMs, detail: crawlDetail as Record<string, unknown> });
 
-    // Stage 2: Embed
-    onProgress?.({ type: "stage_start", stage: "embed" });
-    const embedStart = Date.now();
-    let embedStatus: "success" | "failed" | "skipped" = "success";
+    let embedStatus: "success" | "failed" | "skipped" = "skipped";
+    let embedDurationMs = 0;
     let embedDetail: object = {};
 
-    try {
-      const embedResult = await embedCollectedPressReleases(supabase, { limit: 500 });
+    if (remainingMs() > 5_000 && !deadline.signal.aborted) {
+      onProgress?.({ type: "stage_start", stage: "embed" });
+      const embedStart = Date.now();
+      embedStatus = "success";
 
-      embedDetail = {
-        total: embedResult.total,
-        embedded: embedResult.embedded,
-        failed: embedResult.failed,
-      };
-    } catch (error) {
-      embedStatus = "failed";
-      embedDetail = {
-        error: error instanceof Error ? error.message : "Unknown embed error",
-      };
+      try {
+        const embedResult = await embedCollectedPressReleases(supabase, { limit: 500 });
+
+        embedDetail = {
+          total: embedResult.total,
+          embedded: embedResult.embedded,
+          failed: embedResult.failed,
+        };
+      } catch (error) {
+        embedStatus = "failed";
+        embedDetail = {
+          error: error instanceof Error ? error.message : "Unknown embed error",
+        };
+      }
+
+      embedDurationMs = Date.now() - embedStart;
+      onProgress?.({ type: "stage_complete", stage: "embed", durationMs: embedDurationMs, detail: embedDetail as Record<string, unknown> });
+    } else {
+      partial = true;
+      onProgress?.({ type: "stage_start", stage: "embed" });
+      onProgress?.({ type: "stage_complete", stage: "embed", durationMs: 0, detail: { skipped: "시간 부족" } });
     }
 
-    const embedDurationMs = Date.now() - embedStart;
-    onProgress?.({ type: "stage_complete", stage: "embed", durationMs: embedDurationMs, detail: embedDetail as Record<string, unknown> });
-
-    // Stage 3: Generate
-    onProgress?.({ type: "stage_start", stage: "generate" });
-    const generateStart = Date.now();
-    let generateStatus: "success" | "failed" | "skipped" = "success";
+    let generateStatus: "success" | "failed" | "skipped" = "skipped";
+    let generateDurationMs = 0;
     let generateDetail: object = {};
 
-    try {
-      const generateResult = await generateEmbeddedPressReleaseArticles(
-        { limit: 500 },
-        supabase,
-      );
+    if (remainingMs() > 5_000 && !deadline.signal.aborted) {
+      onProgress?.({ type: "stage_start", stage: "generate" });
+      const generateStart = Date.now();
+      generateStatus = "success";
 
-      generateDetail = {
-        total: generateResult.total,
-        generated: generateResult.generated,
-        failed: generateResult.failed,
-      };
-    } catch (error) {
-      generateStatus = "failed";
-      generateDetail = {
-        error: error instanceof Error ? error.message : "Unknown generate error",
-      };
+      try {
+        const generateResult = await generateEmbeddedPressReleaseArticles(
+          { limit: 500 },
+          supabase,
+        );
+
+        generateDetail = {
+          total: generateResult.total,
+          generated: generateResult.generated,
+          failed: generateResult.failed,
+        };
+      } catch (error) {
+        generateStatus = "failed";
+        generateDetail = {
+          error: error instanceof Error ? error.message : "Unknown generate error",
+        };
+      }
+
+      generateDurationMs = Date.now() - generateStart;
+      onProgress?.({ type: "stage_complete", stage: "generate", durationMs: generateDurationMs, detail: generateDetail as Record<string, unknown> });
+    } else {
+      partial = true;
+      onProgress?.({ type: "stage_start", stage: "generate" });
+      onProgress?.({ type: "stage_complete", stage: "generate", durationMs: 0, detail: { skipped: "시간 부족" } });
     }
-
-    const generateDurationMs = Date.now() - generateStart;
-    onProgress?.({ type: "stage_complete", stage: "generate", durationMs: generateDurationMs, detail: generateDetail as Record<string, unknown> });
 
     const totalDurationMs = Date.now() - pipelineStart;
 
-    onProgress?.({ type: "pipeline_complete", success: true, totalDurationMs });
+    onProgress?.({
+      type: "pipeline_complete",
+      success: true,
+      totalDurationMs,
+      ...(partial ? { partial: true, message: "시간 제한으로 일부만 처리되었습니다" } : {}),
+    });
 
     return {
       success: true,
@@ -214,6 +254,7 @@ export async function executeManualCrawl(
       error: message,
     };
   } finally {
+    clearTimeout(deadlineTimer);
     manualRunning = false;
   }
 }

@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 import { SITES_BY_ID } from "@/config/sites";
 import { executeManualCrawl, type PipelineEvent } from "@/lib/pipeline/manual";
 
-const DEFAULT_MAX_PAGES = 10;
-const DEFAULT_LIMIT_PER_SITE = 200;
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
+
+const DEFAULT_MAX_PAGES = 2;
+const DEFAULT_LIMIT_PER_SITE = 5;
 
 export async function POST(request: Request) {
   try {
@@ -52,7 +55,7 @@ export async function POST(request: Request) {
               limitPerSite: DEFAULT_LIMIT_PER_SITE,
               maxPages: DEFAULT_MAX_PAGES,
               dateRange,
-              delayMs,
+              delayMs: delayMs ?? 200,
             },
             send,
           );

@@ -91,9 +91,23 @@ async function writeCrawlLog(
 async function crawlSite(
   site: SiteConfig,
   deps: CrawlerDependencies,
-  options: Required<Omit<CrawlOptions, "siteIds" | "dateRange">> & { dateRange?: CrawlOptions["dateRange"] },
+  options: Required<Omit<CrawlOptions, "siteIds" | "dateRange" | "httpTimeoutMs" | "httpAttempts" | "signal">> & { dateRange?: CrawlOptions["dateRange"]; signal?: AbortSignal },
   onComplete?: (result: CrawlSiteResult) => void,
 ): Promise<CrawlSiteResult> {
+  if (options.signal?.aborted) {
+    const skipped: CrawlSiteResult = {
+      siteId: site.id,
+      siteName: site.name,
+      found: 0,
+      inserted: 0,
+      failed: 0,
+      status: "failed",
+      errorMessage: "시간 초과",
+    };
+    onComplete?.(skipped);
+    return skipped;
+  }
+
   const startedAt = new Date().toISOString();
   let errorMessage: string | undefined;
 
@@ -214,18 +228,23 @@ export async function runCrawler(
     throw new Error("Supabase client is required for crawling");
   }
 
-  const http = createHttpClient();
+  const http = createHttpClient({
+    timeoutMs: options.httpTimeoutMs,
+    attempts: options.httpAttempts,
+    signal: options.signal,
+  });
   const deps: CrawlerDependencies = {
     supabase: dependencies.supabase,
     fetchHtml: dependencies.fetchHtml ?? http.fetchHtml,
   };
 
-  const normalizedOptions: Required<Omit<CrawlOptions, "siteIds" | "dateRange">> & { dateRange?: CrawlOptions["dateRange"] } = {
+  const normalizedOptions: Required<Omit<CrawlOptions, "siteIds" | "dateRange" | "httpTimeoutMs" | "httpAttempts" | "signal">> & { dateRange?: CrawlOptions["dateRange"]; signal?: AbortSignal } = {
     limitPerSite: options.limitPerSite ?? DEFAULT_LIMIT_PER_SITE,
     delayMs: options.delayMs ?? DEFAULT_DELAY_MS,
     siteConcurrency: options.siteConcurrency ?? DEFAULT_SITE_CONCURRENCY,
     maxPages: options.maxPages ?? 1,
     dateRange: options.dateRange,
+    signal: options.signal,
   };
 
   const sites = pickSites(options.siteIds);

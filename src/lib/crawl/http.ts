@@ -13,6 +13,13 @@ const DEFAULT_HEADERS: Record<string, string> = {
   Referer: "https://www.google.com/",
 };
 
+export type HttpClientOptions = {
+  timeoutMs?: number;
+  attempts?: number;
+  baseDelayMs?: number;
+  signal?: AbortSignal;
+};
+
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -20,6 +27,10 @@ function delay(ms: number): Promise<void> {
 function shouldRetry(error: unknown): boolean {
   if (!(error instanceof AxiosError)) {
     return true;
+  }
+
+  if (error.code === "ERR_CANCELED") {
+    return false;
   }
 
   const status = error.response?.status;
@@ -30,8 +41,12 @@ function shouldRetry(error: unknown): boolean {
   return status >= 500 || status === 429;
 }
 
-export function createHttpClient() {
+export function createHttpClient(clientOptions?: HttpClientOptions) {
   const allowInsecureTls = process.env.ALLOW_INSECURE_TLS === "1";
+  const timeoutMs = clientOptions?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const maxAttempts = clientOptions?.attempts ?? DEFAULT_ATTEMPTS;
+  const baseDelay = clientOptions?.baseDelayMs ?? BASE_DELAY_MS;
+  const signal = clientOptions?.signal;
 
   const httpsAgent = allowInsecureTls
     ? new https.Agent({ rejectUnauthorized: false })
@@ -42,18 +57,23 @@ export function createHttpClient() {
   }
 
   return {
-    async fetchHtml(url: string, attempts = DEFAULT_ATTEMPTS): Promise<string> {
+    async fetchHtml(url: string, attempts = maxAttempts): Promise<string> {
       let lastError: unknown;
 
       for (let attempt = 0; attempt < attempts; attempt += 1) {
+        if (signal?.aborted) {
+          throw new Error("Crawl aborted: deadline exceeded");
+        }
+
         try {
           const response = await axios.get<string>(url, {
-            timeout: DEFAULT_TIMEOUT_MS,
+            timeout: timeoutMs,
             headers: DEFAULT_HEADERS,
             responseType: "text",
             transformResponse: [(value) => value],
             httpsAgent,
             validateStatus: (status) => status >= 200 && status < 400,
+            signal,
           });
 
           return response.data;
@@ -64,7 +84,7 @@ export function createHttpClient() {
             break;
           }
 
-          const backoff = BASE_DELAY_MS * 2 ** attempt;
+          const backoff = baseDelay * 2 ** attempt;
           await delay(backoff);
         }
       }

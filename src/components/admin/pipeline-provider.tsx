@@ -7,7 +7,7 @@ export type PipelineEvent =
   | { type: "stage_start"; stage: string }
   | { type: "site_complete"; siteId: string; siteName: string; found: number; inserted: number; failed: number; status: string; durationMs: number; errorMessage?: string }
   | { type: "stage_complete"; stage: string; durationMs: number; detail: Record<string, unknown> }
-  | { type: "pipeline_complete"; success: boolean; totalDurationMs: number }
+  | { type: "pipeline_complete"; success: boolean; totalDurationMs: number; partial?: boolean; message?: string }
   | { type: "error"; message: string };
 
 export type SiteProgress = {
@@ -75,7 +75,7 @@ interface PipelineContextValue {
   completedCount: number;
   siteProgress: Map<string, SiteProgress>;
   stages: Record<string, StageProgress>;
-  pipelineResult: { success: boolean; totalDurationMs: number } | null;
+  pipelineResult: { success: boolean; totalDurationMs: number; partial?: boolean; message?: string } | null;
   elapsedMs: number;
   showProgress: boolean;
   startPipeline: (config: PipelineConfig) => void;
@@ -97,10 +97,11 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
   const [completedCount, setCompletedCount] = useState(0);
   const [siteProgress, setSiteProgress] = useState<Map<string, SiteProgress>>(new Map());
   const [stages, setStages] = useState<Record<string, StageProgress>>({ ...INITIAL_STAGES });
-  const [pipelineResult, setPipelineResult] = useState<{ success: boolean; totalDurationMs: number } | null>(null);
+  const [pipelineResult, setPipelineResult] = useState<{ success: boolean; totalDurationMs: number; partial?: boolean; message?: string } | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
   const activeRef = useRef(false);
+  const completedCountRef = useRef(0);
 
   const showProgress = totalSites > 0;
 
@@ -113,6 +114,7 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
   const resetPipeline = useCallback(() => {
     setTotalSites(0);
     setCompletedCount(0);
+    completedCountRef.current = 0;
     setSiteProgress(new Map());
     setStages({ ...INITIAL_STAGES });
     setPipelineResult(null);
@@ -127,7 +129,8 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
 
     resetPipeline();
     setRunning(true);
-    setStartTime(Date.now());
+    const pipelineStartMs = Date.now();
+    setStartTime(pipelineStartMs);
 
     function processEvent(event: PipelineEvent) {
       switch (event.type) {
@@ -155,6 +158,7 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
             });
             return next;
           });
+          completedCountRef.current += 1;
           setCompletedCount((prev) => prev + 1);
           break;
         case "stage_complete":
@@ -216,7 +220,16 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
           try { processEvent(JSON.parse(buffer)); } catch { /* skip trailing */ }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "파이프라인 실행 실패");
+        if (completedCountRef.current > 0) {
+          setPipelineResult({
+            success: true,
+            totalDurationMs: Date.now() - pipelineStartMs,
+            partial: true,
+            message: "연결이 끊어졌지만 일부 사이트가 처리되었습니다",
+          });
+        } else {
+          setError(err instanceof Error ? err.message : "파이프라인 실행 실패");
+        }
       } finally {
         setRunning(false);
         activeRef.current = false;
