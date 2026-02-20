@@ -99,7 +99,7 @@ const MOKPO_SELECTORS: SiteSelectorConfig = {
 export const SITES: SiteConfig[] = [
   {
     id: "gwangju-city",
-    name: "광주시",
+    name: "광주시청",
     type: "gwangju-do",
     listUrl: "https://www.gwangju.go.kr/boardList.do?pageId=www789&boardId=BD_0000000027",
     detailUrlTemplate: "https://www.gwangju.go.kr/boardView.do?pageId=www789&boardId=BD_0000000027&seq={id}",
@@ -109,7 +109,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "donggu",
-    name: "광주 동구",
+    name: "동구청",
     type: "gwangju-es-nolist",
     listUrl: "https://www.donggu.kr/board.es?mid=a10102040100&bid=0243",
     detailUrlTemplate: "https://www.donggu.kr/board.es?mid=a10102040100&bid=0243&act=view&list_no={id}",
@@ -119,7 +119,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "seogu",
-    name: "광주 서구",
+    name: "서구청",
     type: "gwangju-es",
     listUrl: "https://www.seogu.gwangju.kr/board.es?mid=a10612000000&bid=0154",
     detailUrlTemplate: "https://www.seogu.gwangju.kr/board.es?mid=a10612000000&bid=0154&act=view&list_no={id}",
@@ -129,7 +129,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "namgu",
-    name: "광주 남구",
+    name: "남구청",
     type: "namgu",
     listUrl: "https://www.namgu.gwangju.kr/api/eminwon/pressList.es?mid=a10605050000",
     detailUrlTemplate: "https://www.namgu.gwangju.kr/api/eminwon/pressList.es?mid=a10605050000&act=view&list_no={id}",
@@ -138,7 +138,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "bukgu",
-    name: "광주 북구",
+    name: "북구청",
     type: "gwangju-es-nolist",
     listUrl: "https://bukgu.gwangju.kr/board.es?mid=a10201020000&bid=0275",
     detailUrlTemplate: "https://bukgu.gwangju.kr/board.es?mid=a10201020000&bid=0275&act=view&list_no={id}",
@@ -148,7 +148,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "gwangsan",
-    name: "광주 광산구",
+    name: "광산구청",
     type: "gwangju-do",
     listUrl: "https://www.gwangsan.go.kr/boardList.do?pageId=www3&boardId=NEWS_NEW",
     detailUrlTemplate: "https://www.gwangsan.go.kr/boardView.do?pageId=www3&boardId=NEWS_NEW&seq={id}",
@@ -158,7 +158,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "jeonnam-province",
-    name: "전라남도",
+    name: "전라남도청",
     type: "jeonnam-do",
     listUrl: "https://www.jeonnam.go.kr/M7116/boardList.do?menuId=jeonnam0202000000",
     detailUrlTemplate: "https://www.jeonnam.go.kr/M7116/boardView.do?menuId=jeonnam0202000000&seq={id}",
@@ -168,7 +168,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "mokpo",
-    name: "목포시",
+    name: "목포시청",
     type: "mokpo",
     listUrl: "https://www.mokpo.go.kr/www/mokpo_news/press_release",
     detailUrlTemplate: "https://www.mokpo.go.kr/www/mokpo_news/press_release/report_material?idx={id}&mode=view",
@@ -178,7 +178,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "yeosu",
-    name: "여수시",
+    name: "여수시청",
     type: "jeonnam-si",
     listUrl: "https://www.yeosu.go.kr/www/govt/news/release",
     detailUrlTemplate: "https://www.yeosu.go.kr/www/govt/news/release/press?idx={id}&mode=view",
@@ -188,7 +188,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "suncheon",
-    name: "순천시",
+    name: "순천시청",
     type: "suncheon",
     listUrl: "https://www.suncheon.go.kr/kr/news/0006/0001/",
     detailUrlTemplate: "https://www.suncheon.go.kr/kr/news/0006/0001/?mode=view&seq={id}",
@@ -198,7 +198,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "naju",
-    name: "나주시",
+    name: "나주시청",
     type: "jeonnam-si",
     listUrl: "https://www.naju.go.kr/www/administration/reporting",
     detailUrlTemplate: "https://www.naju.go.kr/www/administration/reporting/coverage?idx={id}&mode=view",
@@ -208,7 +208,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "gwangyang",
-    name: "광양시",
+    name: "광양시청",
     type: "gwangju-es",
     listUrl: "https://gwangyang.go.kr/kor/board.es?mid=a11007000000&bid=0057",
     detailUrlTemplate: "https://gwangyang.go.kr/kor/board.es?mid=a11007000000&bid=0057&act=view&list_no={id}",
@@ -218,7 +218,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "damyang",
-    name: "담양군",
+    name: "담양군청",
     type: "damyang",
     listUrl: "https://www.damyang.go.kr/board/list?boardId=BBS_0000007&domainId=DOM_0000001&menuCd=DOM_000000190001005001&contentsSid=12",
     detailUrlTemplate: "https://www.damyang.go.kr/board/detail?boardId=BBS_0000007&domainId=DOM_0000001&menuCd=DOM_000000190001005001&contentsSid=12&dataSid={id}",
@@ -228,7 +228,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "gokseong",
-    name: "곡성군",
+    name: "곡성군청",
     type: "gokseong",
     listUrl: "https://www.gokseong.go.kr/kr/board/list.do?bbsId=BBS_000000000000151&menuNo=102001002000",
     detailUrlTemplate: "https://www.gokseong.go.kr/kr/board/view.do?bbsId=BBS_000000000000151&menuNo=102001002000&nttId={id}",
@@ -237,7 +237,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "gurye",
-    name: "구례군",
+    name: "구례군청",
     type: "gurye",
     listUrl: "https://www.gurye.go.kr/board/list.do?bbsId=BBS_0000000000000300&menuNo=115004006000",
     detailUrlTemplate: "https://www.gurye.go.kr/board/view.do?bbsId=BBS_0000000000000300&menuNo=115004006000&nttId={id}",
@@ -246,7 +246,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "goheung",
-    name: "고흥군",
+    name: "고흥군청",
     type: "gwangju-do",
     listUrl: "https://www.goheung.go.kr/boardList.do?boardId=BD_00025&pageId=www102",
     detailUrlTemplate: "https://www.goheung.go.kr/boardView.do?boardId=BD_00025&pageId=www102&seq={id}",
@@ -256,7 +256,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "boseong",
-    name: "보성군",
+    name: "보성군청",
     type: "boseong",
     listUrl: "https://www.boseong.go.kr/www/open_administration/city_news/press_release",
     detailUrlTemplate: "https://www.boseong.go.kr/www/open_administration/city_news/press_release?idx={id}&mode=view",
@@ -266,7 +266,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "hwasun",
-    name: "화순군",
+    name: "화순군청",
     type: "hwasun",
     listUrl: "https://council.hwasun.go.kr/?PID=079",
     detailUrlTemplate: "https://council.hwasun.go.kr/?PID=079&action=view&boardId={id}",
@@ -276,7 +276,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "jangheung",
-    name: "장흥군",
+    name: "장흥군청",
     type: "wando",
     listUrl: "https://www.jangheung.go.kr/jares/community/press",
     detailUrlTemplate: "https://www.jangheung.go.kr/jares/community/press?idx={id}&mode=view",
@@ -285,7 +285,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "gangjin",
-    name: "강진군",
+    name: "강진군청",
     type: "gangjin",
     listUrl: "https://www.gangjin.go.kr/www/government/news/press",
     detailUrlTemplate: "https://www.gangjin.go.kr/www/government/news/press?idx={id}",
@@ -295,7 +295,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "haenam",
-    name: "해남군",
+    name: "해남군청",
     type: "haenam",
     listUrl: "https://www.haenam.go.kr/planweb/board/list.9is?contentUid=18e3368f5d745106015d877ab2850a94&boardUid=18e3368f5fb80fdc015fdc4c2ac203e7",
     detailUrlTemplate: "https://www.haenam.go.kr/planweb/board/view.9is",
@@ -305,7 +305,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "muan",
-    name: "무안군",
+    name: "무안군청",
     type: "jeonnam-si",
     listUrl: "https://www.muan.go.kr/www/openmuan/new/report",
     detailUrlTemplate: "https://www.muan.go.kr/www/openmuan/new/report?idx={id}",
@@ -315,7 +315,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "hampyeong",
-    name: "함평군",
+    name: "함평군청",
     type: "gwangju-do",
     listUrl: "https://www.hampyeong.go.kr/boardList.do?boardId=NEWS&pageId=www275",
     detailUrlTemplate: "https://www.hampyeong.go.kr/boardView.do?boardId=NEWS&pageId=www275&seq={id}",
@@ -325,7 +325,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "yeonggwang",
-    name: "영광군",
+    name: "영광군청",
     type: "yeonggwang",
     listUrl: "https://www.yeonggwang.go.kr/bbs/?b_id=news_data&site=headquarter_new&mn=9056",
     detailUrlTemplate: "https://www.yeonggwang.go.kr/bbs/?b_id=news_data&site=headquarter_new&mn=9056&type=view&bs_idx={id}",
@@ -334,7 +334,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "jangseong",
-    name: "장성군",
+    name: "장성군청",
     type: "jeonnam-si",
     listUrl: "https://www.jangseong.go.kr/home/www/news/jangseong/bodo",
     detailUrlTemplate: "https://www.jangseong.go.kr/home/www/news/jangseong/bodo/show/{id}",
@@ -344,7 +344,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "wando",
-    name: "완도군",
+    name: "완도군청",
     type: "wando",
     listUrl: "https://www.wando.go.kr/wando/sub.cs?m=299",
     detailUrlTemplate: "https://www.wando.go.kr/wando/sub.cs?m=1023&nttId={id}&pBoardId=BBSMSTR_000000000036",
@@ -353,7 +353,7 @@ export const SITES: SiteConfig[] = [
   },
   {
     id: "shinan",
-    name: "신안군",
+    name: "신안군청",
     type: "jeonnam-si",
     listUrl: "https://www.shinan.go.kr/home/www/openinfo/participation_07/participation_07_03/page.wscms",
     detailUrlTemplate: "https://www.shinan.go.kr/home/www/openinfo/participation_07/participation_07_03/show/{id}",
