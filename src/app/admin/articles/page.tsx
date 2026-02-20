@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { ARTICLE_CATEGORIES } from "@/types/article";
-import { SITES } from "@/config/sites";
+import SourceFilter from "./source-filter";
 
 type ArticleRow = {
   id: string;
@@ -34,7 +34,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   editorial: "bg-amber-500/10 text-amber-300/70",
 };
 
-const SOURCE_NAMES = SITES.map((s) => s.name).sort((a, b) => a.localeCompare(b, "ko"));
+
 
 async function getArticles(searchParams: Record<string, string | undefined>) {
   const url = process.env.SUPABASE_URL;
@@ -125,32 +125,7 @@ export default async function ArticlesPage({
            ))}
          </div>
 
-         <div className="flex flex-wrap items-center gap-2">
-           <span className="text-[11px] uppercase tracking-wider text-white/30 font-medium mr-1">기관</span>
-           <a
-             href={buildHref({ category: currentCategory })}
-             className={`rounded-lg px-2.5 py-1 text-[11px] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b] ${
-               !currentSource
-                 ? "bg-white/[0.08] text-white/80"
-                 : "text-white/30 hover:bg-white/[0.04] hover:text-white/60"
-             }`}
-           >
-             전체
-           </a>
-           {SOURCE_NAMES.map((name) => (
-             <a
-               key={name}
-               href={buildHref({ category: currentCategory, source: name })}
-               className={`rounded-lg px-2.5 py-1 text-[11px] transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b] ${
-                 currentSource === name
-                   ? "bg-white/[0.08] text-white/80"
-                   : "text-white/30 hover:bg-white/[0.04] hover:text-white/60"
-               }`}
-             >
-               {name}
-             </a>
-           ))}
-         </div>
+          <SourceFilter currentSource={currentSource} currentCategory={currentCategory} />
        </div>
 
         <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-white/[0.02]">
