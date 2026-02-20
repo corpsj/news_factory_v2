@@ -201,10 +201,7 @@ export function MonitoringPanel({ initial }: { initial: MonitoringData }) {
           const groupSites = group.ids.map((id) => siteMap.get(id)).filter(Boolean) as SiteStatus[];
           if (groupSites.length === 0) return null;
 
-          const healthOrder: HealthStatus[] = ["critical", "warning", "unknown", "healthy"];
-          const sorted = [...groupSites].sort(
-            (a, b) => healthOrder.indexOf(a.health) - healthOrder.indexOf(b.health),
-          );
+          const sorted = groupSites;
 
           const groupHealthy = groupSites.filter((s) => s.health === "healthy").length;
           const groupTotal = groupSites.length;
