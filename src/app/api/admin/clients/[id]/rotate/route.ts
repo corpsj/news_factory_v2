@@ -3,14 +3,12 @@ import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 
+type RouteParams = { params: Promise<{ id: string }> };
+
 function requiredEnv(name: string) {
   const value = process.env[name];
   if (!value) throw new Error(`Missing: ${name}`);
   return value;
-}
-
-function generateApiKey() {
-  return `nf_live_${crypto.randomBytes(32).toString("hex")}`;
 }
 
 function isAuthorized(request: Request) {
@@ -20,7 +18,6 @@ function isAuthorized(request: Request) {
   const origin = request.headers.get("origin") ?? "";
   const referer = request.headers.get("referer") ?? "";
   const isSameOrigin = origin.includes("localhost") || referer.includes("/admin");
-
   return Boolean(isAdmin || isSameOrigin);
 }
 
@@ -30,45 +27,32 @@ function getSupabaseAdmin() {
   });
 }
 
-export async function GET(request: Request) {
-  try {
-    if (!isAuthorized(request)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const supabase = getSupabaseAdmin();
-
-    const { data, error } = await supabase
-      .from("clients")
-      .select(
-        "id, name, description, is_active, api_key_prefix, api_key_last4, last_used_at, request_count, created_at",
-      )
-      .is("deleted_at", null)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ clients: data ?? [] });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Internal error";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+function generateApiKey() {
+  return `nf_live_${crypto.randomBytes(32).toString("hex")}`;
 }
 
-export async function POST(request: Request) {
+export async function POST(request: Request, { params }: RouteParams) {
   try {
     if (!isAuthorized(request)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const name = body.name?.trim();
-    const description = typeof body.description === "string" ? body.description.trim() : undefined;
+    const { id } = await params;
+    const supabase = getSupabaseAdmin();
 
-    if (!name) {
-      return NextResponse.json({ error: "name is required" }, { status: 400 });
+    const { data: existingClient, error: existingError } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("id", id)
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    if (existingError) {
+      return NextResponse.json({ error: existingError.message }, { status: 500 });
+    }
+
+    if (!existingClient) {
+      return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
 
     const apiKey = generateApiKey();
@@ -76,27 +60,22 @@ export async function POST(request: Request) {
     const apiKeyPrefix = apiKey.slice(0, 12);
     const apiKeyLast4 = apiKey.slice(-4);
 
-    const supabase = getSupabaseAdmin();
-
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("clients")
-      .insert({
-        name,
-        description: description || null,
+      .update({
         api_key_hash: apiKeyHash,
         api_key_prefix: apiKeyPrefix,
         api_key_last4: apiKeyLast4,
+        updated_at: new Date().toISOString(),
       })
-      .select(
-        "id, name, description, is_active, api_key_prefix, api_key_last4, last_used_at, request_count, created_at",
-      )
-      .single();
+      .eq("id", id)
+      .is("deleted_at", null);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ ...data, api_key: apiKey });
+    return NextResponse.json({ api_key: apiKey, api_key_last4: apiKeyLast4 });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Internal error";
     return NextResponse.json({ error: message }, { status: 500 });

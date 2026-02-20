@@ -53,11 +53,63 @@ export async function authenticateRequest(
   }
 
   const supabase = getSupabaseClient(client);
+  const apiKeyPrefix = apiKey.slice(0, 12);
+
+  const toRequestCount = (value: number | string | null | undefined) => {
+    if (typeof value === "number") return value;
+    if (typeof value === "string") {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+  };
+
+  const trackUsage = (targetClientId: string, requestCount: number) => {
+    void supabase
+      .from("clients")
+      .update({
+        last_used_at: new Date().toISOString(),
+        request_count: requestCount + 1,
+      })
+      .eq("id", targetClientId);
+  };
+
+  const { data: prefixedClient, error: prefixedError } = await supabase
+    .from("clients")
+    .select("id, name, api_key_hash, is_active, request_count")
+    .eq("api_key_prefix", apiKeyPrefix)
+    .eq("is_active", true)
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (prefixedError) {
+    console.error("Auth lookup error:", prefixedError.message);
+    return NextResponse.json(
+      { error: "Internal authentication error" },
+      { status: 500 },
+    );
+  }
+
+  if (prefixedClient) {
+    const match = await bcrypt.compare(apiKey, prefixedClient.api_key_hash);
+    if (match) {
+      trackUsage(prefixedClient.id, toRequestCount(prefixedClient.request_count));
+      return {
+        client: {
+          id: prefixedClient.id,
+          name: prefixedClient.name,
+          is_active: prefixedClient.is_active,
+        },
+      };
+    }
+  }
 
   const { data: clients, error } = await supabase
     .from("clients")
-    .select("id, name, api_key_hash, is_active")
-    .eq("is_active", true);
+    .select("id, name, api_key_hash, is_active, request_count")
+    .eq("is_active", true)
+    .is("deleted_at", null)
+    .is("api_key_prefix", null);
 
   if (error) {
     console.error("Auth lookup error:", error.message);
@@ -74,10 +126,10 @@ export async function authenticateRequest(
     );
   }
 
-  // bcrypt.compare is sequential to prevent timing-based key enumeration
   for (const row of clients) {
     const match = await bcrypt.compare(apiKey, row.api_key_hash);
     if (match) {
+      trackUsage(row.id, toRequestCount(row.request_count));
       return {
         client: {
           id: row.id,
