@@ -15,18 +15,18 @@ type SiteOption = { id: string; name: string };
 const SITE_GROUPS: { label: string; ids: string[] }[] = [
   {
     label: "광주광역시",
-    ids: ["gwangju-city", "donggu", "seogu", "namgu", "bukgu", "gwangsan"],
+    ids: ["gwangsan", "gwangju-city", "namgu", "donggu", "bukgu", "seogu"],
   },
   {
-    label: "전라남도",
-    ids: ["jeonnam-province", "mokpo", "yeosu", "suncheon", "naju", "gwangyang"],
+    label: "전라남도 시",
+    ids: ["gwangyang", "naju", "mokpo", "suncheon", "yeosu"],
   },
   {
-    label: "군·군",
+    label: "전라남도 군",
     ids: [
-      "damyang", "gokseong", "gurye", "goheung", "boseong", "hwasun",
-      "jangheung", "gangjin", "haenam", "muan", "hampyeong", "yeonggwang",
-      "jangseong", "wando", "shinan",
+      "gangjin", "goheung", "gokseong", "gurye", "damyang", "muan", "boseong",
+      "shinan", "yeonggwang", "wando", "jangseong", "jangheung", "jeonnam-province",
+      "hampyeong", "haenam", "hwasun",
     ],
   },
 ];

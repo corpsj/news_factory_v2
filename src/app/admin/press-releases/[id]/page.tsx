@@ -24,6 +24,13 @@ const STATUS_STYLES: Record<string, string> = {
   failed: "bg-red-500/10 text-red-400/70",
 };
 
+const STATUS_LABELS: Record<string, string> = {
+  collected: "수집됨",
+  embedded: "분석됨",
+  processed: "발행됨",
+  failed: "실패",
+};
+
 async function getPressRelease(id: string): Promise<PressRelease | null> {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_KEY;
@@ -82,7 +89,7 @@ export default async function PressReleaseDetailPage({
           <span
             className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[pr.status] ?? "bg-white/[0.06] text-white/50"}`}
           >
-            {pr.status}
+            {STATUS_LABELS[pr.status] ?? pr.status}
           </span>
         </div>
 

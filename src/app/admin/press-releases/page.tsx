@@ -17,6 +17,13 @@ const STATUS_STYLES: Record<string, string> = {
   failed: "bg-red-500/10 text-red-400/70",
 };
 
+const STATUS_LABELS: Record<string, string> = {
+  collected: "수집됨",
+  embedded: "분석됨",
+  processed: "발행됨",
+  failed: "실패",
+};
+
 async function getPressReleases(
   searchParams: Record<string, string | undefined>,
 ) {
@@ -82,7 +89,7 @@ export default async function PressReleasesPage({
                   : "text-white/30 hover:bg-white/[0.04] hover:text-white/60"
               }`}
             >
-              {s || "전체"}
+              {STATUS_LABELS[s] ?? "전체"}
             </a>
           ))}
         </div>
@@ -126,9 +133,9 @@ export default async function PressReleasesPage({
                     <td className="px-5 py-4">
                        <span
                          className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[pr.status] ?? "bg-white/[0.06] text-white/50"}`}
-                       >
-                        {pr.status}
-                      </span>
+                        >
+                         {STATUS_LABELS[pr.status] ?? pr.status}
+                       </span>
                     </td>
                     <td className="px-5 py-4 text-white/30">
                       {new Date(pr.published_at).toLocaleDateString("ko-KR")}
