@@ -47,20 +47,39 @@ async function insertArticle(
     return "duplicate";
   }
 
-  const insertResponse = await deps.supabase.from("press_releases").insert({
-    origin_id: article.originId,
-    source: article.source,
-    title: article.title,
-    content: article.body,
-    link: article.originalLink,
-    images: article.imageUrls,
-    attachments: article.attachmentUrls,
-    published_at: article.date,
-    status: "collected",
-  });
+  const insertResponse = await deps.supabase
+    .from("press_releases")
+    .insert({
+      origin_id: article.originId,
+      source: article.source,
+      title: article.title,
+      content: article.body,
+      link: article.originalLink,
+      images: article.imageUrls,
+      attachments: article.attachmentUrls,
+      published_at: article.date,
+      status: "processed",
+    })
+    .select("id")
+    .single();
 
   if (insertResponse.error) {
     throw new Error(insertResponse.error.message);
+  }
+
+  const articleInsert = await deps.supabase.from("articles").insert({
+    press_release_id: insertResponse.data.id,
+    title: article.title,
+    body: article.body,
+    images: article.imageUrls,
+    category: "press_release",
+    source: article.source,
+    source_url: article.originalLink,
+    status: "generated",
+  });
+
+  if (articleInsert.error) {
+    throw new Error(articleInsert.error.message);
   }
 
   return "inserted";
