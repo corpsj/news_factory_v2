@@ -92,6 +92,7 @@ async function crawlSite(
   site: SiteConfig,
   deps: CrawlerDependencies,
   options: Required<Omit<CrawlOptions, "siteIds" | "dateRange">> & { dateRange?: CrawlOptions["dateRange"] },
+  onComplete?: (result: CrawlSiteResult) => void,
 ): Promise<CrawlSiteResult> {
   const startedAt = new Date().toISOString();
   let errorMessage: string | undefined;
@@ -183,6 +184,7 @@ async function crawlSite(
     };
 
     await writeCrawlLog(deps, site, result, startedAt);
+    onComplete?.(result);
     return result;
   } catch (error) {
     errorMessage = error instanceof Error ? error.message : "Unknown crawl error";
@@ -198,6 +200,7 @@ async function crawlSite(
     };
 
     await writeCrawlLog(deps, site, failedResult, startedAt);
+    onComplete?.(failedResult);
     return failedResult;
   }
 }
@@ -205,6 +208,7 @@ async function crawlSite(
 export async function runCrawler(
   options: CrawlOptions,
   dependencies: Partial<CrawlerDependencies>,
+  onSiteComplete?: (result: CrawlSiteResult) => void,
 ): Promise<CrawlRunResult> {
   if (!dependencies.supabase) {
     throw new Error("Supabase client is required for crawling");
@@ -228,7 +232,7 @@ export async function runCrawler(
   const limit = pLimit(normalizedOptions.siteConcurrency);
 
   const results = await Promise.all(
-    sites.map((site) => limit(() => crawlSite(site, deps, normalizedOptions))),
+    sites.map((site) => limit(() => crawlSite(site, deps, normalizedOptions, onSiteComplete))),
   );
 
   const totalFound = results.reduce((sum, site) => sum + site.found, 0);

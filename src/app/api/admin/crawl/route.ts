@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { SITES_BY_ID } from "@/config/sites";
-import { executeManualCrawl } from "@/lib/pipeline/manual";
+import { executeManualCrawl, type PipelineEvent } from "@/lib/pipeline/manual";
+
+const DEFAULT_MAX_PAGES = 10;
+const DEFAULT_LIMIT_PER_SITE = 200;
 
 export async function POST(request: Request) {
   try {
@@ -19,7 +22,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { siteIds, limitPerSite, maxPages, dateRange, delayMs } = body;
+    const { siteIds, dateRange, delayMs } = body;
 
     if (siteIds && Array.isArray(siteIds)) {
       const unknownIds = siteIds.filter((id: string) => !SITES_BY_ID.has(id));
@@ -31,22 +34,47 @@ export async function POST(request: Request) {
       }
     }
 
-    const clampedMaxPages = Math.min(Math.max(maxPages ?? 1, 1), 5);
-    const clampedLimitPerSite = Math.min(Math.max(limitPerSite ?? 10, 1), 100);
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        const send = (event: PipelineEvent) => {
+          try {
+            controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
+          } catch {
+            // stream closed by client
+          }
+        };
 
-    const result = await executeManualCrawl({
-      siteIds,
-      limitPerSite: clampedLimitPerSite,
-      maxPages: clampedMaxPages,
-      dateRange,
-      delayMs,
+        try {
+          await executeManualCrawl(
+            {
+              siteIds,
+              limitPerSite: DEFAULT_LIMIT_PER_SITE,
+              maxPages: DEFAULT_MAX_PAGES,
+              dateRange,
+              delayMs,
+            },
+            send,
+          );
+        } catch (err) {
+          send({ type: "error", message: err instanceof Error ? err.message : "Internal error" });
+        } finally {
+          try {
+            controller.close();
+          } catch {
+            // already closed
+          }
+        }
+      },
     });
 
-    if (!result.success && result.error === "Manual crawl already in progress") {
-      return NextResponse.json(result, { status: 409 });
-    }
-
-    return NextResponse.json(result);
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "application/x-ndjson",
+        "Cache-Control": "no-cache, no-store",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Internal error";
     return NextResponse.json({ error: message }, { status: 500 });
