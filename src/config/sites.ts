@@ -288,7 +288,7 @@ export const SITES: SiteConfig[] = [
     name: "강진군청",
     type: "gangjin",
     listUrl: "https://www.gangjin.go.kr/www/government/news/press",
-    detailUrlTemplate: "https://www.gangjin.go.kr/www/government/news/press?idx={id}",
+    detailUrlTemplate: "https://www.gangjin.go.kr/www/government/news/press?idx={id}&mode=view",
     idPattern: /idx=(\d+)/,
     selectors: JEONNAM_SI_SELECTORS,
     paginationParam: "pageNo",
