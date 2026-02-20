@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://news-factory-v2.vercel.app"),
-  title: "뉴스팩토리",
+  title: "News Factory",
   description: "광주·전남 27개 지자체 보도자료를 AI로 기사화하는 뉴스 플랫폼",
 };
 
