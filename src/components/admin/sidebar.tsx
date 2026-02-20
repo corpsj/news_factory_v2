@@ -25,10 +25,11 @@ function SidebarContent({
   return (
     <>
       <div className="flex h-16 items-center gap-3 px-5">
-        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white">
-          <span className="text-xs font-bold text-black">NF</span>
-        </div>
-        <span className="text-sm font-semibold text-white">News Factory</span>
+        <svg width="28" height="28" viewBox="0 0 32 32" className="shrink-0" role="img" aria-label="News Factory">
+          <rect width="32" height="32" rx="8" fill="white" />
+          <path d="M8 25V7h3l10 13V7h3v18h-3L11 12v13H8z" fill="#09090b" />
+        </svg>
+        <span className="text-sm font-semibold tracking-wide text-white">NEWS FACTORY</span>
       </div>
 
       <nav className="flex flex-1 flex-col gap-0.5 px-3 py-2">
