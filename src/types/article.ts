@@ -1,4 +1,5 @@
 export const ARTICLE_CATEGORIES = [
+  "press_release",
   "economy",
   "politics",
   "society",

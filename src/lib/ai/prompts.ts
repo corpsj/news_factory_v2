@@ -48,7 +48,7 @@ export function buildArticleGenerationUserPrompt(request: ArticleGenerationReque
     "2) 객관적 어조를 유지하고 선정적 표현을 금지하세요.",
     "3) 제목 후보 3개를 만들고, 최종 대표 제목 1개를 선택하세요.",
     "4) 3줄 요약(summary_lines)을 작성하세요.",
-    "5) 카테고리는 economy, politics, society, sports, culture, opinion, editorial 중 하나만 선택하세요.",
+    "5) 카테고리는 반드시 press_release로 지정하세요.",
     "6) 본문(body)은 HTML 문자열로 작성하며 <p> 태그를 필수 사용하고 핵심어 강조에 <b> 태그를 사용하세요.",
     "7) 사실 관계는 입력 내용과 관련 보도자료 맥락에서 벗어나지 마세요.",
     "",
@@ -70,7 +70,7 @@ export function buildArticleGenerationUserPrompt(request: ArticleGenerationReque
     '  "subtitle": "기사 부제 1개",',
     '  "summary_lines": ["요약1", "요약2", "요약3"],',
     '  "body": "<p>첫 문단...</p><p>둘째 문단...</p>",',
-    '  "category": "economy|politics|society|sports|culture|opinion|editorial"',
+    '  "category": "press_release"',
     "}",
   ].join("\n");
 }

@@ -12,6 +12,7 @@ type ArticleRow = {
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
+  press_release: "보도자료",
   economy: "경제",
   politics: "정치",
   society: "사회",
@@ -22,6 +23,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
+  press_release: "bg-white/[0.08] text-white/70",
   economy: "bg-blue-500/10 text-blue-300/70",
   politics: "bg-red-500/10 text-red-300/70",
   society: "bg-emerald-500/10 text-emerald-300/70",

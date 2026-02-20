@@ -54,7 +54,7 @@ function normalizeCategory(value: unknown): ArticleCategory {
   if (ARTICLE_CATEGORIES.includes(category as ArticleCategory)) {
     return category as ArticleCategory;
   }
-  return "society";
+  return "press_release";
 }
 
 function parseGeneratedArticle(raw: string): GeneratedArticle {

@@ -16,6 +16,7 @@ export async function GET(request: Request) {
   if (rateLimitResponse) return withCors(rateLimitResponse);
 
   const CATEGORY_NAMES: Record<string, string> = {
+    press_release: "보도자료",
     economy: "경제",
     politics: "정치",
     society: "사회",

@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { ARTICLE_CATEGORIES } from "@/types/article";
 
 const CATEGORY_LABELS: Record<string, string> = {
+  press_release: "보도자료",
   economy: "경제",
   politics: "정치",
   society: "사회",
@@ -12,6 +13,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
+  press_release: "bg-white/40",
   economy: "bg-blue-400/60",
   politics: "bg-red-400/60",
   society: "bg-emerald-400/60",

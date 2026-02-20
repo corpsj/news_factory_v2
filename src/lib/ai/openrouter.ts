@@ -49,7 +49,7 @@ function toStringArray(value: unknown): string[] {
 function normalizeCategory(value: unknown): ArticleCategory {
   const category = typeof value === "string" ? value.trim().toLowerCase() : "";
   if (ARTICLE_CATEGORIES.includes(category as ArticleCategory)) return category as ArticleCategory;
-  return "society";
+  return "press_release";
 }
 
 function parseGeneratedArticle(raw: string): GeneratedArticle {
