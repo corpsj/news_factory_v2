@@ -2,7 +2,12 @@ import { loadEnvConfig } from "@next/env";
 import { executePipeline } from "@/lib/pipeline/orchestrator";
 
 type CliOptions = {
+  sites?: string;
   limit?: number;
+  maxPages?: number;
+  dateFrom?: string;
+  dateTo?: string;
+  delay?: number;
   embedLimit?: number;
   generateLimit?: number;
   concurrency?: number;
@@ -16,8 +21,38 @@ function parseArgs(argv: string[]): CliOptions {
     const arg = argv[index];
     const next = argv[index + 1];
 
+    if (arg === "--sites" && next) {
+      options.sites = next;
+      index += 1;
+      continue;
+    }
+
     if (arg === "--limit" && next) {
       options.limit = Number(next);
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--max-pages" && next) {
+      options.maxPages = Number(next);
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--date-from" && next) {
+      options.dateFrom = next;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--date-to" && next) {
+      options.dateTo = next;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--delay" && next) {
+      options.delay = Number(next);
       index += 1;
       continue;
     }
@@ -58,13 +93,27 @@ async function main() {
 
   const options = parseArgs(process.argv.slice(2));
 
+  const siteIds = options.sites
+    ?.split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const dateRange =
+    options.dateFrom && options.dateTo
+      ? { from: options.dateFrom, to: options.dateTo }
+      : undefined;
+
   console.log("=== News Factory v2 — Full Pipeline ===\n");
 
   const result = await executePipeline({
+    siteIds: siteIds && siteIds.length > 0 ? siteIds : undefined,
     limitPerSite: positiveInt(options.limit) ?? 5,
+    maxPages: positiveInt(options.maxPages) ?? 5,
+    dateRange,
+    delayMs: positiveInt(options.delay) ?? 200,
     embedLimit: positiveInt(options.embedLimit) ?? 50,
     generateLimit: positiveInt(options.generateLimit) ?? 20,
-    siteConcurrency: positiveInt(options.concurrency) ?? 5,
+    siteConcurrency: positiveInt(options.concurrency) ?? 15,
     verbose: options.verbose,
   });
 

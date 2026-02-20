@@ -18,6 +18,9 @@ export type PipelineStageLog = {
 export type PipelineOptions = {
   siteIds?: string[];
   limitPerSite?: number;
+  maxPages?: number;
+  dateRange?: { from: string; to: string };
+  delayMs?: number;
   embedLimit?: number;
   generateLimit?: number;
   siteConcurrency?: number;
@@ -87,7 +90,10 @@ async function runCrawlStage(
       {
         siteIds: options.siteIds,
         limitPerSite: options.limitPerSite ?? 5,
-        siteConcurrency: options.siteConcurrency ?? 5,
+        maxPages: options.maxPages ?? 5,
+        dateRange: options.dateRange,
+        delayMs: options.delayMs ?? 200,
+        siteConcurrency: options.siteConcurrency ?? 15,
       },
       { supabase },
     );

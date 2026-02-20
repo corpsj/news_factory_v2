@@ -9,25 +9,61 @@ on:
     # KST 18:00 = UTC 09:00
     - cron: "0 9 * * *"
   workflow_dispatch:
+    inputs:
+      siteIds:
+        description: "Comma-separated site IDs (empty = all)"
+        required: false
+        default: ""
+      maxPages:
+        description: "Max pages per site"
+        required: false
+        default: "5"
+      limitPerSite:
+        description: "Max articles per site"
+        required: false
+        default: "5"
+      dateFrom:
+        description: "Date range start (YYYY-MM-DD)"
+        required: false
+        default: ""
+      dateTo:
+        description: "Date range end (YYYY-MM-DD)"
+        required: false
+        default: ""
 
 jobs:
-  trigger-pipeline:
+  run-pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 30
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      OPENROUTER_MODEL: ${{ secrets.OPENROUTER_MODEL }}
+      ALLOW_INSECURE_TLS: "1"
     steps:
-      - name: Trigger crawl pipeline
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run pipeline
         run: |
-          response=$(curl -s -w "\n%{http_code}" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "${{ secrets.APP_URL }}/api/cron/crawl")
-          
-          http_code=$(echo "$response" | tail -1)
-          body=$(echo "$response" | head -n -1)
-          
-          echo "Status: $http_code"
-          echo "Response: $body"
-          
-          if [ "$http_code" -ge 400 ]; then
-            echo "::error::Pipeline request failed with status $http_code"
-            exit 1
+          ARGS=""
+          if [ -n "${{ inputs.siteIds }}" ]; then
+            ARGS="$ARGS --sites ${{ inputs.siteIds }}"
           fi
+          if [ -n "${{ inputs.maxPages }}" ]; then
+            ARGS="$ARGS --max-pages ${{ inputs.maxPages }}"
+          fi
+          if [ -n "${{ inputs.limitPerSite }}" ]; then
+            ARGS="$ARGS --limit ${{ inputs.limitPerSite }}"
+          fi
+          if [ -n "${{ inputs.dateFrom }}" ] && [ -n "${{ inputs.dateTo }}" ]; then
+            ARGS="$ARGS --date-from ${{ inputs.dateFrom }} --date-to ${{ inputs.dateTo }}"
+          fi
+          npx tsx scripts/run-pipeline.ts $ARGS

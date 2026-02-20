@@ -2,14 +2,6 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 
-export type PipelineEvent =
-  | { type: "pipeline_start"; totalSites: number; siteIds: string[]; siteNames: string[] }
-  | { type: "stage_start"; stage: string }
-  | { type: "site_complete"; siteId: string; siteName: string; found: number; inserted: number; failed: number; status: string; durationMs: number; errorMessage?: string }
-  | { type: "stage_complete"; stage: string; durationMs: number; detail: Record<string, unknown> }
-  | { type: "pipeline_complete"; success: boolean; totalDurationMs: number; partial?: boolean; message?: string }
-  | { type: "error"; message: string };
-
 export type SiteProgress = {
   siteName: string;
   status: "waiting" | "success" | "failed" | "partial";
@@ -68,6 +60,22 @@ const INITIAL_STAGES: Record<string, StageProgress> = {
   generate: { status: "pending" },
 };
 
+type CrawlLogRow = {
+  site_name: string;
+  status: string;
+  articles_found: number;
+  articles_new: number;
+  error_message: string | null;
+  started_at: string;
+  completed_at: string;
+};
+
+type PollResponse = {
+  siteResults: CrawlLogRow[];
+  stageResults: CrawlLogRow[];
+  isComplete: boolean;
+};
+
 interface PipelineContextValue {
   running: boolean;
   error: string | null;
@@ -90,6 +98,8 @@ export function usePipeline() {
   return ctx;
 }
 
+const POLL_INTERVAL_MS = 5_000;
+
 export function PipelineProvider({ children }: { children: ReactNode }) {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,9 +111,11 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
   const activeRef = useRef(false);
-  const completedCountRef = useRef(0);
+  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const triggeredAtRef = useRef<string | null>(null);
+  const startTimeRef = useRef(0);
 
-  const showProgress = totalSites > 0;
+  const showProgress = running || totalSites > 0;
 
   useEffect(() => {
     if (!running || !startTime) return;
@@ -111,131 +123,160 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, [running, startTime]);
 
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+    };
+  }, []);
+
+  const stopPolling = useCallback(() => {
+    if (pollTimerRef.current) {
+      clearInterval(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
+  }, []);
+
   const resetPipeline = useCallback(() => {
+    stopPolling();
+    triggeredAtRef.current = null;
     setTotalSites(0);
     setCompletedCount(0);
-    completedCountRef.current = 0;
     setSiteProgress(new Map());
     setStages({ ...INITIAL_STAGES });
     setPipelineResult(null);
     setStartTime(null);
     setElapsedMs(0);
     setError(null);
-  }, []);
+  }, [stopPolling]);
 
-  const startPipeline = useCallback((config: PipelineConfig) => {
-    if (activeRef.current) return;
-    activeRef.current = true;
+  const processPollData = useCallback((data: PollResponse) => {
+    const progress = new Map<string, SiteProgress>();
+    for (const log of data.siteResults) {
+      progress.set(log.site_name, {
+        siteName: log.site_name,
+        status: log.status as "success" | "failed" | "partial",
+        found: log.articles_found,
+        inserted: log.articles_new,
+        errorMessage: log.error_message ?? undefined,
+      });
+    }
+    setSiteProgress(progress);
+    setCompletedCount(data.siteResults.length);
 
-    resetPipeline();
-    setRunning(true);
-    const pipelineStartMs = Date.now();
-    setStartTime(pipelineStartMs);
-
-    function processEvent(event: PipelineEvent) {
-      switch (event.type) {
-        case "pipeline_start": {
-          setTotalSites(event.totalSites);
-          const initial = new Map<string, SiteProgress>();
-          event.siteIds.forEach((id, i) => {
-            initial.set(id, { siteName: event.siteNames[i], status: "waiting", found: 0, inserted: 0 });
-          });
-          setSiteProgress(initial);
-          break;
-        }
-        case "stage_start":
-          setStages((prev) => ({ ...prev, [event.stage]: { status: "active" } }));
-          break;
-        case "site_complete":
-          setSiteProgress((prev) => {
-            const next = new Map(prev);
-            next.set(event.siteId, {
-              siteName: event.siteName,
-              status: event.status as "success" | "failed" | "partial",
-              found: event.found,
-              inserted: event.inserted,
-              errorMessage: event.errorMessage,
-            });
-            return next;
-          });
-          completedCountRef.current += 1;
-          setCompletedCount((prev) => prev + 1);
-          break;
-        case "stage_complete":
-          setStages((prev) => ({
-            ...prev,
-            [event.stage]: { status: "completed", durationMs: event.durationMs, detail: event.detail },
-          }));
-          break;
-        case "pipeline_complete":
-          setPipelineResult(event);
-          break;
-        case "error":
-          setError(event.message);
-          break;
-      }
+    const stageMap = new Map<string, CrawlLogRow>();
+    for (const log of data.stageResults) {
+      stageMap.set(log.site_name, log);
     }
 
-    (async () => {
-      try {
-        const body: Record<string, unknown> = {
-          siteIds: config.siteIds?.length ? config.siteIds : undefined,
+    setStages(() => {
+      const next: Record<string, StageProgress> = {
+        crawl: { status: "active" },
+        embed: { status: "pending" },
+        generate: { status: "pending" },
+      };
+
+      const crawlLog = stageMap.get("pipeline:crawl");
+      if (crawlLog) {
+        const durationMs = new Date(crawlLog.completed_at).getTime() - new Date(crawlLog.started_at).getTime();
+        const totalFound = data.siteResults.reduce((sum, s) => sum + s.articles_found, 0);
+        const totalInserted = data.siteResults.reduce((sum, s) => sum + s.articles_new, 0);
+        const totalFailed = data.siteResults.filter((s) => s.status === "failed").length;
+        next.crawl = {
+          status: "completed",
+          durationMs,
+          detail: { totalSites: data.siteResults.length, totalFound, totalInserted, totalFailed },
         };
-        if (config.dateRange) {
-          body.dateRange = config.dateRange;
-        }
-
-        const res = await fetch("/api/admin/crawl", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-
-        if (!res.ok) {
-          const text = await res.text();
-          let msg = `HTTP ${res.status}`;
-          try { msg = JSON.parse(text).error ?? msg; } catch { /* non-JSON */ }
-          throw new Error(msg);
-        }
-
-        if (!res.body) throw new Error("응답 스트림 없음");
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        for (;;) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() ?? "";
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            try { processEvent(JSON.parse(line)); } catch { /* skip malformed */ }
-          }
-        }
-
-        if (buffer.trim()) {
-          try { processEvent(JSON.parse(buffer)); } catch { /* skip trailing */ }
-        }
-      } catch (err) {
-        if (completedCountRef.current > 0) {
-          setPipelineResult({
-            success: true,
-            totalDurationMs: Date.now() - pipelineStartMs,
-            partial: true,
-            message: "연결이 끊어졌지만 일부 사이트가 처리되었습니다",
-          });
-        } else {
-          setError(err instanceof Error ? err.message : "파이프라인 실행 실패");
-        }
-      } finally {
-        setRunning(false);
-        activeRef.current = false;
+        next.embed = { status: stageMap.has("pipeline:embed") ? "completed" : "active" };
       }
-    })();
-  }, [resetPipeline]);
+
+      const embedLog = stageMap.get("pipeline:embed");
+      if (embedLog) {
+        const durationMs = new Date(embedLog.completed_at).getTime() - new Date(embedLog.started_at).getTime();
+        next.embed = { status: "completed", durationMs };
+        next.generate = { status: stageMap.has("pipeline:generate") ? "completed" : "active" };
+      }
+
+      const generateLog = stageMap.get("pipeline:generate");
+      if (generateLog) {
+        const durationMs = new Date(generateLog.completed_at).getTime() - new Date(generateLog.started_at).getTime();
+        next.generate = { status: "completed", durationMs };
+      }
+
+      return next;
+    });
+
+    if (data.isComplete) {
+      stopPolling();
+      const hasFailed = data.stageResults.some((s) => s.status === "failed");
+      setPipelineResult({
+        success: !hasFailed,
+        totalDurationMs: Date.now() - startTimeRef.current,
+      });
+      setRunning(false);
+      activeRef.current = false;
+    }
+  }, [stopPolling]);
+
+  const poll = useCallback(() => {
+    if (!triggeredAtRef.current) return;
+
+    fetch(`/api/admin/pipeline-runs?since=${triggeredAtRef.current}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: PollResponse | null) => {
+        if (data) processPollData(data);
+      })
+      .catch(() => {
+        /* retry next interval */
+      });
+  }, [processPollData]);
+
+  const startPipeline = useCallback(
+    (config: PipelineConfig) => {
+      if (activeRef.current) return;
+      activeRef.current = true;
+
+      resetPipeline();
+      setRunning(true);
+      const now = Date.now();
+      startTimeRef.current = now;
+      setStartTime(now);
+      setTotalSites(config.siteIds?.length || 27);
+      setStages({
+        crawl: { status: "active" },
+        embed: { status: "pending" },
+        generate: { status: "pending" },
+      });
+
+      (async () => {
+        try {
+          const body: Record<string, unknown> = {};
+          if (config.siteIds?.length) body.siteIds = config.siteIds;
+          if (config.dateRange) body.dateRange = config.dateRange;
+
+          const res = await fetch("/api/admin/trigger-crawl", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error((data as { error?: string }).error ?? `HTTP ${res.status}`);
+          }
+
+          const result = (await res.json()) as { triggeredAt: string };
+          triggeredAtRef.current = result.triggeredAt;
+
+          pollTimerRef.current = setInterval(poll, POLL_INTERVAL_MS);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "파이프라인 트리거 실패");
+          setRunning(false);
+          activeRef.current = false;
+        }
+      })();
+    },
+    [resetPipeline, poll],
+  );
 
   const value: PipelineContextValue = {
     running,
