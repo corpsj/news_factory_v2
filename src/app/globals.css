@@ -32,3 +32,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 input[type="number"]::-webkit-inner-spin-button {
   opacity: 0.3;
 }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(1rem); }
+  to { opacity: 1; transform: translateX(0); }
+}
