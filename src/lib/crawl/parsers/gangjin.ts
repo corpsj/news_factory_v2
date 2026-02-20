@@ -7,6 +7,6 @@ export const parseGangjin: SiteParser = async (ctx) => {
     titleSelectors: [".c_tit", "a"],
     dateSelectors: [".date", ".c_exp li:nth-child(2)", "td"],
     dateColumnIndex: 3,
-    contentSelectors: [".text_viewbox", ".viewbox", ".contents"],
+    contentSelectors: [".text_viewbox", ".viewbox", ".contents", ".contbox"],
   });
 };

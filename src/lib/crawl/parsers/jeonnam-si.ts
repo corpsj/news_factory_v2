@@ -17,6 +17,7 @@ export const parseJeonnamSi: SiteParser = async (ctx) => {
       ".show_info",
       ".view_content",
       ".contbox",
+      ".module_view_box",
     ],
   });
 };

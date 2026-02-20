@@ -7,6 +7,6 @@ export const parseWando: SiteParser = async (ctx) => {
     titleSelectors: ["span.span_tit a", "a"],
     dateSelectors: ["span.span_date", "td"],
     dateColumnIndex: 0,
-    contentSelectors: [".board_cont", ".board_view", ".view_content"],
+    contentSelectors: [".board_cont", ".board_view", ".view_content", ".wrap_cont", ".con"],
   });
 };

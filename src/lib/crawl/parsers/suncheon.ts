@@ -7,6 +7,6 @@ export const parseSuncheon: SiteParser = async (ctx) => {
     titleSelectors: ["td.subject a", "td a"],
     dateSelectors: ["td"],
     dateColumnIndex: 4,
-    contentSelectors: [".bbs_content_detail", ".view_content"],
+    contentSelectors: [".bbs_content_detail", ".view_content", ".wrap_cont"],
   });
 };

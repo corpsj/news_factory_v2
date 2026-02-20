@@ -7,6 +7,7 @@ const CONTENT_SELECTORS = [
   ".board_view_con",
   ".view_content",
   ".board_view",
+  ".other_site_view",
 ];
 
 function sleep(ms: number): Promise<void> {

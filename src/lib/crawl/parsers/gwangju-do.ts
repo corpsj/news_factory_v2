@@ -4,9 +4,9 @@ import { parseWithPattern } from "./common";
 export const parseGwangjuDo: SiteParser = async (ctx) => {
   return parseWithPattern(ctx, {
     listSelectors: [".board_list_body .body_row", "table tbody tr", ".board_list li"],
-    titleSelectors: [".subject a", "td.subject a", "td a", "dt a", "a"],
+    titleSelectors: [".subject a", "td.subject a", "td a", "dl dt a", "dt.new a", "dt a", "a"],
     dateSelectors: [".date", "dd.date", "dd", "td"],
     dateColumnIndex: 3,
-    contentSelectors: [".board_view_con", ".view_cont", ".boardContents", ".d_cont_description", ".bd_view_cont"],
+    contentSelectors: [".board_view_body", ".board_view_con", ".view_cont", ".boardContents", ".d_cont_description", ".bd_view_cont"],
   });
 };
