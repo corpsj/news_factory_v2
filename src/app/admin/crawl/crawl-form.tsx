@@ -69,6 +69,23 @@ const INITIAL_STAGES: Record<string, StageProgress> = {
   generate: { status: "pending" },
 };
 
+type DatePreset = { label: string; key: string; days: number | null };
+
+const DATE_PRESETS: DatePreset[] = [
+  { label: "오늘", key: "today", days: 0 },
+  { label: "3일", key: "3d", days: 3 },
+  { label: "7일", key: "7d", days: 7 },
+  { label: "한달", key: "1m", days: 30 },
+  { label: "전체", key: "all", days: null },
+];
+
+function toDateString(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 function formatElapsed(ms: number): string {
   const totalSec = Math.floor(ms / 1000);
   const min = Math.floor(totalSec / 60);
@@ -88,6 +105,7 @@ export function CrawlForm({ sites }: { sites: SiteOption[] }) {
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [activePreset, setActivePreset] = useState<string | null>(null);
 
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -120,6 +138,30 @@ export function CrawlForm({ sites }: { sites: SiteOption[] }) {
     setSelectedSites((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
     );
+  }
+
+  function selectPreset(preset: DatePreset) {
+    setActivePreset(preset.key);
+    if (preset.days === null) {
+      setDateFrom("");
+      setDateTo("");
+      return;
+    }
+    const today = new Date();
+    setDateTo(toDateString(today));
+    if (preset.days === 0) {
+      setDateFrom(toDateString(today));
+    } else {
+      const from = new Date(today);
+      from.setDate(from.getDate() - preset.days);
+      setDateFrom(toDateString(from));
+    }
+  }
+
+  function handleDateChange(field: "from" | "to", value: string) {
+    setActivePreset(null);
+    if (field === "from") setDateFrom(value);
+    else setDateTo(value);
   }
 
   function resetProgress() {
@@ -277,29 +319,52 @@ export function CrawlForm({ sites }: { sites: SiteOption[] }) {
 
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-6">
         <h3 className="mb-4 text-sm font-medium text-white/60">수집 기간</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-wrap gap-2">
+          {DATE_PRESETS.map((preset) => (
+            <button
+              key={preset.key}
+              type="button"
+              onClick={() => selectPreset(preset)}
+              className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all cursor-pointer ${
+                activePreset === preset.key
+                  ? "border-white/[0.20] bg-white/[0.12] text-white"
+                  : "border-white/[0.06] bg-white/[0.02] text-white/35 hover:border-white/[0.12] hover:text-white/60"
+              }`}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3">
           <div>
-            <label htmlFor="crawl-date-from" className="mb-2 block text-xs text-white/30">시작일</label>
+            <label htmlFor="crawl-date-from" className="mb-1.5 block text-[11px] text-white/25">시작일</label>
             <input
               id="crawl-date-from"
               type="date"
               value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="w-full rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 text-base text-white transition-colors placeholder:text-white/20 focus:border-white/[0.20] focus:bg-white/[0.06] focus:outline-none"
+              onChange={(e) => handleDateChange("from", e.target.value)}
+              className="w-full rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-sm text-white/70 transition-colors focus:border-white/[0.15] focus:text-white focus:outline-none"
             />
           </div>
           <div>
-            <label htmlFor="crawl-date-to" className="mb-2 block text-xs text-white/30">종료일</label>
+            <label htmlFor="crawl-date-to" className="mb-1.5 block text-[11px] text-white/25">종료일</label>
             <input
               id="crawl-date-to"
               type="date"
               value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="w-full rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 text-base text-white transition-colors placeholder:text-white/20 focus:border-white/[0.20] focus:bg-white/[0.06] focus:outline-none"
+              onChange={(e) => handleDateChange("to", e.target.value)}
+              className="w-full rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-sm text-white/70 transition-colors focus:border-white/[0.15] focus:text-white focus:outline-none"
             />
           </div>
         </div>
-        <p className="mt-3 text-xs text-white/20">미선택 시 전체 기간 수집</p>
+        {dateFrom && dateTo && (
+          <p className="mt-2.5 text-xs text-white/25">
+            {dateFrom} ~ {dateTo}
+          </p>
+        )}
+        {!dateFrom && !dateTo && (
+          <p className="mt-2.5 text-xs text-white/20">미선택 시 전체 기간 수집</p>
+        )}
       </div>
 
       <button
