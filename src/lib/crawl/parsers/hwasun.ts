@@ -6,7 +6,7 @@ export const parseHwasun: SiteParser = async (ctx) => {
     listSelectors: ["table tbody tr"],
     titleSelectors: ["td a"],
     dateSelectors: ["td"],
-    dateColumnIndex: 3,
+    dateColumnIndex: 4,
     contentSelectors: [".view_content", ".board_contents"],
   });
 };

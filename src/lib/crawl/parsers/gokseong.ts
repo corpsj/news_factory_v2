@@ -10,7 +10,7 @@ export const parseGokseong: SiteParser = async (ctx) => {
       "div.board_list li",
       'div[class*="board"] li',
     ],
-    titleSelectors: ["td a", "a"],
+    titleSelectors: ["td.tit a", "td a", "a"],
     dateSelectors: ["td"],
     dateColumnIndex: 3,
     contentSelectors: [".board_view_con", ".view_content"],

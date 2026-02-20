@@ -65,10 +65,10 @@ const HWASUN_SELECTORS: SiteSelectorConfig = {
 };
 
 const HAENAM_SELECTORS: SiteSelectorConfig = {
-  list: ["ul.board_list li:not(.thead)", "table tbody tr"],
-  title: ["a:first", "td a"],
-  date: [".date", ".day", "td"],
-  dateColumnIndex: 3,
+  list: ["div.press_list > div.item", "ul.board_list li:not(.thead)", "table tbody tr"],
+  title: ["div.right h4 a", "h4 a", "a:first", "td a"],
+  date: ["span.date", ".date", ".day", "td"],
+  dateColumnIndex: 0,
   content: [".board_view"],
 };
 
@@ -88,6 +88,14 @@ const WANDO_SELECTORS: SiteSelectorConfig = {
   content: [".board_view", ".view_content"],
 };
 
+const MOKPO_SELECTORS: SiteSelectorConfig = {
+  list: ["div.board_thumb > div.item"],
+  title: ["h3", "a"],
+  date: ["dd.date", ".date"],
+  dateColumnIndex: 0,
+  content: [".bbs_content", ".view_content"],
+};
+
 export const SITES: SiteConfig[] = [
   {
     id: "gwangju-city",
@@ -102,7 +110,7 @@ export const SITES: SiteConfig[] = [
   {
     id: "donggu",
     name: "광주 동구",
-    type: "gwangju-es",
+    type: "gwangju-es-nolist",
     listUrl: "https://www.donggu.kr/board.es?mid=a10102040100&bid=0243",
     detailUrlTemplate: "https://www.donggu.kr/board.es?mid=a10102040100&bid=0243&act=view&list_no={id}",
     idPattern: /list_no=(\d+)/,
@@ -131,7 +139,7 @@ export const SITES: SiteConfig[] = [
   {
     id: "bukgu",
     name: "광주 북구",
-    type: "gwangju-es",
+    type: "gwangju-es-nolist",
     listUrl: "https://bukgu.gwangju.kr/board.es?mid=a10201020000&bid=0275",
     detailUrlTemplate: "https://bukgu.gwangju.kr/board.es?mid=a10201020000&bid=0275&act=view&list_no={id}",
     idPattern: /list_no=(\d+)/,
@@ -161,22 +169,22 @@ export const SITES: SiteConfig[] = [
   {
     id: "mokpo",
     name: "목포시",
-    type: "jeonnam-si",
+    type: "mokpo",
     listUrl: "https://www.mokpo.go.kr/www/mokpo_news/press_release",
     detailUrlTemplate: "https://www.mokpo.go.kr/www/mokpo_news/press_release/report_material?idx={id}&mode=view",
     idPattern: /idx=(\d+)/,
-    selectors: JEONNAM_SI_SELECTORS,
-    paginationParam: "pageNo",
+    selectors: MOKPO_SELECTORS,
+    paginationParam: "page",
   },
   {
     id: "yeosu",
     name: "여수시",
     type: "jeonnam-si",
     listUrl: "https://www.yeosu.go.kr/www/govt/news/release",
-    detailUrlTemplate: "https://www.yeosu.go.kr/www/govt/news/release?idx={id}",
+    detailUrlTemplate: "https://www.yeosu.go.kr/www/govt/news/release/press?idx={id}&mode=view",
     idPattern: /idx=(\d+)/,
     selectors: JEONNAM_SI_SELECTORS,
-    paginationParam: "pageNo",
+    paginationParam: "page",
   },
   {
     id: "suncheon",
@@ -193,10 +201,10 @@ export const SITES: SiteConfig[] = [
     name: "나주시",
     type: "jeonnam-si",
     listUrl: "https://www.naju.go.kr/www/administration/reporting",
-    detailUrlTemplate: "https://www.naju.go.kr/www/administration/reporting?idx={id}",
+    detailUrlTemplate: "https://www.naju.go.kr/www/administration/reporting/coverage?idx={id}&mode=view",
     idPattern: /idx=(\d+)/,
     selectors: JEONNAM_SI_SELECTORS,
-    paginationParam: "pageNo",
+    paginationParam: "page",
   },
   {
     id: "gwangyang",
@@ -230,7 +238,7 @@ export const SITES: SiteConfig[] = [
   {
     id: "gurye",
     name: "구례군",
-    type: "gokseong",
+    type: "gurye",
     listUrl: "https://www.gurye.go.kr/board/list.do?bbsId=BBS_0000000000000300&menuNo=115004006000",
     detailUrlTemplate: "https://www.gurye.go.kr/board/view.do?bbsId=BBS_0000000000000300&menuNo=115004006000&nttId={id}",
     idPattern: /nttId=(\d+)/,
@@ -249,7 +257,7 @@ export const SITES: SiteConfig[] = [
   {
     id: "boseong",
     name: "보성군",
-    type: "jeonnam-si",
+    type: "boseong",
     listUrl: "https://www.boseong.go.kr/www/open_administration/city_news/press_release",
     detailUrlTemplate: "https://www.boseong.go.kr/www/open_administration/city_news/press_release?idx={id}&mode=view",
     idPattern: /idx=(\d+)/,
@@ -262,7 +270,8 @@ export const SITES: SiteConfig[] = [
     type: "hwasun",
     listUrl: "https://council.hwasun.go.kr/?PID=079",
     detailUrlTemplate: "https://council.hwasun.go.kr/?PID=079&action=view&boardId={id}",
-    idPattern: /boardId=(\d+)/,
+    // href="javascript:BoardDetailView('15176')"
+    idPattern: /BoardDetailView\('(\d+)'\)/,
     selectors: HWASUN_SELECTORS,
   },
   {
@@ -292,6 +301,7 @@ export const SITES: SiteConfig[] = [
     detailUrlTemplate: "https://www.haenam.go.kr/planweb/board/view.9is",
     idPattern: /nttId=(\d+)/,
     selectors: HAENAM_SELECTORS,
+    paginationParam: "nowPageNum",
   },
   {
     id: "muan",

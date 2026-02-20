@@ -4,17 +4,21 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export type ParserType =
   | "gwangju-do"
   | "gwangju-es"
+  | "gwangju-es-nolist"
   | "namgu"
   | "jeonnam-do"
   | "jeonnam-si"
   | "suncheon"
   | "damyang"
   | "gokseong"
+  | "gurye"
   | "hwasun"
   | "gangjin"
+  | "boseong"
   | "haenam"
   | "yeonggwang"
-  | "wando";
+  | "wando"
+  | "mokpo";
 
 export type SiteSelectorConfig = {
   list: string[];

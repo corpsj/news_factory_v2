@@ -1,161 +1,361 @@
-import { loadEnvConfig } from "@next/env";
+import axios from "axios";
+import https from "node:https";
 import { load } from "cheerio";
 import { SITES } from "@/config/sites";
-import { createHttpClient } from "@/lib/crawl/http";
 
-loadEnvConfig(process.cwd());
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
-const http = createHttpClient();
+const HEADERS = {
+  "User-Agent":
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+};
 
-const FAILED_IDS = [
-  "donggu", "seogu", "namgu", "bukgu",
-  "mokpo", "damyang", "gokseong", "gurye",
-  "goheung", "boseong", "hwasun", "jangheung",
-  "gangjin", "haenam", "yeonggwang", "jangseong",
-  "wando", "shinan",
-];
-
-const BOARD_SELECTORS = [
+const COMMON_ROW_SELECTORS = [
   "table tbody tr",
+  "table.board_basic tbody tr",
+  "table.tbltype1 tbody tr",
   ".board_list tbody tr",
   ".board_list_body .body_row",
   ".bbs_list_n tbody tr",
   ".bbs_default tbody tr",
-  ".board_list li",
   "ul.board_list li",
-  ".boardList tbody tr",
+  "ul.board_list li:not(.thead)",
+  ".board_list li",
+  "div.board_list li",
+  "div.board_list > div",
+  "div.board_list > div.item",
+  "div.board_thumb > div.item",
+  "div.board_list > div.board_thumb > div.item",
+  "div.board_list div.item",
+  "#content li",
+  ".md_list li",
+  "#news.md_list > li",
+  "div.press_list > div.item",
+  "div.tbl_type",
   ".list_wrap tbody tr",
   ".tb_list tbody tr",
   ".tbl_list tbody tr",
   ".bbs_list tbody tr",
-  ".listForm tbody tr",
   "#boardList tbody tr",
-  ".board-list tbody tr",
-  ".table_list tbody tr",
   ".news_list li",
   ".press_list li",
   ".bbsListTbl tbody tr",
   "div.list table tbody tr",
   ".board_area table tbody tr",
+  ".listBody li",
+  "ul.listBody li",
+  ".board_gallery li",
+  "div.bbs_list li",
+  "div.bbs_default li",
 ];
 
-const TITLE_SELECTORS = [
-  "td.subject a", "td a", ".subject a", "a.subject",
-  ".td_subject a", ".title a", "td.title a",
-  ".bbsTitle a", ".tit a", ".list_tit a",
+const COMMON_TITLE_SELECTORS = [
+  "td.subject a",
+  ".td_subject a",
+  "td.title a",
+  "td.title_minwon a",
+  "td.align_left a",
+  "td a",
+  ".subject a",
+  ".title a",
+  "a.subject",
+  "h3 a",
+  "h4 a",
+  "h3",
+  "a",
+  "dt a",
+  "span.span_tit a",
   "a:first-child",
+  ".item_cont h3",
+  ".cont_box h3",
+  ".title_box h3",
 ];
 
-async function diagnoseSite(site: (typeof SITES)[number]) {
-  console.log(`\n${"=".repeat(60)}`);
-  console.log(`${site.name} (${site.id}) — type: ${site.type}`);
-  console.log(`URL: ${site.listUrl}`);
-  console.log(`${"=".repeat(60)}`);
+async function fetchHtml(url: string): Promise<string> {
+  const response = await axios.get<string>(url, {
+    timeout: 30_000,
+    headers: HEADERS,
+    responseType: "text",
+    transformResponse: [(v: string) => v],
+    httpsAgent,
+    maxRedirects: 5,
+    validateStatus: (s: number) => s >= 200 && s < 400,
+  });
+  return response.data;
+}
 
-  let html: string;
-  try {
-    html = await http.fetchHtml(site.listUrl);
-  } catch (e) {
-    console.log(`HTTP FAIL: ${e instanceof Error ? e.message : e}`);
-    return;
-  }
+type SiteType = (typeof SITES)[number];
 
-  console.log(`HTML length: ${html.length} chars`);
+type DiagResult = {
+  id: string;
+  name: string;
+  type: string;
+  status: "OK" | "FAIL" | "HTTP_ERROR";
+  configRowMatch: boolean;
+  configTitleMatch: boolean;
+  configTitleHasHref: boolean;
+  bestRow: string | null;
+  bestRowCount: number;
+  bestTitle: string | null;
+  bestTitleCount: number;
+  sampleTitles: string[];
+  sampleHrefs: string[];
+  idPatternMatch: boolean;
+  dateText: string;
+  allRows: Record<string, number>;
+  allTitles: Record<string, number>;
+  allHrefs: Record<string, number>;
+  errorMsg?: string;
+};
 
+function diagnoseSite(html: string, site: SiteType): DiagResult {
   const $ = load(html);
 
-  console.log(`\n--- Board row selectors ---`);
-  for (const sel of BOARD_SELECTORS) {
+  const allRowSelectors = [...new Set([...site.selectors.list, ...COMMON_ROW_SELECTORS])];
+  const allTitleSelectors = [...new Set([...site.selectors.title, ...COMMON_TITLE_SELECTORS])];
+
+  const allRows: Record<string, number> = {};
+  for (const sel of allRowSelectors) {
     const count = $(sel).length;
-    if (count > 0) {
-      console.log(`  "${sel}" → ${count} rows`);
+    if (count > 0) allRows[sel] = count;
+  }
+
+  const configRowMatch = site.selectors.list.some((s) => allRows[s] > 0);
+
+  let bestRow: string | null = null;
+  let bestRowCount = 0;
+  for (const [sel, count] of Object.entries(allRows)) {
+    if (count > bestRowCount && count >= 3 && count <= 50) {
+      bestRowCount = count;
+      bestRow = sel;
     }
   }
 
-  console.log(`\n--- Title link selectors (first matching board row) ---`);
-  let foundRows = false;
-  for (const boardSel of BOARD_SELECTORS) {
-    const rows = $(boardSel);
-    if (rows.length === 0) continue;
-    foundRows = true;
-
-    const firstRow = rows.first();
-    for (const titleSel of TITLE_SELECTORS) {
-      const link = firstRow.find(titleSel).first();
-      if (link.length > 0) {
-        const text = link.text().trim().slice(0, 60);
-        const href = link.attr("href") ?? "(no href)";
-        console.log(`  board="${boardSel}" title="${titleSel}"`);
-        console.log(`    text: "${text}"`);
-        console.log(`    href: ${href}`);
+  if (!bestRow) {
+    for (const [sel, count] of Object.entries(allRows)) {
+      if (count > bestRowCount) {
+        bestRowCount = count;
+        bestRow = sel;
       }
     }
-    break;
   }
 
-  if (!foundRows) {
-    console.log(`  No matching board structure found!`);
-    console.log(`\n--- Page structure dump ---`);
-    console.log(`  <table> count: ${$("table").length}`);
-    console.log(`  <ul> count: ${$("ul").length}`);
-    console.log(`  <a> count: ${$("a").length}`);
+  const rowSelector = bestRow || "table tbody tr";
+  const rows = $(rowSelector);
 
-    const tables = $("table");
-    tables.each((i, t) => {
-      const id = $(t).attr("id") ?? "";
-      const cls = $(t).attr("class") ?? "";
-      const rows = $(t).find("tr").length;
-      if (rows > 2) {
-        console.log(`  table[${i}] id="${id}" class="${cls}" rows=${rows}`);
-        const firstTd = $(t).find("td a").first();
-        if (firstTd.length) {
-          console.log(`    first <td a>: "${firstTd.text().trim().slice(0, 50)}" href=${firstTd.attr("href")}`);
-        }
-      }
+  const allTitles: Record<string, number> = {};
+  const allHrefs: Record<string, number> = {};
+
+  for (const tSel of allTitleSelectors) {
+    let titleCount = 0;
+    let hrefCount = 0;
+    rows.each((_, row) => {
+      const el = $(row).find(tSel).first();
+      const txt = el.text().trim();
+      if (txt && txt.length > 2) titleCount++;
+      if (el.attr("href")) hrefCount++;
     });
+    if (titleCount > 0) allTitles[tSel] = titleCount;
+    if (hrefCount > 0) allHrefs[tSel] = hrefCount;
+  }
 
-    const uls = $("ul");
-    uls.each((i, u) => {
-      const id = $(u).attr("id") ?? "";
-      const cls = $(u).attr("class") ?? "";
-      const lis = $(u).find("li").length;
-      if (lis > 3) {
-        console.log(`  ul[${i}] id="${id}" class="${cls}" items=${lis}`);
-        const firstA = $(u).find("li a").first();
-        if (firstA.length) {
-          console.log(`    first <li a>: "${firstA.text().trim().slice(0, 50)}" href=${firstA.attr("href")}`);
-        }
+  const configTitleMatch = site.selectors.title.some((s) => allTitles[s] > 0);
+  const configTitleHasHref = site.selectors.title.some((s) => allHrefs[s] > 0);
+
+  let bestTitle: string | null = null;
+  let bestTitleCount = 0;
+  for (const [sel, count] of Object.entries(allHrefs)) {
+    if (count > bestTitleCount) {
+      bestTitleCount = count;
+      bestTitle = sel;
+    }
+  }
+
+  const sampleTitles: string[] = [];
+  const sampleHrefs: string[] = [];
+  let idPatternMatch = false;
+  let dateText = "";
+
+  if (bestTitle) {
+    rows.slice(0, 3).each((_, row) => {
+      const el = $(row).find(bestTitle!).first();
+      const txt = el.text().trim().replace(/\s+/g, " ").substring(0, 80);
+      const href = el.attr("href") || "";
+      if (txt) sampleTitles.push(txt);
+      if (href) {
+        sampleHrefs.push(href.substring(0, 150));
+        if (site.idPattern.test(href)) idPatternMatch = true;
       }
     });
   }
 
-  console.log(`\n--- Date extraction check ---`);
-  for (const boardSel of BOARD_SELECTORS) {
-    const rows = $(boardSel);
-    if (rows.length === 0) continue;
+  if (rows.length > 0) {
     const firstRow = rows.first();
     const tds = firstRow.find("td");
-    if (tds.length > 0) {
-      console.log(`  TD count: ${tds.length}`);
+    const dateIdx = site.selectors.dateColumnIndex ?? 3;
+    if (tds.length > dateIdx) {
+      dateText = tds.eq(dateIdx).text().trim().replace(/\s+/g, " ").substring(0, 30);
+    }
+    if (!dateText || !/\d{4}/.test(dateText)) {
       tds.each((i, td) => {
-        const text = $(td).text().trim().replace(/\s+/g, " ").slice(0, 40);
-        console.log(`    td[${i}]: "${text}"`);
+        const t = $(td).text().trim();
+        if (/\d{4}[./-]\d{1,2}[./-]\d{1,2}/.test(t)) {
+          dateText = `[td${i}] ${t.substring(0, 30)}`;
+        }
       });
     }
-    break;
+    if (!dateText) {
+      const dateEl = firstRow.find(".date, .td_date, span.date, dd.date, td.created").first();
+      if (dateEl.length) {
+        dateText = `[class] ${dateEl.text().trim().substring(0, 30)}`;
+      }
+    }
   }
+
+  const isOk = configRowMatch && configTitleHasHref && idPatternMatch;
+
+  return {
+    id: site.id,
+    name: site.name,
+    type: site.type,
+    status: isOk ? "OK" : "FAIL",
+    configRowMatch,
+    configTitleMatch,
+    configTitleHasHref,
+    bestRow,
+    bestRowCount,
+    bestTitle,
+    bestTitleCount,
+    sampleTitles,
+    sampleHrefs,
+    idPatternMatch,
+    dateText,
+    allRows,
+    allTitles,
+    allHrefs,
+  };
 }
 
 async function main() {
-  const failedSites = SITES.filter((s) => FAILED_IDS.includes(s.id));
-  console.log(`Diagnosing ${failedSites.length} failed sites...\n`);
+  const skipIds = new Set(["damyang"]);
+  const targets = SITES.filter((s) => !skipIds.has(s.id));
 
-  for (const site of failedSites) {
-    await diagnoseSite(site);
+  console.log(`\nDiagnosing ${targets.length} sites (skip: damyang=API-based)\n`);
+
+  const results: DiagResult[] = [];
+
+  for (let i = 0; i < targets.length; i += 5) {
+    const batch = targets.slice(i, i + 5);
+    console.log(`Batch ${Math.floor(i / 5) + 1}: ${batch.map((s) => s.id).join(", ")}`);
+
+    const batchResults = await Promise.allSettled(
+      batch.map(async (site) => {
+        try {
+          const html = await fetchHtml(site.listUrl);
+          return diagnoseSite(html, site);
+        } catch (error) {
+          return {
+            id: site.id,
+            name: site.name,
+            type: site.type,
+            status: "HTTP_ERROR" as const,
+            configRowMatch: false,
+            configTitleMatch: false,
+            configTitleHasHref: false,
+            bestRow: null,
+            bestRowCount: 0,
+            bestTitle: null,
+            bestTitleCount: 0,
+            sampleTitles: [],
+            sampleHrefs: [],
+            idPatternMatch: false,
+            dateText: "",
+            allRows: {},
+            allTitles: {},
+            allHrefs: {},
+            errorMsg: error instanceof Error ? error.message : String(error),
+          } satisfies DiagResult;
+        }
+      }),
+    );
+
+    for (const r of batchResults) {
+      results.push(r.status === "fulfilled" ? r.value : {
+        id: "?",
+        name: "?",
+        type: "?",
+        status: "HTTP_ERROR" as const,
+        configRowMatch: false,
+        configTitleMatch: false,
+        configTitleHasHref: false,
+        bestRow: null,
+        bestRowCount: 0,
+        bestTitle: null,
+        bestTitleCount: 0,
+        sampleTitles: [],
+        sampleHrefs: [],
+        idPatternMatch: false,
+        dateText: "",
+        allRows: {},
+        allTitles: {},
+        allHrefs: {},
+        errorMsg: String(r.reason),
+      } satisfies DiagResult);
+    }
+
+    if (i + 5 < targets.length) {
+      await new Promise((r) => setTimeout(r, 2000));
+    }
   }
+
+  const ok = results.filter((r) => r.status === "OK");
+  const fail = results.filter((r) => r.status === "FAIL");
+  const err = results.filter((r) => r.status === "HTTP_ERROR");
+
+  console.log(`\n${"=".repeat(70)}`);
+  console.log(`RESULTS: OK=${ok.length} | FAIL=${fail.length} | HTTP_ERROR=${err.length}`);
+  console.log(`${"=".repeat(70)}`);
+
+  if (ok.length > 0) {
+    console.log(`\n--- OK (${ok.length}) ---`);
+    for (const r of ok) {
+      console.log(`  [${r.id}] ${r.name} (${r.type}) | rows: ${r.bestRowCount} | date: ${r.dateText}`);
+    }
+  }
+
+  if (fail.length > 0) {
+    console.log(`\n--- FAIL (${fail.length}) --- NEED FIX ---`);
+    for (const r of fail) {
+      console.log(`\n  [${r.id}] "${r.name}" (type: ${r.type})`);
+      console.log(`    configRowMatch=${r.configRowMatch} configTitleHref=${r.configTitleHasHref} idMatch=${r.idPatternMatch}`);
+      if (r.bestRow) console.log(`    bestRow: "${r.bestRow}" (${r.bestRowCount})`);
+      if (r.bestTitle) console.log(`    bestTitle: "${r.bestTitle}" (${r.bestTitleCount})`);
+      if (r.sampleTitles.length) r.sampleTitles.forEach((t) => console.log(`    title: "${t}"`));
+      if (r.sampleHrefs.length) r.sampleHrefs.forEach((h) => console.log(`    href: ${h}`));
+      console.log(`    date: ${r.dateText || "(none)"}`);
+      if (Object.keys(r.allRows).length > 0) {
+        console.log(`    allRows: ${JSON.stringify(r.allRows)}`);
+      }
+      if (Object.keys(r.allHrefs).length > 0) {
+        console.log(`    allHrefs: ${JSON.stringify(r.allHrefs)}`);
+      }
+    }
+  }
+
+  if (err.length > 0) {
+    console.log(`\n--- HTTP ERRORS (${err.length}) ---`);
+    for (const r of err) {
+      console.log(`  [${r.id}] ${r.name}: ${r.errorMsg}`);
+    }
+  }
+
+  console.log(`\n=== FULL JSON ===`);
+  console.log(JSON.stringify(results, null, 2));
 }
 
 main().catch((e) => {
-  console.error("Script failed:", e);
-  process.exitCode = 1;
+  console.error("Fatal:", e);
+  process.exit(1);
 });
