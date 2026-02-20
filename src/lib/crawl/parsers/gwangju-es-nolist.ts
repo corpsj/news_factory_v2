@@ -1,5 +1,6 @@
 import { load } from "cheerio";
 import { parseKoreanDate } from "@/lib/crawl/date";
+import { cleanBodyHtml, stripTitleFromBody } from "@/lib/crawl/parsers/common";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 const CONTENT_SELECTORS = [
@@ -136,7 +137,8 @@ export const parseGwangjuEsNolist: SiteParser = async (ctx) => {
 
     try {
       const detailHtml = await ctx.fetchHtml(detailUrl);
-      const body = extractDetailBody(detailHtml);
+      const rawBody = extractDetailBody(detailHtml);
+      const body = stripTitleFromBody(cleanBodyHtml(rawBody), link.title);
       const dateText = extractDateFromDetail(detailHtml);
 
       articles.push({

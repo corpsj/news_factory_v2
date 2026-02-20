@@ -1,13 +1,12 @@
 import { load } from "cheerio";
 import { parseKoreanDate } from "@/lib/crawl/date";
+import { cleanBodyHtml, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 const CONTENT_SELECTORS = [
   ".board_view_con",
   ".view_content",
   ".board_view",
-  ".content",
-  "article",
 ];
 
 function sleep(ms: number): Promise<void> {
@@ -22,6 +21,7 @@ function extractDetailBody(html: string): string {
       continue;
     }
     node.find("script, style").remove();
+    node.find("[style]").removeAttr("style");
     const content = node.html()?.trim();
     if (content) {
       return content;
@@ -44,7 +44,10 @@ function extractImages(html: string, detailUrl: string): string[] {
         return;
       }
       try {
-        urls.add(new URL(src, detailUrl).toString());
+        const abs = new URL(src, detailUrl).toString();
+        if (!isNonContentImage(abs, $(img).attr("alt"))) {
+          urls.add(abs);
+        }
       } catch {
       }
     });
@@ -90,7 +93,7 @@ export const parseGurye: SiteParser = async (ctx) => {
         originId: `${ctx.site.id}-${articleId}`,
         source: ctx.site.name,
         title,
-        body: extractDetailBody(detailHtml),
+        body: stripTitleFromBody(cleanBodyHtml(extractDetailBody(detailHtml)), title),
         imageUrls: extractImages(detailHtml, detailUrl),
         attachmentUrls: [],
         date: parseKoreanDate(dateText),

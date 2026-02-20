@@ -61,6 +61,48 @@ export function isNonContentImage(url: string, alt?: string): boolean {
   return false;
 }
 
+export function cleanBodyHtml(bodyHtml: string): string {
+  if (!bodyHtml) return "";
+  const $ = load(`<div id="__wrap">${bodyHtml}</div>`);
+  const container = $("#__wrap");
+  container.find("script, style").remove();
+  container.find("[style]").removeAttr("style");
+  container.find("[class]").removeAttr("class");
+  container.find("[id]").removeAttr("id");
+  container.find("[align]").removeAttr("align");
+  container.find("[valign]").removeAttr("valign");
+  container.find("span:empty, p:empty, div:empty, font:empty").remove();
+  container.find("span, font").each((_, el) => {
+    const w = $(el);
+    if (!((el as any).attribs) || Object.keys((el as any).attribs).length === 0) {
+      w.replaceWith(w.contents());
+    }
+  });
+  return container.html()?.trim() || "";
+}
+
+export function stripTitleFromBody(bodyHtml: string, title: string): string {
+  if (!bodyHtml || !title) return bodyHtml;
+  const $ = load(`<div id="__wrap">${bodyHtml}</div>`);
+  const container = $("#__wrap");
+  const titleNorm = title.replace(/\s+/g, "");
+  if (titleNorm.length < 5) return bodyHtml;
+
+  const children = container.children();
+  for (let i = 0; i < Math.min(children.length, 3); i++) {
+    const child = children.eq(i);
+    const childText = child.text().replace(/\s+/g, "");
+    if (childText.length < 5) continue;
+    const shorter = childText.length <= titleNorm.length ? childText : titleNorm;
+    const longer = childText.length <= titleNorm.length ? titleNorm : childText;
+    if (longer.startsWith(shorter) && shorter.length / longer.length > 0.8) {
+      child.remove();
+      break;
+    }
+  }
+  return container.html()?.trim() || bodyHtml;
+}
+
 const DEFAULT_CONTENT_SELECTORS = [
   ".board_view_con",
   ".board_view_contents",
@@ -176,7 +218,17 @@ function extractDetailBody(detailHtml: string, contentSelectors: string[]): stri
       const node = $(el);
       node.find("script, style").remove();
       node.find("[style]").removeAttr("style");
-      node.find("span:empty, p:empty, div:empty").remove();
+      node.find("span:empty, p:empty, div:empty, font:empty").remove();
+      node.find("[class]").removeAttr("class");
+      node.find("[id]").removeAttr("id");
+      node.find("[align]").removeAttr("align");
+      node.find("[valign]").removeAttr("valign");
+      node.find("span, font").each((_, wrapper) => {
+        const w = $(wrapper);
+        if (!((wrapper as any).attribs) || Object.keys((wrapper as any).attribs).length === 0) {
+          w.replaceWith(w.contents());
+        }
+      });
       const html = node.html()?.trim();
       const textLen = node.text().trim().length;
       if (html && textLen > bestTextLen) {
@@ -287,7 +339,7 @@ export async function parseWithPattern(
         originId: `${ctx.site.id}-${articleId}`,
         source: ctx.site.name,
         title,
-        body,
+        body: stripTitleFromBody(body, title),
         imageUrls: extractImages(detailHtml, contentSelectors, detailUrl),
         attachmentUrls: extractAttachments(detailHtml, detailUrl),
         date: parseKoreanDate(dateText),
