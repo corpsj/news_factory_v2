@@ -47,11 +47,10 @@ export async function GET(request: Request) {
     const siteResults = Array.from(siteMap.values());
     const stageResults = (logs ?? []).filter((l) => l.site_name.startsWith("pipeline:"));
 
-    const hasGenerate = stageResults.some((l) => l.site_name === "pipeline:generate");
+    const hasPublish = stageResults.some((l) => l.site_name === "pipeline:publish");
     const hasCrawl = stageResults.some((l) => l.site_name === "pipeline:crawl");
-    const hasEmbed = stageResults.some((l) => l.site_name === "pipeline:embed");
 
-    const isComplete = hasGenerate || (hasCrawl && hasEmbed && stageResults.length >= 3);
+    const isComplete = hasPublish || (hasCrawl && stageResults.length >= 2);
 
     return NextResponse.json({ siteResults, stageResults, isComplete });
   } catch (err) {

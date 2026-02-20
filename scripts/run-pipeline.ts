@@ -8,8 +8,7 @@ type CliOptions = {
   dateFrom?: string;
   dateTo?: string;
   delay?: number;
-  embedLimit?: number;
-  generateLimit?: number;
+  publishLimit?: number;
   concurrency?: number;
   verbose: boolean;
 };
@@ -57,14 +56,8 @@ function parseArgs(argv: string[]): CliOptions {
       continue;
     }
 
-    if (arg === "--embed-limit" && next) {
-      options.embedLimit = Number(next);
-      index += 1;
-      continue;
-    }
-
-    if (arg === "--generate-limit" && next) {
-      options.generateLimit = Number(next);
+    if (arg === "--publish-limit" && next) {
+      options.publishLimit = Number(next);
       index += 1;
       continue;
     }
@@ -111,8 +104,7 @@ async function main() {
     maxPages: positiveInt(options.maxPages) ?? 5,
     dateRange,
     delayMs: positiveInt(options.delay) ?? 200,
-    embedLimit: positiveInt(options.embedLimit) ?? 50,
-    generateLimit: positiveInt(options.generateLimit) ?? 20,
+    publishLimit: positiveInt(options.publishLimit) ?? 500,
     siteConcurrency: positiveInt(options.concurrency) ?? 15,
     verbose: options.verbose,
   });

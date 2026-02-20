@@ -1,11 +1,10 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { runCrawler } from "@/lib/crawl/crawler";
-import { embedCollectedPressReleases, type BatchEmbedResult } from "@/lib/ai/batch-embed";
 import { generateEmbeddedPressReleaseArticles } from "@/lib/ai/batch-generate";
 import type { BatchGenerateResult } from "@/types/article";
 import type { CrawlRunResult } from "@/types/crawler";
 
-export type PipelineStage = "crawl" | "embed" | "generate";
+export type PipelineStage = "crawl" | "publish";
 
 export type PipelineStageLog = {
   stage: PipelineStage;
@@ -21,8 +20,7 @@ export type PipelineOptions = {
   maxPages?: number;
   dateRange?: { from: string; to: string };
   delayMs?: number;
-  embedLimit?: number;
-  generateLimit?: number;
+  publishLimit?: number;
   siteConcurrency?: number;
   verbose?: boolean;
   supabase?: SupabaseClient;
@@ -32,8 +30,7 @@ export type PipelineResult = {
   success: boolean;
   stages: PipelineStageLog[];
   crawl?: CrawlRunResult;
-  embed?: BatchEmbedResult;
-  generate?: BatchGenerateResult;
+  publish?: BatchGenerateResult;
   totalDurationMs: number;
 };
 
@@ -130,74 +127,31 @@ async function runCrawlStage(
   }
 }
 
-async function runEmbedStage(
-  supabase: SupabaseClient,
-  options: PipelineOptions,
-): Promise<{ log: PipelineStageLog; result: BatchEmbedResult }> {
-  const start = Date.now();
-  const verbose = options.verbose ?? false;
-
-  if (verbose) console.log("Phase 2: Embedding...");
-
-  try {
-    const result = await embedCollectedPressReleases(supabase, {
-      limit: options.embedLimit ?? 50,
-    });
-
-    const durationMs = Date.now() - start;
-    const detail = `Total=${result.total} Embedded=${result.embedded} Failed=${result.failed}`;
-
-    if (verbose) console.log(`  Embed done (${durationMs}ms): ${detail}`);
-
-    const log: PipelineStageLog = {
-      stage: "embed",
-      status: result.failed > 0 && result.embedded === 0 ? "failed" : "success",
-      durationMs,
-      detail,
-    };
-
-    return { log, result };
-  } catch (error) {
-    const durationMs = Date.now() - start;
-    const message = error instanceof Error ? error.message : "Unknown embed error";
-
-    const log: PipelineStageLog = {
-      stage: "embed",
-      status: "failed",
-      durationMs,
-      detail: "Embed stage threw an exception",
-      errorMessage: message,
-    };
-
-    return { log, result: { total: 0, embedded: 0, failed: 0 } };
-  }
-}
-
-async function runGenerateStage(
+async function runPublishStage(
   supabase: SupabaseClient,
   options: PipelineOptions,
 ): Promise<{ log: PipelineStageLog; result: BatchGenerateResult }> {
   const start = Date.now();
   const verbose = options.verbose ?? false;
 
-  if (verbose) console.log("Phase 3: Generating...");
+  if (verbose) console.log("Phase 2: Publishing...");
 
   try {
     const result = await generateEmbeddedPressReleaseArticles(
       {
-        limit: options.generateLimit ?? 20,
+        limit: options.publishLimit ?? 500,
         verbose,
       },
       supabase,
     );
 
     const durationMs = Date.now() - start;
-    const detail = `Total=${result.total} Generated=${result.generated} Failed=${result.failed}`;
+    const detail = `Total=${result.total} Published=${result.generated} Failed=${result.failed}`;
 
-    if (verbose) console.log(`  Generate done (${durationMs}ms): ${detail}`);
+    if (verbose) console.log(`  Publish done (${durationMs}ms): ${detail}`);
 
     const log: PipelineStageLog = {
-      stage: "generate",
+      stage: "publish",
       status: result.failed > 0 && result.generated === 0 ? "failed" : "success",
       durationMs,
       detail,
@@ -206,13 +160,13 @@ async function runGenerateStage(
     return { log, result };
   } catch (error) {
     const durationMs = Date.now() - start;
-    const message = error instanceof Error ? error.message : "Unknown generate error";
+    const message = error instanceof Error ? error.message : "Unknown publish error";
 
     const log: PipelineStageLog = {
-      stage: "generate",
+      stage: "publish",
       status: "failed",
       durationMs,
-      detail: "Generate stage threw an exception",
+      detail: "Publish stage threw an exception",
       errorMessage: message,
     };
 
@@ -238,13 +192,9 @@ export async function executePipeline(options: PipelineOptions = {}): Promise<Pi
     stages.push(crawl.log);
     await writePipelineLog(supabase, crawl.log);
 
-    const embed = await runEmbedStage(supabase, options);
-    stages.push(embed.log);
-    await writePipelineLog(supabase, embed.log);
-
-    const generate = await runGenerateStage(supabase, options);
-    stages.push(generate.log);
-    await writePipelineLog(supabase, generate.log);
+    const publish = await runPublishStage(supabase, options);
+    stages.push(publish.log);
+    await writePipelineLog(supabase, publish.log);
 
     const allSuccess = stages.every((s) => s.status === "success");
 
@@ -252,8 +202,7 @@ export async function executePipeline(options: PipelineOptions = {}): Promise<Pi
       success: allSuccess,
       stages,
       crawl: crawl.result,
-      embed: embed.result,
-      generate: generate.result,
+      publish: publish.result,
       totalDurationMs: Date.now() - pipelineStart,
     };
   } finally {

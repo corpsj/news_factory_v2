@@ -3,10 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 import type {
   BatchGenerateOptions,
   BatchGenerateResult,
-  GeneratedArticle,
   PressReleaseForArticleGeneration,
 } from "@/types/article";
-import { generateArticleWithOpenRouter } from "@/lib/ai/openrouter";
 
 function requiredEnv(name: string) {
   const value = process.env[name];
@@ -62,7 +60,7 @@ async function savePassthroughArticle(
     subtitle: null,
     body: pressRelease.content,
     images: pressRelease.images,
-    category: "society",
+    category: "press_release",
     source: pressRelease.source,
     source_url: pressRelease.link,
     status: "generated",
@@ -73,45 +71,11 @@ async function savePassthroughArticle(
   }
 }
 
-function hasOpenRouterKey(): boolean {
-  return !!process.env.OPENROUTER_API_KEY;
-}
-
-async function saveAIGeneratedArticle(
-  supabase: SupabaseClient,
-  pressRelease: PressReleaseForArticleGeneration,
-  generated: GeneratedArticle,
-) {
-  const insertResponse = await supabase.from("articles").insert({
-    press_release_id: pressRelease.id,
-    title: generated.title,
-    subtitle: generated.subtitle,
-    body: generated.body,
-    images: pressRelease.images,
-    category: generated.category,
-    source: pressRelease.source,
-    source_url: pressRelease.link,
-    status: "generated",
-  });
-
-  if (insertResponse.error) {
-    throw new Error(`Failed to insert article: ${insertResponse.error.message}`);
-  }
-}
-
-async function generateArticle(
+async function publishArticle(
   supabase: SupabaseClient,
   pressRelease: PressReleaseForArticleGeneration,
 ) {
-  if (hasOpenRouterKey()) {
-    const generated = await generateArticleWithOpenRouter({
-      pressRelease,
-      ragReferences: [],
-    });
-    await saveAIGeneratedArticle(supabase, pressRelease, generated);
-  } else {
-    await savePassthroughArticle(supabase, pressRelease);
-  }
+  await savePassthroughArticle(supabase, pressRelease);
 }
 
 async function markPressReleaseProcessed(supabase: SupabaseClient, pressReleaseId: string) {
@@ -156,7 +120,7 @@ export async function generateSingleArticle(
     console.log(`Creating article from press release: ${pressRelease.title}`);
   }
 
-  await generateArticle(supabase, pressRelease);
+  await publishArticle(supabase, pressRelease);
   await markPressReleaseProcessed(supabase, pressRelease.id);
 
   return {
@@ -181,7 +145,7 @@ export async function generateEmbeddedPressReleaseArticles(
         console.log(`Creating article from press release: ${pressRelease.title}`);
       }
 
-      await generateArticle(supabase, pressRelease);
+      await publishArticle(supabase, pressRelease);
       await markPressReleaseProcessed(supabase, pressRelease.id);
       generated += 1;
     } catch (error) {

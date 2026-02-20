@@ -21,11 +21,10 @@ export interface PipelineConfig {
   dateRange?: { from: string; to: string };
 }
 
-export const STAGE_KEYS = ["crawl", "embed", "generate"] as const;
+export const STAGE_KEYS = ["crawl", "publish"] as const;
 export const STAGE_LABELS: Record<string, string> = {
   crawl: "수집",
-  embed: "분석",
-  generate: "생성",
+  publish: "발행",
 };
 
 export const DETAIL_KEY_LABELS: Record<string, string> = {
@@ -34,8 +33,8 @@ export const DETAIL_KEY_LABELS: Record<string, string> = {
   totalInserted: "수집",
   totalFailed: "실패",
   total: "대상",
-  embedded: "임베딩",
-  generated: "생성",
+  published: "발행",
+  generated: "발행",
   failed: "실패",
 };
 
@@ -56,8 +55,7 @@ export function formatDuration(ms: number): string {
 
 const INITIAL_STAGES: Record<string, StageProgress> = {
   crawl: { status: "pending" },
-  embed: { status: "pending" },
-  generate: { status: "pending" },
+  publish: { status: "pending" },
 };
 
 type CrawlLogRow = {
@@ -99,6 +97,24 @@ export function usePipeline() {
 }
 
 const POLL_INTERVAL_MS = 5_000;
+const STORAGE_KEY = "nf_pipeline_session";
+
+type PersistedSession = { triggeredAt: string; totalSites: number; startTime: number };
+
+function saveSession(session: PersistedSession) {
+  try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session)); } catch {}
+}
+
+function loadSession(): PersistedSession | null {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function clearSession() {
+  try { sessionStorage.removeItem(STORAGE_KEY); } catch {}
+}
 
 export function PipelineProvider({ children }: { children: ReactNode }) {
   const [running, setRunning] = useState(false);
@@ -114,6 +130,7 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const triggeredAtRef = useRef<string | null>(null);
   const startTimeRef = useRef(0);
+  const recoveredRef = useRef(false);
 
   const showProgress = running || totalSites > 0;
 
@@ -138,6 +155,7 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
 
   const resetPipeline = useCallback(() => {
     stopPolling();
+    clearSession();
     triggeredAtRef.current = null;
     setTotalSites(0);
     setCompletedCount(0);
@@ -171,8 +189,7 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
     setStages(() => {
       const next: Record<string, StageProgress> = {
         crawl: { status: "active" },
-        embed: { status: "pending" },
-        generate: { status: "pending" },
+        publish: { status: "pending" },
       };
 
       const crawlLog = stageMap.get("pipeline:crawl");
@@ -186,20 +203,13 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
           durationMs,
           detail: { totalSites: data.siteResults.length, totalFound, totalInserted, totalFailed },
         };
-        next.embed = { status: stageMap.has("pipeline:embed") ? "completed" : "active" };
+        next.publish = { status: stageMap.has("pipeline:publish") ? "completed" : "active" };
       }
 
-      const embedLog = stageMap.get("pipeline:embed");
-      if (embedLog) {
-        const durationMs = new Date(embedLog.completed_at).getTime() - new Date(embedLog.started_at).getTime();
-        next.embed = { status: "completed", durationMs };
-        next.generate = { status: stageMap.has("pipeline:generate") ? "completed" : "active" };
-      }
-
-      const generateLog = stageMap.get("pipeline:generate");
-      if (generateLog) {
-        const durationMs = new Date(generateLog.completed_at).getTime() - new Date(generateLog.started_at).getTime();
-        next.generate = { status: "completed", durationMs };
+      const publishLog = stageMap.get("pipeline:publish");
+      if (publishLog) {
+        const durationMs = new Date(publishLog.completed_at).getTime() - new Date(publishLog.started_at).getTime();
+        next.publish = { status: "completed", durationMs };
       }
 
       return next;
@@ -207,6 +217,7 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
 
     if (data.isComplete) {
       stopPolling();
+      clearSession();
       const hasFailed = data.stageResults.some((s) => s.status === "failed");
       setPipelineResult({
         success: !hasFailed,
@@ -230,6 +241,36 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
       });
   }, [processPollData]);
 
+  useEffect(() => {
+    if (recoveredRef.current) return;
+    recoveredRef.current = true;
+
+    const session = loadSession();
+    if (!session) return;
+
+    activeRef.current = true;
+    triggeredAtRef.current = session.triggeredAt;
+    startTimeRef.current = session.startTime;
+    setRunning(true);
+    setStartTime(session.startTime);
+    setTotalSites(session.totalSites);
+    setStages({ crawl: { status: "active" }, publish: { status: "pending" } });
+
+    fetch(`/api/admin/pipeline-runs?since=${session.triggeredAt}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: PollResponse | null) => {
+        if (data) processPollData(data);
+        if (!data?.isComplete) {
+          pollTimerRef.current = setInterval(poll, POLL_INTERVAL_MS);
+        }
+      })
+      .catch(() => {
+        clearSession();
+        setRunning(false);
+        activeRef.current = false;
+      });
+  }, [processPollData, poll]);
+
   const startPipeline = useCallback(
     (config: PipelineConfig) => {
       if (activeRef.current) return;
@@ -243,8 +284,7 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
       setTotalSites(config.siteIds?.length || 27);
       setStages({
         crawl: { status: "active" },
-        embed: { status: "pending" },
-        generate: { status: "pending" },
+        publish: { status: "pending" },
       });
 
       (async () => {
@@ -266,6 +306,7 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
 
           const result = (await res.json()) as { triggeredAt: string };
           triggeredAtRef.current = result.triggeredAt;
+          saveSession({ triggeredAt: result.triggeredAt, totalSites: config.siteIds?.length || 27, startTime: now });
 
           pollTimerRef.current = setInterval(poll, POLL_INTERVAL_MS);
         } catch (err) {

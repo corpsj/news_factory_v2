@@ -97,17 +97,17 @@ export default async function AdminDashboardPage() {
       <div className="mt-10 rounded-xl border border-white/[0.06] bg-white/[0.03] p-6">
          <h3 className="text-base font-medium text-white">파이프라인 상태</h3>
          <div className="mt-4 flex flex-wrap items-center gap-4">
-           {["수집", "분석", "생성", "배포"].map((step, idx) => (
-             <div key={step} className="flex items-center gap-2">
-               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] text-xs font-bold text-white">
-                 {idx + 1}
-               </div>
-               <span className="text-sm text-white/50">{step}</span>
-               {idx < 3 && (
-                 <span className="text-white/15">→</span>
-               )}
-             </div>
-           ))}
+            {["수집", "발행", "배포"].map((step, idx) => (
+              <div key={step} className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] text-xs font-bold text-white">
+                  {idx + 1}
+                </div>
+                <span className="text-sm text-white/50">{step}</span>
+                {idx < 2 && (
+                  <span className="text-white/15">→</span>
+                )}
+              </div>
+            ))}
          </div>
        </div>
     </div>

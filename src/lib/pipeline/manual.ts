@@ -1,6 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { runCrawler } from "@/lib/crawl/crawler";
-import { embedCollectedPressReleases } from "@/lib/ai/batch-embed";
 import { generateEmbeddedPressReleaseArticles } from "@/lib/ai/batch-generate";
 import type { CrawlOptions, CrawlSiteResult } from "@/types/crawler";
 
@@ -16,9 +15,9 @@ const PIPELINE_DEADLINE_MS = 50_000;
 
 export type PipelineEvent =
   | { type: "pipeline_start"; totalSites: number; siteIds: string[]; siteNames: string[] }
-  | { type: "stage_start"; stage: "crawl" | "embed" | "generate" }
+  | { type: "stage_start"; stage: "crawl" | "publish" }
   | { type: "site_complete"; siteId: string; siteName: string; found: number; inserted: number; failed: number; status: string; durationMs: number; errorMessage?: string }
-  | { type: "stage_complete"; stage: "crawl" | "embed" | "generate"; durationMs: number; detail: Record<string, unknown> }
+  | { type: "stage_complete"; stage: "crawl" | "publish"; durationMs: number; detail: Record<string, unknown> }
   | { type: "pipeline_complete"; success: boolean; totalDurationMs: number; partial?: boolean; message?: string }
   | { type: "error"; message: string };
 
@@ -27,8 +26,7 @@ export type ManualCrawlResult = {
   totalDurationMs: number;
   stages: {
     crawl: { status: "success" | "failed" | "skipped"; durationMs: number; detail: object };
-    embed: { status: "success" | "failed" | "skipped"; durationMs: number; detail: object };
-    generate: { status: "success" | "failed" | "skipped"; durationMs: number; detail: object };
+    publish: { status: "success" | "failed" | "skipped"; durationMs: number; detail: object };
   };
   error?: string;
 };
@@ -65,8 +63,7 @@ export async function executeManualCrawl(
       totalDurationMs: 0,
       stages: {
         crawl: { status: "skipped", durationMs: 0, detail: {} },
-        embed: { status: "skipped", durationMs: 0, detail: {} },
-        generate: { status: "skipped", durationMs: 0, detail: {} },
+        publish: { status: "skipped", durationMs: 0, detail: {} },
       },
       error: "Manual crawl already in progress",
     };
@@ -155,71 +152,39 @@ export async function executeManualCrawl(
     const crawlDurationMs = Date.now() - crawlStart;
     onProgress?.({ type: "stage_complete", stage: "crawl", durationMs: crawlDurationMs, detail: crawlDetail as Record<string, unknown> });
 
-    let embedStatus: "success" | "failed" | "skipped" = "skipped";
-    let embedDurationMs = 0;
-    let embedDetail: object = {};
+    let publishStatus: "success" | "failed" | "skipped" = "skipped";
+    let publishDurationMs = 0;
+    let publishDetail: object = {};
 
     if (remainingMs() > 5_000 && !deadline.signal.aborted) {
-      onProgress?.({ type: "stage_start", stage: "embed" });
-      const embedStart = Date.now();
-      embedStatus = "success";
+      onProgress?.({ type: "stage_start", stage: "publish" });
+      const publishStart = Date.now();
+      publishStatus = "success";
 
       try {
-        const embedResult = await embedCollectedPressReleases(supabase, { limit: 500 });
-
-        embedDetail = {
-          total: embedResult.total,
-          embedded: embedResult.embedded,
-          failed: embedResult.failed,
-        };
-      } catch (error) {
-        embedStatus = "failed";
-        embedDetail = {
-          error: error instanceof Error ? error.message : "Unknown embed error",
-        };
-      }
-
-      embedDurationMs = Date.now() - embedStart;
-      onProgress?.({ type: "stage_complete", stage: "embed", durationMs: embedDurationMs, detail: embedDetail as Record<string, unknown> });
-    } else {
-      partial = true;
-      onProgress?.({ type: "stage_start", stage: "embed" });
-      onProgress?.({ type: "stage_complete", stage: "embed", durationMs: 0, detail: { skipped: "시간 부족" } });
-    }
-
-    let generateStatus: "success" | "failed" | "skipped" = "skipped";
-    let generateDurationMs = 0;
-    let generateDetail: object = {};
-
-    if (remainingMs() > 5_000 && !deadline.signal.aborted) {
-      onProgress?.({ type: "stage_start", stage: "generate" });
-      const generateStart = Date.now();
-      generateStatus = "success";
-
-      try {
-        const generateResult = await generateEmbeddedPressReleaseArticles(
+        const publishResult = await generateEmbeddedPressReleaseArticles(
           { limit: 500 },
           supabase,
         );
 
-        generateDetail = {
-          total: generateResult.total,
-          generated: generateResult.generated,
-          failed: generateResult.failed,
+        publishDetail = {
+          total: publishResult.total,
+          published: publishResult.generated,
+          failed: publishResult.failed,
         };
       } catch (error) {
-        generateStatus = "failed";
-        generateDetail = {
-          error: error instanceof Error ? error.message : "Unknown generate error",
+        publishStatus = "failed";
+        publishDetail = {
+          error: error instanceof Error ? error.message : "Unknown publish error",
         };
       }
 
-      generateDurationMs = Date.now() - generateStart;
-      onProgress?.({ type: "stage_complete", stage: "generate", durationMs: generateDurationMs, detail: generateDetail as Record<string, unknown> });
+      publishDurationMs = Date.now() - publishStart;
+      onProgress?.({ type: "stage_complete", stage: "publish", durationMs: publishDurationMs, detail: publishDetail as Record<string, unknown> });
     } else {
       partial = true;
-      onProgress?.({ type: "stage_start", stage: "generate" });
-      onProgress?.({ type: "stage_complete", stage: "generate", durationMs: 0, detail: { skipped: "시간 부족" } });
+      onProgress?.({ type: "stage_start", stage: "publish" });
+      onProgress?.({ type: "stage_complete", stage: "publish", durationMs: 0, detail: { skipped: "시간 부족" } });
     }
 
     const totalDurationMs = Date.now() - pipelineStart;
@@ -236,8 +201,7 @@ export async function executeManualCrawl(
       totalDurationMs,
       stages: {
         crawl: { status: crawlStatus, durationMs: crawlDurationMs, detail: crawlDetail },
-        embed: { status: embedStatus, durationMs: embedDurationMs, detail: embedDetail },
-        generate: { status: generateStatus, durationMs: generateDurationMs, detail: generateDetail },
+        publish: { status: publishStatus, durationMs: publishDurationMs, detail: publishDetail },
       },
     };
   } catch (error) {
@@ -248,8 +212,7 @@ export async function executeManualCrawl(
       totalDurationMs: Date.now() - pipelineStart,
       stages: {
         crawl: { status: "failed", durationMs: 0, detail: {} },
-        embed: { status: "skipped", durationMs: 0, detail: {} },
-        generate: { status: "skipped", durationMs: 0, detail: {} },
+        publish: { status: "skipped", durationMs: 0, detail: {} },
       },
       error: message,
     };
