@@ -3,15 +3,13 @@ import { parseKoreanDate } from "@/lib/crawl/date";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 const CONTENT_SELECTORS = [
+  ".tb_contents",
   ".board_view_contents",
   ".board_view_con",
   ".view_cont",
   ".view_content",
   ".bbs_content",
   ".board_view",
-  ".content",
-  "article",
-  "main",
 ];
 
 function sleep(ms: number): Promise<void> {
@@ -34,11 +32,24 @@ function toAbsoluteUrl(href: string | undefined, base: string): string | null {
 function extractDetailBody(detailHtml: string): string {
   const $ = load(detailHtml);
   for (const selector of CONTENT_SELECTORS) {
-    const node = $(selector).first();
-    if (node.length === 0) continue;
-    node.find("script, style").remove();
-    const html = node.html()?.trim();
-    if (html) return html;
+    const nodes = $(selector);
+    if (nodes.length === 0) continue;
+
+    let bestHtml = "";
+    let bestTextLen = 0;
+    nodes.each((_, el) => {
+      const n = $(el);
+      n.find("script, style").remove();
+      n.find("[style]").removeAttr("style");
+      n.find("span:empty, p:empty, div:empty").remove();
+      const text = n.text().trim().length;
+      const html = n.html()?.trim();
+      if (html && text > bestTextLen) {
+        bestHtml = html;
+        bestTextLen = text;
+      }
+    });
+    if (bestHtml) return bestHtml;
   }
   return "";
 }

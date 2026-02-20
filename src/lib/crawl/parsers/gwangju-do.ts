@@ -7,6 +7,6 @@ export const parseGwangjuDo: SiteParser = async (ctx) => {
     titleSelectors: [".subject a", "td.subject a", "td a", "dt a", "a"],
     dateSelectors: [".date", "dd.date", "dd", "td"],
     dateColumnIndex: 3,
-    contentSelectors: [".board_view_con", ".view_cont"],
+    contentSelectors: [".board_view_con", ".view_cont", ".boardContents", ".d_cont_description", ".bd_view_cont"],
   });
 };

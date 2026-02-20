@@ -70,9 +70,6 @@ const DEFAULT_CONTENT_SELECTORS = [
   ".bbs_content_detail",
   ".board_view_content",
   ".board_view",
-  ".content",
-  "article",
-  "main",
 ];
 
 function sleep(ms: number): Promise<void> {
@@ -167,15 +164,29 @@ function extractDetailBody(detailHtml: string, contentSelectors: string[]): stri
   const selectors = Array.from(new Set([...contentSelectors, ...DEFAULT_CONTENT_SELECTORS]));
 
   for (const selector of selectors) {
-    const contentNode = $(selector).first();
-    if (contentNode.length === 0) {
+    const nodes = $(selector);
+    if (nodes.length === 0) {
       continue;
     }
 
-    contentNode.find("script, style").remove();
-    const html = contentNode.html()?.trim();
-    if (html) {
-      return html;
+    let bestHtml = "";
+    let bestTextLen = 0;
+
+    nodes.each((_, el) => {
+      const node = $(el);
+      node.find("script, style").remove();
+      node.find("[style]").removeAttr("style");
+      node.find("span:empty, p:empty, div:empty").remove();
+      const html = node.html()?.trim();
+      const textLen = node.text().trim().length;
+      if (html && textLen > bestTextLen) {
+        bestHtml = html;
+        bestTextLen = textLen;
+      }
+    });
+
+    if (bestHtml) {
+      return bestHtml;
     }
   }
 

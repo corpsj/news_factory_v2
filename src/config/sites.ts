@@ -5,7 +5,7 @@ const GWANGJU_DO_SELECTORS: SiteSelectorConfig = {
   title: [".subject a", "td.subject a", "td a"],
   date: [".date", "td"],
   dateColumnIndex: 3,
-  content: [".board_view_con", ".view_cont"],
+  content: [".board_view_con", ".view_cont", ".boardContents", ".d_cont_description", ".bd_view_cont"],
 };
 
 const GWANGJU_ES_SELECTORS: SiteSelectorConfig = {
@@ -13,7 +13,7 @@ const GWANGJU_ES_SELECTORS: SiteSelectorConfig = {
   title: ["td.subject a", "td a"],
   date: ["td"],
   dateColumnIndex: 4,
-  content: [".board_view_contents", ".board_view_con"],
+  content: [".board_view_contents", ".board_view_con", ".board_view"],
 };
 
 const JEONNAM_DO_SELECTORS: SiteSelectorConfig = {
@@ -21,7 +21,7 @@ const JEONNAM_DO_SELECTORS: SiteSelectorConfig = {
   title: ["td.title a", "td.subject a"],
   date: ["td"],
   dateColumnIndex: 3,
-  content: [".view_content", ".board_view_con"],
+  content: [".bbs_view_contnet", ".view_content", ".board_view_con"],
 };
 
 const JEONNAM_SI_SELECTORS: SiteSelectorConfig = {
@@ -29,7 +29,17 @@ const JEONNAM_SI_SELECTORS: SiteSelectorConfig = {
   title: [".td_subject a", "td a"],
   date: [".td_date", "td"],
   dateColumnIndex: 3,
-  content: [".bbs_content", ".view_content"],
+  content: [
+    ".bbs_content",
+    ".text_viewbox",
+    ".viewbox",
+    ".view_box",
+    ".board_cont",
+    ".con_detail",
+    ".show_info",
+    ".view_content",
+    ".contbox",
+  ],
 };
 
 const SUNCHEON_SELECTORS: SiteSelectorConfig = {
@@ -61,7 +71,7 @@ const HWASUN_SELECTORS: SiteSelectorConfig = {
   title: ["td a"],
   date: ["td"],
   dateColumnIndex: 3,
-  content: [".view_content", ".board_contents"],
+  content: [".boardR", ".view_content", ".board_contents"],
 };
 
 const HAENAM_SELECTORS: SiteSelectorConfig = {
@@ -69,7 +79,7 @@ const HAENAM_SELECTORS: SiteSelectorConfig = {
   title: ["div.right h4 a", "h4 a", "a:first", "td a"],
   date: ["span.date", ".date", ".day", "td"],
   dateColumnIndex: 0,
-  content: [".board_view"],
+  content: [".data_cont", ".board_view"],
 };
 
 const YEONGGWANG_SELECTORS: SiteSelectorConfig = {
@@ -77,7 +87,7 @@ const YEONGGWANG_SELECTORS: SiteSelectorConfig = {
   title: ["td a"],
   date: ["td"],
   dateColumnIndex: 3,
-  content: [".board_view_content", ".view_content"],
+  content: [".board_view_contents", ".board_view_content", ".view_content"],
 };
 
 const WANDO_SELECTORS: SiteSelectorConfig = {
@@ -85,7 +95,7 @@ const WANDO_SELECTORS: SiteSelectorConfig = {
   title: ["td a"],
   date: ["td"],
   dateColumnIndex: 3,
-  content: [".board_view", ".view_content"],
+  content: [".board_cont", ".board_view", ".view_content"],
 };
 
 const MOKPO_SELECTORS: SiteSelectorConfig = {
@@ -93,7 +103,7 @@ const MOKPO_SELECTORS: SiteSelectorConfig = {
   title: ["h3", "a"],
   date: ["dd.date", ".date"],
   dateColumnIndex: 0,
-  content: [".bbs_content", ".view_content"],
+  content: [".text_viewbox", ".viewbox", ".contbox", ".bbs_content", ".view_content"],
 };
 
 export const SITES: SiteConfig[] = [
@@ -268,10 +278,9 @@ export const SITES: SiteConfig[] = [
     id: "hwasun",
     name: "화순군청",
     type: "hwasun",
-    listUrl: "https://council.hwasun.go.kr/?PID=079",
-    detailUrlTemplate: "https://council.hwasun.go.kr/?PID=079&action=view&boardId={id}",
-    // href="javascript:BoardDetailView('15176')"
-    idPattern: /BoardDetailView\('(\d+)'\)/,
+    listUrl: "https://www.hwasun.go.kr/board.do?M=020102000000&S=S01&b_code=0000000002",
+    detailUrlTemplate: "https://www.hwasun.go.kr/board.do?S=S01&M=020102000000&b_code=0000000002&act=view&list_no={id}",
+    idPattern: /list_no=(\d+)/,
     selectors: HWASUN_SELECTORS,
   },
   {
@@ -308,7 +317,7 @@ export const SITES: SiteConfig[] = [
     name: "무안군청",
     type: "jeonnam-si",
     listUrl: "https://www.muan.go.kr/www/openmuan/new/report",
-    detailUrlTemplate: "https://www.muan.go.kr/www/openmuan/new/report?idx={id}",
+    detailUrlTemplate: "https://www.muan.go.kr/www/openmuan/new/report?idx={id}&mode=view",
     idPattern: /idx=(\d+)/,
     selectors: JEONNAM_SI_SELECTORS,
     paginationParam: "pageNo",

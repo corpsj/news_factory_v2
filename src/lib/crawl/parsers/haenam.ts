@@ -7,6 +7,6 @@ export const parseHaenam: SiteParser = async (ctx) => {
     titleSelectors: ["div.right h4 a", "h4 a", "a:first", "td a"],
     dateSelectors: ["span.date", ".date", ".day", "td"],
     dateColumnIndex: 0,
-    contentSelectors: [".board_view"],
+    contentSelectors: [".data_cont", ".board_view"],
   });
 };

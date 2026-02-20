@@ -3,12 +3,11 @@ import { parseKoreanDate } from "@/lib/crawl/date";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 const CONTENT_SELECTORS = [
+  ".board_cont",
   ".bbs_content",
   ".view_content",
   ".board_view_con",
   ".board_view",
-  ".content",
-  "article",
 ];
 
 function sleep(ms: number): Promise<void> {
@@ -23,6 +22,8 @@ function extractBody(html: string): string {
       continue;
     }
     node.find("script, style").remove();
+    node.find("[style]").removeAttr("style");
+    node.find("span:empty, p:empty, div:empty").remove();
     const content = node.html()?.trim();
     if (content) {
       return content;

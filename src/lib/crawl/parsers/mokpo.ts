@@ -7,6 +7,6 @@ export const parseMokpo: SiteParser = async (ctx) => {
     titleSelectors: ["h3", "a"],
     dateSelectors: ["dd.date", ".date"],
     dateColumnIndex: 0,
-    contentSelectors: [".bbs_content", ".view_content", ".board_view_con"],
+    contentSelectors: [".text_viewbox", ".viewbox", ".contbox", ".bbs_content", ".view_content", ".board_view_con"],
   });
 };

@@ -13,9 +13,6 @@ const CONTENT_SELECTORS = [
   ".bbs_content_detail",
   ".board_view_content",
   ".board_view",
-  ".content",
-  "article",
-  "main",
 ];
 
 function sleep(ms: number): Promise<void> {
@@ -38,8 +35,26 @@ function toAbsoluteUrl(href: string | undefined, base: string): string | null {
   }
 }
 
-function extractDetailBody(detailHtml: string, detailUrl: string): string {
+function extractDetailBody(detailHtml: string): string {
   const $ = load(detailHtml);
+
+  const viewTable = $(".tstyle_view").first();
+  if (viewTable.length) {
+    let bestHtml = "";
+    let bestLen = 0;
+    viewTable.find("td").each((_, td) => {
+      $(td).find("script, style").remove();
+      $(td).find("[style]").removeAttr("style");
+      const text = $(td).text().trim();
+      if (text.length > bestLen) {
+        bestLen = text.length;
+        bestHtml = $(td).html()?.trim() ?? "";
+      }
+    });
+    if (bestHtml) {
+      return bestHtml;
+    }
+  }
 
   for (const selector of CONTENT_SELECTORS) {
     const contentNode = $(selector).first();
@@ -48,18 +63,14 @@ function extractDetailBody(detailHtml: string, detailUrl: string): string {
     }
 
     contentNode.find("script, style").remove();
+    contentNode.find("[style]").removeAttr("style");
     const html = contentNode.html()?.trim();
     if (html) {
       return html;
     }
   }
 
-  const fallback = $("body").html()?.trim();
-  if (fallback) {
-    return fallback;
-  }
-
-  return `Failed to extract content from ${detailUrl}`;
+  return "";
 }
 
 function extractImages(detailHtml: string, detailUrl: string): string[] {
@@ -147,12 +158,12 @@ export const parseNamgu: SiteParser = async (ctx) => {
       continue;
     }
 
-    const detailUrl = `https://www.namgu.gwangju.kr/api/eminwon/pressList.es?mid=a10605050000&act=view&list_no=${articleId}`;
+    const detailUrl = `https://www.namgu.gwangju.kr/api/eminwon/pressView.es?mid=a10605050000&news_epct_no=${articleId}`;
     const dateText = normalizeWhitespace(row.find("td:nth-child(4)").first().text());
 
     try {
       const detailHtml = await ctx.fetchHtml(detailUrl);
-      const body = extractDetailBody(detailHtml, detailUrl);
+      const body = extractDetailBody(detailHtml);
 
       articles.push({
         originId: `${ctx.site.id}-${articleId}`,

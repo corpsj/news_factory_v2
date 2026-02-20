@@ -7,6 +7,6 @@ export const parseYeonggwang: SiteParser = async (ctx) => {
     titleSelectors: ["td a"],
     dateSelectors: ["td"],
     dateColumnIndex: 3,
-    contentSelectors: [".board_view_content", ".view_content"],
+    contentSelectors: [".board_view_contents", ".board_view_content", ".view_content"],
   });
 };
