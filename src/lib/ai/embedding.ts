@@ -8,6 +8,7 @@ const OPENROUTER_EMBEDDINGS_URL = "https://openrouter.ai/api/v1/embeddings";
 const TIMEOUT_MS = 45_000;
 const MAX_RETRIES = 2;
 const RETRY_BASE_DELAY_MS = 1_500;
+const MAX_INPUT_CHARS = 28_000;
 
 type OpenRouterEmbeddingResponse = {
   data?: Array<{ embedding?: number[]; index: number }>;
@@ -25,7 +26,8 @@ function getEmbedModel(): string {
 }
 
 function formatInput(title: string, content: string): string {
-  return `${title}\n\n${content}`;
+  const raw = `${title}\n\n${content}`;
+  return raw.length > MAX_INPUT_CHARS ? raw.slice(0, MAX_INPUT_CHARS) : raw;
 }
 
 function isRetryable(error: unknown): boolean {
@@ -52,6 +54,7 @@ async function callEmbeddingApi(text: string, signal: AbortSignal): Promise<numb
       model: getEmbedModel(),
       input: text,
       dimensions: EMBEDDING_DIMENSIONS,
+      provider: { allow_fallbacks: true },
     }),
     signal,
   });
