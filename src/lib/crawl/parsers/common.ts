@@ -37,6 +37,12 @@ const NON_CONTENT_URL_PATTERNS = [
   /\/logo[_.\-/]/i,
   /watermark/i,
   /copyright/i,
+  // QR code images
+  /qr[_\-.]?code/i,
+  /qrcode/i,
+  /qr[_\-]img/i,
+  // Tiny images: WxHxQ format where H ≤ 5 (e.g. 924x1x85)
+  /\/\d+x[1-5]x\d+\//,
 ];
 
 const NON_CONTENT_ALT_PATTERNS = [
@@ -46,6 +52,10 @@ const NON_CONTENT_ALT_PATTERNS = [
   /크리에이티브\s*커먼즈/,
   /creative\s*commons/i,
   /open\s*government/i,
+  /QR/i,
+  /큐알/,
+  /포스터/,
+  /배너/,
 ];
 
 /** Returns true if the image is NOT article content (copyright badge, icon, etc.) */

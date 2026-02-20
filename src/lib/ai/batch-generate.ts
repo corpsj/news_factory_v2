@@ -1,3 +1,4 @@
+import { load } from "cheerio";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 import type {
@@ -5,6 +6,49 @@ import type {
   BatchGenerateResult,
   PressReleaseForArticleGeneration,
 } from "@/types/article";
+
+function contentToArticleBody(html: string): string {
+  if (!html) return "";
+
+  const $ = load(html);
+  $("script, style, img").remove();
+
+  const paragraphs: string[] = [];
+
+  $("p, div, li, h1, h2, h3, h4, h5, h6, blockquote, td, th").each((_, el) => {
+    const text = $(el)
+      .text()
+      .replace(/&nbsp;/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (text) {
+      paragraphs.push(text);
+    }
+  });
+
+  if (paragraphs.length === 0) {
+    const fallback = $.text()
+      .replace(/&nbsp;/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!fallback) return "";
+    return fallback
+      .split(/\n+/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => `<p>${line}</p>`)
+      .join("\n");
+  }
+
+  const seen = new Set<string>();
+  const unique = paragraphs.filter((p) => {
+    if (seen.has(p)) return false;
+    seen.add(p);
+    return true;
+  });
+
+  return unique.map((p) => `<p>${p}</p>`).join("\n");
+}
 
 function requiredEnv(name: string) {
   const value = process.env[name];
@@ -58,7 +102,7 @@ async function savePassthroughArticle(
     press_release_id: pressRelease.id,
     title: pressRelease.title,
     subtitle: null,
-    body: pressRelease.content,
+    body: contentToArticleBody(pressRelease.content),
     images: pressRelease.images,
     category: "press_release",
     source: pressRelease.source,
