@@ -84,11 +84,11 @@ curl -H "Authorization: Bearer {발급받은_API_키}" \
   "articles": [
     {
       "id": "550e8400-e29b-41d4-a716-446655440000",
-      "title": "광주시, 2026년 청년 창업 지원 사업 확대",
-      "summary": "광주시가 청년 창업 생태계 활성화를 위해 올해 지원 규모를 대폭 확대한다",
-      "content": "광주시는 20일 2026년 청년 창업 지원 사업 계획을 발표했다...",
+      "title": "광주시청, 2026년 청년 창업 지원 사업 확대",
+      "summary": "광주시청이 청년 창업 생태계 활성화를 위해 올해 지원 규모를 대폭 확대한다",
+      "content": "광주시청은 20일 2026년 청년 창업 지원 사업 계획을 발표했다...",
       "category": "economy",
-      "source": "광주시",
+      "source": "광주시청",
       "source_url": "https://www.gwangju.go.kr/...",
       "images": [],
       "published_at": "2026-02-20T03:00:00.000Z",
@@ -176,7 +176,7 @@ GET /api/v1/articles
       "summary": "부제목/요약",
       "content": "기사 본문 전체",
       "category": "economy",
-      "source": "광주시",
+      "source": "광주시청",
       "source_url": "https://원본_보도자료_URL",
       "images": ["https://이미지_URL_1", "https://이미지_URL_2"],
       "published_at": "2026-02-20T03:00:00.000Z",
@@ -198,7 +198,7 @@ GET /api/v1/articles
 | `summary` | string \| null | 부제목 또는 요약문 |
 | `content` | string | 기사 본문 (HTML 아님, 순수 텍스트) |
 | `category` | string | 카테고리 코드 ([카테고리 목록](#카테고리-목록) 참조) |
-| `source` | string | 출처 지자체명 (예: "광주시", "목포시") |
+| `source` | string | 출처 지자체명 (예: "광주시청", "목포시청") |
 | `source_url` | string | 원본 보도자료 URL |
 | `images` | string[] | 관련 이미지 URL 배열 (없을 경우 빈 배열) |
 | `published_at` | string (ISO 8601) | 원본 보도자료 게시일시 |
@@ -207,9 +207,9 @@ GET /api/v1/articles
 #### 요청 예시
 
 ```bash
-# 광주시 경제 기사 최근 10건
+# 광주시청 경제 기사 최근 10건
 curl -H "Authorization: Bearer {API_KEY}" \
-  "https://news-factory-v2.vercel.app/api/v1/articles?region=광주시&category=economy&limit=10"
+  "https://news-factory-v2.vercel.app/api/v1/articles?region=광주시청&category=economy&limit=10"
 
 # 2026년 2월 전체 기사
 curl -H "Authorization: Bearer {API_KEY}" \
@@ -246,7 +246,7 @@ GET /api/v1/articles/{id}
     "summary": "부제목",
     "content": "기사 본문 전체",
     "category": "economy",
-    "source": "광주시",
+    "source": "광주시청",
     "source_url": "https://...",
     "images": [],
     "published_at": "2026-02-20T03:00:00.000Z",
@@ -276,10 +276,10 @@ GET /api/v1/regions
 ```json
 {
   "regions": [
-    { "code": "광주시", "name": "광주시" },
-    { "code": "광주 동구", "name": "광주 동구" },
-    { "code": "목포시", "name": "목포시" },
-    { "code": "여수시", "name": "여수시" }
+    { "code": "광주시청", "name": "광주시청" },
+    { "code": "동구청", "name": "동구청" },
+    { "code": "목포시청", "name": "목포시청" },
+    { "code": "여수시청", "name": "여수시청" }
   ]
 }
 ```
@@ -290,38 +290,38 @@ GET /api/v1/regions
 
 | 코드 | 지역명 |
 |------|--------|
-| 광주시 | 광주광역시 |
-| 광주 동구 | 동구 |
-| 광주 서구 | 서구 |
-| 광주 남구 | 남구 |
-| 광주 북구 | 북구 |
-| 광주 광산구 | 광산구 |
+| 광주시청 | 광주광역시 |
+| 동구청 | 동구 |
+| 서구청 | 서구 |
+| 남구청 | 남구 |
+| 북구청 | 북구 |
+| 광산구청 | 광산구 |
 
 **전라남도 (21)**
 
 | 코드 | 지역명 |
 |------|--------|
-| 전라남도 | 전라남도 |
-| 목포시 | 목포시 |
-| 여수시 | 여수시 |
-| 순천시 | 순천시 |
-| 나주시 | 나주시 |
-| 광양시 | 광양시 |
-| 담양군 | 담양군 |
-| 곡성군 | 곡성군 |
-| 구례군 | 구례군 |
-| 고흥군 | 고흥군 |
-| 보성군 | 보성군 |
-| 화순군 | 화순군 |
-| 장흥군 | 장흥군 |
-| 강진군 | 강진군 |
-| 해남군 | 해남군 |
-| 무안군 | 무안군 |
-| 함평군 | 함평군 |
-| 영광군 | 영광군 |
-| 장성군 | 장성군 |
-| 완도군 | 완도군 |
-| 신안군 | 신안군 |
+| 전라남도청 | 전라남도 |
+| 목포시청 | 목포시 |
+| 여수시청 | 여수시 |
+| 순천시청 | 순천시 |
+| 나주시청 | 나주시 |
+| 광양시청 | 광양시 |
+| 담양군청 | 담양군 |
+| 곡성군청 | 곡성군 |
+| 구례군청 | 구례군 |
+| 고흥군청 | 고흥군 |
+| 보성군청 | 보성군 |
+| 화순군청 | 화순군 |
+| 장흥군청 | 장흥군 |
+| 강진군청 | 강진군 |
+| 해남군청 | 해남군 |
+| 무안군청 | 무안군 |
+| 함평군청 | 함평군 |
+| 영광군청 | 영광군 |
+| 장성군청 | 장성군 |
+| 완도군청 | 완도군 |
+| 신안군청 | 신안군 |
 
 > **참고**: 지역 코드(code)와 이름(name)은 동일한 값입니다. `region` 파라미터에 이 값을 그대로 사용하세요.
 
@@ -373,10 +373,10 @@ GET /api/v1/categories
 
 ```bash
 # 단일 지역
-?region=목포시
+?region=목포시청
 
 # 복수 지역
-?region=목포시,여수시,순천시
+?region=목포시청,여수시청,순천시청
 ```
 
 ### 5.2 카테고리 필터
@@ -419,8 +419,8 @@ ISO 8601 형식의 날짜로 기간을 지정합니다. `from`과 `to`는 독립
 모든 필터는 AND 조건으로 결합됩니다.
 
 ```bash
-# 목포시 경제 기사 중 "투자" 포함, 2월 이후
-?region=목포시&category=economy&keyword=투자&from=2026-02-01
+# 목포시청 경제 기사 중 "투자" 포함, 2월 이후
+?region=목포시청&category=economy&keyword=투자&from=2026-02-01
 ```
 
 ---
@@ -655,9 +655,9 @@ if __name__ == "__main__":
         print(f"  출처: {article['source']}")
         print()
 
-    # 목포시 경제 기사 전체
-    articles = get_all_articles(region="목포시", category="economy")
-    print(f"목포시 경제 기사: 총 {len(articles)}건")
+    # 목포시청 경제 기사 전체
+    articles = get_all_articles(region="목포시청", category="economy")
+    print(f"목포시청 경제 기사: 총 {len(articles)}건")
 ```
 
 ---
@@ -840,7 +840,7 @@ function getCategories(): array
 }
 
 // 사용 예시
-$result = getArticles(['region' => '목포시', 'category' => 'economy', 'limit' => 10]);
+$result = getArticles(['region' => '목포시청', 'category' => 'economy', 'limit' => 10]);
 
 echo "총 {$result['total']}건 중 " . count($result['articles']) . "건 조회\n\n";
 
