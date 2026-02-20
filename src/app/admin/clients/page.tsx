@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { ClientActions } from "./client-actions";
 
+export const dynamic = "force-dynamic";
+
 type ClientRow = {
   id: string;
   name: string;
