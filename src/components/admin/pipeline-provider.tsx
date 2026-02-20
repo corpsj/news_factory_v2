@@ -161,7 +161,7 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
       });
     }
     setSiteProgress(progress);
-    setCompletedCount(data.siteResults.length);
+    setCompletedCount(progress.size);
 
     const stageMap = new Map<string, CrawlLogRow>();
     for (const log of data.stageResults) {

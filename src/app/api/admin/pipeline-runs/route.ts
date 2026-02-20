@@ -39,7 +39,12 @@ export async function GET(request: Request) {
 
     if (error) throw new Error(error.message);
 
-    const siteResults = (logs ?? []).filter((l) => !l.site_name.startsWith("pipeline:"));
+    const siteLogsRaw = (logs ?? []).filter((l) => !l.site_name.startsWith("pipeline:"));
+    const siteMap = new Map<string, (typeof siteLogsRaw)[number]>();
+    for (const log of siteLogsRaw) {
+      siteMap.set(log.site_name, log);
+    }
+    const siteResults = Array.from(siteMap.values());
     const stageResults = (logs ?? []).filter((l) => l.site_name.startsWith("pipeline:"));
 
     const hasGenerate = stageResults.some((l) => l.site_name === "pipeline:generate");
