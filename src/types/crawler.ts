@@ -18,7 +18,8 @@ export type ParserType =
   | "haenam"
   | "yeonggwang"
   | "wando"
-  | "mokpo";
+  | "mokpo"
+  | "shinan";
 
 export type SiteSelectorConfig = {
   list: string[];

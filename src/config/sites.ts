@@ -363,7 +363,7 @@ export const SITES: SiteConfig[] = [
   {
     id: "shinan",
     name: "신안군청",
-    type: "jeonnam-si",
+    type: "shinan",
     listUrl: "https://www.shinan.go.kr/home/www/openinfo/participation_07/participation_07_03/page.wscms",
     detailUrlTemplate: "https://www.shinan.go.kr/home/www/openinfo/participation_07/participation_07_03/show/{id}",
     idPattern: /show\/(\d+)/,
