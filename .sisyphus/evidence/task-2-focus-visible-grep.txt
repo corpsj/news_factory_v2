@@ -1,6 +1,0 @@
-focus-visible:ring-2 count:       17
-active:scale count:       10
-cursor-pointer count:       25
-
-TypeScript check:
-exit: 0

@@ -1,8 +1,0 @@
-=== T7 verification ===
-78:    <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
-78:    <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
-36:      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-57:                  <div className="flex flex-col items-center gap-2">
-86:             className="inline-block py-2 text-sm text-white/30 transition-colors hover:text-white/70 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b]"
-68:             className="inline-block py-2 text-sm text-white/30 transition-colors hover:text-white/70 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b]"
-tsc exit: 0

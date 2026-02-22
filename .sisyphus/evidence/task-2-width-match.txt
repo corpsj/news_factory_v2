@@ -1,1 +1,0 @@
-21:    <aside className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col border-r border-white/[0.06] bg-[#09090b]">

@@ -1,9 +1,0 @@
-Backfilling images from press_releases to articles...
-
-Total articles: 23
-Articles with empty images: 23
-
-Fetching 23 press_releases...
-
-Updated 18 articles with images from press_releases
-Skipped 5 articles (no images in source press_release)

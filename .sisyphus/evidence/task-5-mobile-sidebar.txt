@@ -1,9 +1,0 @@
-=== T5 verification ===
-GOOD: no use client in layout
-17:      <main className="ml-0 min-h-screen md:ml-60">
-87:        className="fixed left-4 top-4 z-50 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white/[0.06] text-white/60 transition-colors hover:bg-white/[0.10] hover:text-white md:hidden"
-95:          className="fixed inset-0 z-40 bg-black/60 md:hidden"
-102:        <aside className="fixed left-0 top-0 z-50 flex h-screen w-60 flex-col border-r border-white/[0.06] bg-[#09090b] md:hidden">
-5:import { useState } from "react";
-70:  const [open, setOpen] = useState(false);
-tsc exit: 0
