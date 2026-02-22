@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DeleteButton } from "@/components/admin/delete-button";
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 
@@ -69,13 +70,18 @@ export default async function PressReleaseDetailPage({
 
   return (
     <div>
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <Link
              href="/admin/press-releases"
              className="inline-block py-2 text-sm text-white/30 transition-colors hover:text-white/70 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b]"
            >
              &larr; 보도자료 목록
            </Link>
+          <DeleteButton
+            endpoint={`/api/admin/press-releases/${pr.id}`}
+            redirectTo="/admin/press-releases"
+            confirmMessage="보도자료와 관련 기사가 모두 삭제됩니다. 계속하시겠습니까?"
+          />
         </div>
 
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-8">
