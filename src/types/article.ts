@@ -21,29 +21,6 @@ export type PressReleaseForArticleGeneration = {
   published_at: string;
 };
 
-export type RagReference = {
-  id: string;
-  title: string;
-  source: string;
-  published_at: string;
-  similarity: number;
-  content_excerpt: string;
-};
-
-export type ArticleGenerationRequest = {
-  pressRelease: PressReleaseForArticleGeneration;
-  ragReferences: RagReference[];
-};
-
-export type GeneratedArticle = {
-  title: string;
-  title_candidates: [string, string, string];
-  subtitle: string;
-  summary_lines: [string, string, string];
-  body: string;
-  category: ArticleCategory;
-};
-
 export type BatchGenerateOptions = {
   limit?: number;
   verbose?: boolean;

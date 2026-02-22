@@ -1,4 +1,3 @@
-import type { CheerioAPI } from "cheerio";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type ParserType =
@@ -94,9 +93,4 @@ export type CrawlRunResult = {
 export type CrawlerDependencies = {
   supabase: SupabaseClient;
   fetchHtml: (url: string) => Promise<string>;
-};
-
-export type RowTransformContext = {
-  $: CheerioAPI;
-  row: unknown;
 };
