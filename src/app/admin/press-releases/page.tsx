@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
+import { PressReleaseTable } from "@/components/admin/press-release-table";
 
 type PressReleaseRow = {
   id: string;
@@ -8,13 +8,6 @@ type PressReleaseRow = {
   status: string;
   published_at: string;
   created_at: string;
-};
-
-const STATUS_STYLES: Record<string, string> = {
-  collected: "bg-white/[0.06] text-white/50",
-  embedded: "bg-blue-500/10 text-blue-300/70",
-  processed: "bg-emerald-500/10 text-emerald-400/70",
-  failed: "bg-red-500/10 text-red-400/70",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -57,6 +50,12 @@ async function getPressReleases(
   return { data: (data ?? []) as PressReleaseRow[], total: count ?? 0 };
 }
 
+function buildHref(params: Record<string, string>) {
+  const filtered = Object.entries(params).filter(([, v]) => v);
+  if (filtered.length === 0) return "/admin/press-releases";
+  return `/admin/press-releases?${filtered.map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join("&")}`;
+}
+
 export default async function PressReleasesPage({
   searchParams,
 }: {
@@ -94,58 +93,7 @@ export default async function PressReleasesPage({
           ))}
         </div>
 
-         <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-white/[0.02]">
-           <table className="min-w-[640px] w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-white/[0.06]">
-                <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">출처</th>
-                <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">제목</th>
-                <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">상태</th>
-                <th className="px-5 py-3.5 text-[11px] uppercase tracking-wider text-white/30 font-medium">날짜</th>
-              </tr>
-            </thead>
-            <tbody>
-               {releases.length === 0 ? (
-                 <tr>
-                   <td colSpan={4} className="px-5 py-16 text-center">
-                     <div className="flex flex-col items-center gap-2">
-                       <span className="text-4xl text-white/10">◇</span>
-                       <p className="text-sm text-white/30">수집된 보도자료가 없습니다</p>
-                       <p className="text-xs text-white/20">수집을 실행하면 자동으로 추가됩니다</p>
-                     </div>
-                   </td>
-                 </tr>
-               ) : (
-                releases.map((pr) => (
-                  <tr
-                    key={pr.id}
-                    className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03]"
-                  >
-                    <td className="px-5 py-4 text-white/50">{pr.source}</td>
-                     <td className="max-w-md truncate px-5 py-4">
-                       <Link
-                         href={`/admin/press-releases/${pr.id}`}
-                         className="text-white/80 hover:text-white transition-colors cursor-pointer"
-                       >
-                         {pr.title}
-                       </Link>
-                     </td>
-                    <td className="px-5 py-4">
-                       <span
-                         className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[pr.status] ?? "bg-white/[0.06] text-white/50"}`}
-                        >
-                         {STATUS_LABELS[pr.status] ?? pr.status}
-                       </span>
-                    </td>
-                    <td className="px-5 py-4 text-white/30">
-                      {new Date(pr.published_at).toLocaleDateString("ko-KR")}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-         </table>
-       </div>
+        <PressReleaseTable releases={releases} currentStatus={currentStatus} />
 
        {totalPages > 1 && (
          <div className="mt-4 flex items-center justify-between">
@@ -155,7 +103,7 @@ export default async function PressReleasesPage({
            <div className="flex items-center gap-1">
              {currentPage > 1 && (
                <a
-                 href={currentStatus ? `/admin/press-releases?status=${currentStatus}&page=${currentPage - 1}` : `/admin/press-releases?page=${currentPage - 1}`}
+                 href={buildHref({ status: currentStatus, page: String(currentPage - 1) })}
                  className="cursor-pointer rounded-lg px-3 py-1.5 text-xs text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b]"
                >
                  ← 이전
@@ -176,7 +124,7 @@ export default async function PressReleasesPage({
                  ) : (
                    <a
                      key={`page-${p}`}
-                     href={currentStatus ? `/admin/press-releases?status=${currentStatus}&page=${p}` : `/admin/press-releases?page=${p}`}
+                     href={buildHref({ status: currentStatus, page: String(p) })}
                      className={`cursor-pointer rounded-lg px-3 py-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b] ${
                        p === currentPage
                          ? "bg-white/[0.08] text-white"
@@ -189,7 +137,7 @@ export default async function PressReleasesPage({
                )}
              {currentPage < totalPages && (
                <a
-                 href={currentStatus ? `/admin/press-releases?status=${currentStatus}&page=${currentPage + 1}` : `/admin/press-releases?page=${currentPage + 1}`}
+                 href={buildHref({ status: currentStatus, page: String(currentPage + 1) })}
                  className="cursor-pointer rounded-lg px-3 py-1.5 text-xs text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-1 focus-visible:ring-offset-[#09090b]"
                >
                  다음 →
