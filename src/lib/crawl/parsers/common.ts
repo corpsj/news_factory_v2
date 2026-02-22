@@ -71,6 +71,71 @@ export function isNonContentImage(url: string, alt?: string): boolean {
   return false;
 }
 
+
+const NOISE_TEXT_PATTERNS: RegExp[] = [
+  /【[^】]*】/g,
+  /\([^)]*사진\s*\d*\s*장?\s*첨부\)/g,
+  /\([^)]*첨부\)/g,
+];
+
+const GONGNURI_PATTERN = /(?:본\s*저작물은|이\s*(?:저작물|글)은?)\s*["「]?공공누리["」]?[\s\S]*?(?:이용\s*할?\s*수\s*있습니다\.?|, (?:출처|자유이용)[\s\S]*?\.)/g;
+
+const NAV_LABEL_PATTERN = /^(?:다음글|이전글|다음\s*글|이전\s*글|이전|다음|next|prev|previous|인쇄|목록|print|list|첫\s*페이지|마지막\s*페이지|top)$/i;
+
+export function stripNoiseFromBody(bodyHtml: string): string {
+  if (!bodyHtml) return "";
+
+  const $ = load(`<div id="__wrap">${bodyHtml}</div>`);
+  const container = $("#__wrap");
+
+  container.find("a, span, td, th, p, div, li, strong, em, b").each((_, el) => {
+    const node = $(el);
+    const text = node.text().replace(/\s+/g, " ").trim();
+    if (text && NAV_LABEL_PATTERN.test(text)) {
+      const parent = node.closest("tr, li, div, p");
+      if (parent.length > 0 && parent.text().replace(/\s+/g, " ").trim().length < 200) {
+        parent.remove();
+      } else {
+        node.remove();
+      }
+    }
+  });
+
+  container.find("*").each((_, el) => {
+    const node = $(el);
+    const text = node.text();
+    if (/공공누리/.test(text) && node.children().length <= 3 && text.length < 500) {
+      node.remove();
+    }
+  });
+
+  container.find("table").each((_, el) => {
+    const table = $(el);
+    const text = table.text().replace(/\s+/g, " ").trim();
+    const hasNav = /(?:다음글|이전글|다음\s*글|이전\s*글)/.test(text);
+    const hasDate = /\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}/.test(text);
+    if (hasNav && hasDate && text.length < 500) {
+      table.remove();
+    }
+  });
+
+  let html = container.html()?.trim() || "";
+
+  html = html.replace(GONGNURI_PATTERN, "");
+
+  for (const pattern of NOISE_TEXT_PATTERNS) {
+    html = html.replace(pattern, "");
+  }
+
+  html = html
+    .replace(/<(?:p|div|span|br\s*\/?)>\s*<\/(?:p|div|span)>/gi, "")
+    .replace(/(<br\s*\/?>\s*){3,}/gi, "<br><br>")
+    .replace(/^\s+|\s+$/gm, "")
+    .trim();
+
+  return html;
+}
+
 export function cleanBodyHtml(bodyHtml: string): string {
   if (!bodyHtml) return "";
   const $ = load(`<div id="__wrap">${bodyHtml}</div>`);
@@ -349,7 +414,7 @@ export async function parseWithPattern(
         originId: `${ctx.site.id}-${articleId}`,
         source: ctx.site.name,
         title,
-        body: stripTitleFromBody(body, title),
+        body: stripNoiseFromBody(stripTitleFromBody(body, title)),
         imageUrls: extractImages(detailHtml, contentSelectors, detailUrl),
         attachmentUrls: extractAttachments(detailHtml, detailUrl),
         date: parseKoreanDate(dateText),

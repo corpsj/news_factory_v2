@@ -6,11 +6,12 @@ import type {
   BatchGenerateResult,
   PressReleaseForArticleGeneration,
 } from "@/types/article";
+import { stripNoiseFromBody } from "@/lib/crawl/parsers/common";
 
 function contentToArticleBody(html: string): string {
   if (!html) return "";
-
-  const $ = load(html);
+  const cleaned = stripNoiseFromBody(html);
+  const $ = load(cleaned);
   $("script, style, img").remove();
 
   const paragraphs: string[] = [];
