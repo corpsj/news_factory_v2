@@ -1,6 +1,6 @@
 import { load } from "cheerio";
 import { parseKoreanDate } from "@/lib/crawl/date";
-import { cleanBodyHtml, stripTitleFromBody } from "@/lib/crawl/parsers/common";
+import { cleanBodyHtml, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 const CONTENT_SELECTORS = [
@@ -98,7 +98,7 @@ function extractImages(detailHtml: string, detailUrl: string): string[] {
     node.find("img").each((_, img) => {
       const src = $(img).attr("src");
       const abs = toAbsoluteUrl(src, detailUrl);
-      if (abs) urls.add(abs);
+      if (abs && !isNonContentImage(abs, $(img).attr("alt"))) urls.add(abs);
     });
 
     if (urls.size > 0) break;
