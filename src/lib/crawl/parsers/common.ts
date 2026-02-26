@@ -92,6 +92,9 @@ const NOTICE_PATTERN = /※[^\n\r]*/g;
 
 const NAV_LABEL_PATTERN = /^(?:다음글|이전글|다음\s*글|이전\s*글|이전|다음|next|prev|previous|인쇄|목록|print|list|첫\s*페이지|마지막\s*페이지|top)$/i;
 
+/** Badge / noise text that Korean government boards inject into title elements */
+const TITLE_BADGE_PATTERN = /(?:새로운글|새로운|새글|new|NEW|N|업데이트|공지|필독|HOT|인기|추천)/;
+
 export function stripNoiseFromBody(bodyHtml: string): string {
   if (!bodyHtml) return "";
 
@@ -241,6 +244,16 @@ function pickRows(listHtml: string, selectors: string[]) {
   }
 
   return { $, rows: $([]) };
+}
+
+function cleanTitle(raw: string): string {
+  let title = raw;
+  // Strip leading/trailing badge text (새로운글, 새글, new, etc.)
+  title = title.replace(new RegExp(`^${TITLE_BADGE_PATTERN.source}\\s*`), "").trim();
+  title = title.replace(new RegExp(`\\s*${TITLE_BADGE_PATTERN.source}$`), "").trim();
+  // Strip leading date that may have leaked from adjacent elements (e.g. 2026-02-26제목)
+  title = title.replace(/^\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}/, "").trim();
+  return title;
 }
 
 function pickFirstText($row: ReturnType<ReturnType<typeof load>>, selectors: string[]): string {
@@ -414,7 +427,7 @@ export async function parseWithPattern(
 
   for (let index = 0; index < rows.length && articles.length < ctx.limit; index += 1) {
     const row = rows.eq(index);
-    const title = pickFirstText(row, titleSelectors);
+    const title = cleanTitle(pickFirstText(row, titleSelectors));
     const href = pickHref(row, titleSelectors);
     if (!title || !href) {
       continue;

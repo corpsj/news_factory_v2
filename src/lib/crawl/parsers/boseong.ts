@@ -110,7 +110,12 @@ export const parseBoseong: SiteParser = async (ctx) => {
     }
     seen.add(id);
 
-    const title = text.replace(/^\d{1,2}:\d{2}/, "").replace(/\([^)]+\)\s*$/, "").trim();
+    const title = text
+      .replace(/^\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}/, "")  // leading date (e.g. 2026-02-26)
+      .replace(/^\d{1,2}:\d{2}/, "")                      // leading time (e.g. 14:30)
+      .replace(/(?:새로운글|새글|new|NEW)$/, "")          // trailing badge
+      .replace(/\([^)]+\)\s*$/, "")                       // trailing parenthetical
+      .trim();
     if (title) {
       items.push({ id, title });
     }
