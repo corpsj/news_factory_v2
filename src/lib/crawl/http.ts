@@ -93,5 +93,50 @@ export function createHttpClient(clientOptions?: HttpClientOptions) {
 
       throw new Error(`Failed to fetch ${url}: Unknown error`);
     },
+    async fetchBinary(url: string, binaryOptions?: { referer?: string; attempts?: number }): Promise<Buffer> {
+      const binaryAttempts = binaryOptions?.attempts ?? maxAttempts;
+      let lastError: unknown;
+
+      for (let attempt = 0; attempt < binaryAttempts; attempt += 1) {
+        if (signal?.aborted) {
+          throw new Error("Crawl aborted: deadline exceeded");
+        }
+
+        try {
+          const headers: Record<string, string> = {
+            ...DEFAULT_HEADERS,
+            Accept: "image/*,*/*;q=0.8",
+          };
+          if (binaryOptions?.referer) {
+            headers["Referer"] = binaryOptions.referer;
+          }
+
+          const response = await axios.get<ArrayBuffer>(url, {
+            timeout: timeoutMs,
+            headers,
+            responseType: "arraybuffer",
+            httpsAgent,
+            validateStatus: (status) => status >= 200 && status < 400,
+            signal,
+          });
+          return Buffer.from(response.data);
+        } catch (error) {
+          lastError = error;
+
+          if (!shouldRetry(error) || attempt === binaryAttempts - 1) {
+            break;
+          }
+
+          const backoff = baseDelay * 2 ** attempt;
+          await delay(backoff);
+        }
+      }
+
+      if (lastError instanceof Error) {
+        throw new Error(`Failed to fetch binary ${url}: ${lastError.message}`);
+      }
+
+      throw new Error(`Failed to fetch binary ${url}: Unknown error`);
+    },
   };
 }
