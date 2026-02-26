@@ -76,9 +76,19 @@ const NOISE_TEXT_PATTERNS: RegExp[] = [
   /【[^】]*】/g,
   /\([^)]*사진\s*\d*\s*장?\s*첨부\)/g,
   /\([^)]*첨부\)/g,
+  // 담당자/문의처 연락 정보 (줄 전체 매칭 — 태그 안 텍스트 기준)
+  /(?:담당부서|담당자|담당팀|전화번호?|팩스|이메일|E-?mail|Tel\.?|연락처)[^\S\r\n]*[:：][^\n]*/gi,
+  // 보도자료 메타데이터 줄
+  /(?:보도자료\s*배포일|배포\s*일시|보도\s*자료\s*번호)[^\S\r\n]*[:：][^\n]*/gi,
+  // 추가 첨부 패턴
+  /\(첨부\s*\d+\)[^\n]*/g,
+  /첨부파일[^\S\r\n]*[:：][^\n]*/gi,
 ];
 
 const GONGNURI_PATTERN = /(?:본\s*저작물은|이\s*(?:저작물|글)은?)\s*["「]?공공누리["」]?[\s\S]*?(?:이용\s*할?\s*수\s*있습니다\.?|, (?:출처|자유이용)[\s\S]*?\.)/g;
+const DISCLAIMER_PATTERN = /이\s*보도자료와\s*관련(?:하여|해서)[\s\S]*?(?:연락\s*주시기\s*바랍니다|문의\s*주시기\s*바랍니다|바랍니다)\.?/g;
+
+const NOTICE_PATTERN = /※[^\n\r]*/g;
 
 const NAV_LABEL_PATTERN = /^(?:다음글|이전글|다음\s*글|이전\s*글|이전|다음|next|prev|previous|인쇄|목록|print|list|첫\s*페이지|마지막\s*페이지|top)$/i;
 
@@ -118,10 +128,22 @@ export function stripNoiseFromBody(bodyHtml: string): string {
       table.remove();
     }
   });
+  // footer 담당자 테이블: 5행 미만 + 담당/부서/전화 키워드 포함
+  container.find("table").each((_, el) => {
+    const table = $(el);
+    const rows = table.find("tr");
+    const text = table.text();
+    if (rows.length < 5 && /담당|부서|전화|팩스|이메일/.test(text) && text.length < 400) {
+      table.remove();
+    }
+  });
 
   let html = container.html()?.trim() || "";
 
   html = html.replace(GONGNURI_PATTERN, "");
+  html = html.replace(DISCLAIMER_PATTERN, "");
+  html = html.replace(NOTICE_PATTERN, "");
+
 
   for (const pattern of NOISE_TEXT_PATTERNS) {
     html = html.replace(pattern, "");

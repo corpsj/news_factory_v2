@@ -1,4 +1,5 @@
 import { load } from "cheerio";
+import type { Element } from "domhandler";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 import type {
@@ -8,7 +9,43 @@ import type {
 } from "@/types/article";
 import { stripNoiseFromBody } from "@/lib/crawl/parsers/common";
 
-function contentToArticleBody(html: string): string {
+const BLOCK_TAGS = new Set([
+  "p",
+  "div",
+  "li",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "blockquote",
+  "td",
+  "th",
+  "tr",
+  "table",
+  "ul",
+  "ol",
+  "section",
+  "article",
+  "header",
+  "footer",
+  "main",
+  "aside",
+  "figure",
+  "figcaption",
+  "dd",
+  "dt",
+]);
+
+function isLeafBlock(el: Element, $: ReturnType<typeof load>): boolean {
+  return $(el)
+    .children()
+    .toArray()
+    .every((child) => !BLOCK_TAGS.has((child as Element).tagName?.toLowerCase() ?? ""));
+}
+
+export function contentToArticleBody(html: string): string {
   if (!html) return "";
   const cleaned = stripNoiseFromBody(html);
   const $ = load(cleaned);
@@ -16,7 +53,11 @@ function contentToArticleBody(html: string): string {
 
   const paragraphs: string[] = [];
 
-  $("p, div, li, h1, h2, h3, h4, h5, h6, blockquote, td, th").each((_, el) => {
+  $("*").each((_, el) => {
+    const tag = (el as Element).tagName?.toLowerCase() ?? "";
+    if (!BLOCK_TAGS.has(tag)) return;
+    if (!isLeafBlock(el as Element, $)) return;
+
     const text = $(el)
       .text()
       .replace(/&nbsp;/g, " ")
@@ -33,12 +74,13 @@ function contentToArticleBody(html: string): string {
       .replace(/\s+/g, " ")
       .trim();
     if (!fallback) return "";
-    return fallback
+    const result = fallback
       .split(/\n+/)
       .map((line) => line.trim())
       .filter(Boolean)
-      .map((line) => `<p>${line}</p>`)
-      .join("\n");
+      .join("\n\n");
+
+    return result.replace(/\n{3,}/g, "\n\n").trim();
   }
 
   const seen = new Set<string>();
@@ -48,7 +90,8 @@ function contentToArticleBody(html: string): string {
     return true;
   });
 
-  return unique.map((p) => `<p>${p}</p>`).join("\n");
+  const result = unique.join("\n\n");
+  return result.replace(/\n{3,}/g, "\n\n").trim();
 }
 
 function requiredEnv(name: string) {
