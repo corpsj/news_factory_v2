@@ -3,6 +3,7 @@ import { SITES, SITES_BY_ID } from "@/config/sites";
 import { createHttpClient } from "@/lib/crawl/http";
 import { PARSERS } from "@/lib/crawl/parsers";
 import { processImages } from "@/lib/crawl/images";
+import { contentToArticleBody } from "@/lib/ai/batch-generate";
 import type {
   CrawlOptions,
   CrawlRunResult,
@@ -74,7 +75,7 @@ async function insertArticle(
     const articleInsert = await deps.supabase.from("articles").insert({
       press_release_id: pressReleaseId,
       title: article.title,
-      body: article.body,
+      body: contentToArticleBody(article.body),
       images: article.imageUrls,
       category: "press_release",
       source: article.source,
