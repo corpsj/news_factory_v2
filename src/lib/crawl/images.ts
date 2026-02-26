@@ -7,10 +7,6 @@ const MIN_DIMENSION = 50;
 const IMAGE_TIMEOUT_MS = 8000;
 const IMAGE_CONCURRENCY = 2;
 
-type FetchBinaryWithSignal = (
-  url: string,
-  options?: { referer?: string; signal?: AbortSignal },
-) => Promise<Buffer>;
 
 export type ProcessImagesOptions = {
   imageUrls: string[];
@@ -21,33 +17,6 @@ export type ProcessImagesOptions = {
   signal?: AbortSignal;
 };
 
-function combineSignals(
-  parentSignal?: AbortSignal,
-): { signal: AbortSignal; cleanup: () => void } {
-  const timeoutSignal = AbortSignal.timeout(IMAGE_TIMEOUT_MS);
-
-  if (!parentSignal) {
-    return { signal: timeoutSignal, cleanup: () => undefined };
-  }
-
-  if (parentSignal.aborted) {
-    return { signal: parentSignal, cleanup: () => undefined };
-  }
-
-  const controller = new AbortController();
-  const abort = () => controller.abort();
-
-  parentSignal.addEventListener("abort", abort, { once: true });
-  timeoutSignal.addEventListener("abort", abort, { once: true });
-
-  return {
-    signal: controller.signal,
-    cleanup: () => {
-      parentSignal.removeEventListener("abort", abort);
-      timeoutSignal.removeEventListener("abort", abort);
-    },
-  };
-}
 
 export async function processImages(options: ProcessImagesOptions): Promise<string[]> {
   const { imageUrls, originId, articleDate, fetchBinary, supabase, signal } = options;
@@ -55,7 +24,6 @@ export async function processImages(options: ProcessImagesOptions): Promise<stri
   const month = articleDate.slice(0, 7);
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const limit = pLimit(IMAGE_CONCURRENCY);
-  const fetchBinaryWithSignal = fetchBinary as unknown as FetchBinaryWithSignal;
   const publicUrlsByIndex: Array<string | null> = new Array(imageUrls.length).fill(null);
 
   const tasks = imageUrls.map((url, index) =>
@@ -69,15 +37,14 @@ export async function processImages(options: ProcessImagesOptions): Promise<stri
       }
 
       try {
-        const { signal: timeoutSignal, cleanup } = combineSignals(signal);
         const referer = new URL(url).origin;
 
-        let buffer: Buffer;
-        try {
-          buffer = await fetchBinaryWithSignal(url, { referer, signal: timeoutSignal });
-        } finally {
-          cleanup();
-        }
+        const buffer = await Promise.race([
+          fetchBinary(url, { referer }),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('[images] Download timeout')), IMAGE_TIMEOUT_MS),
+          ),
+        ]);
 
         if (buffer.byteLength > MAX_BYTES) {
           console.warn("[images] Skipping oversized image:", url, buffer.byteLength);
