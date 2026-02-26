@@ -2,6 +2,7 @@ import pLimit from "p-limit";
 import { SITES, SITES_BY_ID } from "@/config/sites";
 import { createHttpClient } from "@/lib/crawl/http";
 import { PARSERS } from "@/lib/crawl/parsers";
+import { processImages } from "@/lib/crawl/images";
 import type {
   CrawlOptions,
   CrawlRunResult,
@@ -193,6 +194,22 @@ async function crawlSite(
 
     for (const article of articles) {
       try {
+        if (article.imageUrls.length > 0) {
+          try {
+            article.imageUrls = await processImages({
+              imageUrls: article.imageUrls,
+              originId: article.originId,
+              articleDate: article.date,
+              fetchBinary: deps.fetchBinary,
+              supabase: deps.supabase,
+              signal: options.signal,
+            });
+          } catch (imgError) {
+            console.error(`[${site.id}] Image processing failed for ${article.originId}:`, imgError);
+            // fail-open: keep original imageUrls or empty array, continue to save article
+            article.imageUrls = [];
+          }
+        }
         const insertState = await insertArticle(deps, article);
         if (insertState === "inserted") {
           inserted += 1;
@@ -255,6 +272,7 @@ export async function runCrawler(
   const deps: CrawlerDependencies = {
     supabase: dependencies.supabase,
     fetchHtml: dependencies.fetchHtml ?? http.fetchHtml,
+    fetchBinary: dependencies.fetchBinary ?? http.fetchBinary,
   };
 
   const normalizedOptions: Required<Omit<CrawlOptions, "siteIds" | "dateRange" | "httpTimeoutMs" | "httpAttempts" | "signal">> & { dateRange?: CrawlOptions["dateRange"]; signal?: AbortSignal } = {

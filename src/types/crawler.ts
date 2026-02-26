@@ -93,4 +93,5 @@ export type CrawlRunResult = {
 export type CrawlerDependencies = {
   supabase: SupabaseClient;
   fetchHtml: (url: string) => Promise<string>;
+  fetchBinary: (url: string, options?: { referer?: string }) => Promise<Buffer>;
 };
