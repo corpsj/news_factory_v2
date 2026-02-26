@@ -22,7 +22,7 @@ export async function processImages(options: ProcessImagesOptions): Promise<stri
   const { imageUrls, originId, articleDate, fetchBinary, supabase, signal } = options;
   const siteId = originId.split("-")[0] ?? originId;
   const month = articleDate.slice(0, 7);
-  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
   const limit = pLimit(IMAGE_CONCURRENCY);
   const publicUrlsByIndex: Array<string | null> = new Array(imageUrls.length).fill(null);
 
