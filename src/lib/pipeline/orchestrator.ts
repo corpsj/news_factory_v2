@@ -24,6 +24,7 @@ export type PipelineOptions = {
   siteConcurrency?: number;
   verbose?: boolean;
   supabase?: SupabaseClient;
+  signal?: AbortSignal;
 };
 
 export type PipelineResult = {
@@ -91,6 +92,7 @@ async function runCrawlStage(
         dateRange: options.dateRange,
         delayMs: options.delayMs ?? 200,
         siteConcurrency: options.siteConcurrency ?? 15,
+        signal: options.signal,
       },
       { supabase },
     );

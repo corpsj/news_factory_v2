@@ -98,28 +98,39 @@ async function main() {
 
   console.log("=== News Factory v2 — Full Pipeline ===\n");
 
-  const result = await executePipeline({
-    siteIds: siteIds && siteIds.length > 0 ? siteIds : undefined,
-    limitPerSite: positiveInt(options.limit) ?? 5,
-    maxPages: positiveInt(options.maxPages) ?? 5,
-    dateRange,
-    delayMs: positiveInt(options.delay) ?? 200,
-    publishLimit: positiveInt(options.publishLimit) ?? 500,
-    siteConcurrency: positiveInt(options.concurrency) ?? 15,
-    verbose: options.verbose,
-  });
+  // AbortController with 25-minute deadline
+  const DEADLINE_MS = 25 * 60 * 1000;
+  const deadline = new AbortController();
+  const deadlineTimer = setTimeout(() => deadline.abort(), DEADLINE_MS);
+  process.on("SIGTERM", () => deadline.abort());
 
-  console.log("\n=== Pipeline Complete ===");
-  console.log(`Success: ${result.success}`);
-  console.log(`Duration: ${result.totalDurationMs}ms`);
+  try {
+    const result = await executePipeline({
+      siteIds: siteIds && siteIds.length > 0 ? siteIds : undefined,
+      limitPerSite: positiveInt(options.limit) ?? 5,
+      maxPages: positiveInt(options.maxPages) ?? 5,
+      dateRange,
+      delayMs: positiveInt(options.delay) ?? 200,
+      publishLimit: positiveInt(options.publishLimit) ?? 500,
+      siteConcurrency: positiveInt(options.concurrency) ?? 15,
+      verbose: options.verbose,
+      signal: deadline.signal,
+    });
 
-  for (const stage of result.stages) {
-    const errorSuffix = stage.errorMessage ? ` (${stage.errorMessage})` : "";
-    console.log(`  [${stage.stage}] ${stage.status} — ${stage.detail}${errorSuffix}`);
-  }
+    console.log("\n=== Pipeline Complete ===");
+    console.log(`Success: ${result.success}`);
+    console.log(`Duration: ${result.totalDurationMs}ms`);
 
-  if (!result.success) {
-    process.exitCode = 1;
+    for (const stage of result.stages) {
+      const errorSuffix = stage.errorMessage ? ` (${stage.errorMessage})` : "";
+      console.log(`  [${stage.stage}] ${stage.status} — ${stage.detail}${errorSuffix}`);
+    }
+
+    if (!result.success) {
+      process.exitCode = 1;
+    }
+  } finally {
+    clearTimeout(deadlineTimer);
   }
 }
 

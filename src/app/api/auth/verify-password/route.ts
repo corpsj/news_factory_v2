@@ -1,11 +1,14 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-const SITE_PASSWORD = process.env.SITE_PASSWORD || "2ndlife!kjt";
+const SITE_PASSWORD = process.env.SITE_PASSWORD;
 const VALID_TOKEN = "nf2_site_access_granted";
 
 export async function POST(request: Request) {
   try {
+    if (!SITE_PASSWORD) {
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    }
     const { password } = await request.json();
 
     if (password !== SITE_PASSWORD) {

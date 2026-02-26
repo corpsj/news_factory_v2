@@ -68,19 +68,34 @@ async function insertArticle(
     throw new Error(insertResponse.error.message);
   }
 
-  const articleInsert = await deps.supabase.from("articles").insert({
-    press_release_id: insertResponse.data.id,
-    title: article.title,
-    body: article.body,
-    images: article.imageUrls,
-    category: "press_release",
-    source: article.source,
-    source_url: article.originalLink,
-    status: "generated",
-  });
+  const pressReleaseId = insertResponse.data.id;
 
-  if (articleInsert.error) {
-    throw new Error(articleInsert.error.message);
+  try {
+    const articleInsert = await deps.supabase.from("articles").insert({
+      press_release_id: pressReleaseId,
+      title: article.title,
+      body: article.body,
+      images: article.imageUrls,
+      category: "press_release",
+      source: article.source,
+      source_url: article.originalLink,
+      status: "generated",
+    });
+
+    if (articleInsert.error) {
+      throw new Error(articleInsert.error.message);
+    }
+  } catch (error) {
+    try {
+      const cleanupResponse = await deps.supabase.from("press_releases").delete().eq("id", pressReleaseId);
+      if (cleanupResponse.error) {
+        throw new Error(cleanupResponse.error.message);
+      }
+    } catch (cleanupError) {
+      console.error(`[insertArticle] Failed to cleanup orphaned press_release ${pressReleaseId}:`, cleanupError);
+    }
+
+    throw error;
   }
 
   return "inserted";
@@ -207,7 +222,6 @@ async function crawlSite(
           } catch (imgError) {
             console.error(`[${site.id}] Image processing failed for ${article.originId}:`, imgError);
             // fail-open: keep original imageUrls or empty array, continue to save article
-            article.imageUrls = [];
           }
         }
         const insertState = await insertArticle(deps, article);
@@ -287,9 +301,24 @@ export async function runCrawler(
   const sites = pickSites(options.siteIds);
   const limit = pLimit(normalizedOptions.siteConcurrency);
 
-  const results = await Promise.all(
+  const results = (await Promise.allSettled(
     sites.map((site) => limit(() => crawlSite(site, deps, normalizedOptions, onSiteComplete))),
-  );
+  )).map((result, index) => {
+    if (result.status === "fulfilled") {
+      return result.value;
+    }
+
+    const site = sites[index];
+    return {
+      siteId: site.id,
+      siteName: site.name,
+      found: 0,
+      inserted: 0,
+      failed: 1,
+      status: "failed" as const,
+      errorMessage: result.reason instanceof Error ? result.reason.message : "Unknown error",
+    };
+  });
 
   const totalFound = results.reduce((sum, site) => sum + site.found, 0);
   const totalInserted = results.reduce((sum, site) => sum + site.inserted, 0);

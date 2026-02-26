@@ -79,27 +79,38 @@ async function main() {
     },
   });
 
-  const result = await runCrawler(
-    {
-      siteIds: requestedSites,
-      limitPerSite: Number.isFinite(options.limit) && (options.limit ?? 0) > 0 ? options.limit : 5,
-      delayMs: Number.isFinite(options.delay) && (options.delay ?? -1) >= 0 ? options.delay : 900,
-      siteConcurrency:
-        Number.isFinite(options.concurrency) && (options.concurrency ?? 0) > 0
-          ? options.concurrency
-          : 5,
-    },
-    { supabase },
-  );
+  // AbortController with 25-minute deadline
+  const DEADLINE_MS = 25 * 60 * 1000;
+  const deadline = new AbortController();
+  const deadlineTimer = setTimeout(() => deadline.abort(), DEADLINE_MS);
+  process.on("SIGTERM", () => deadline.abort());
 
-  console.log("Crawl completed.");
-  console.log(
-    `Sites=${result.totalSites} Found=${result.totalFound} Inserted=${result.totalInserted} Failed=${result.totalFailed}`,
-  );
+  try {
+    const result = await runCrawler(
+      {
+        siteIds: requestedSites,
+        limitPerSite: Number.isFinite(options.limit) && (options.limit ?? 0) > 0 ? options.limit : 5,
+        delayMs: Number.isFinite(options.delay) && (options.delay ?? -1) >= 0 ? options.delay : 900,
+        siteConcurrency:
+          Number.isFinite(options.concurrency) && (options.concurrency ?? 0) > 0
+            ? options.concurrency
+            : 5,
+        signal: deadline.signal,
+      },
+      { supabase },
+    );
 
-  const hasFailure = result.results.some((site) => site.status !== "success");
-  if (hasFailure) {
-    process.exitCode = 1;
+    console.log("Crawl completed.");
+    console.log(
+      `Sites=${result.totalSites} Found=${result.totalFound} Inserted=${result.totalInserted} Failed=${result.totalFailed}`,
+    );
+
+    const hasFailure = result.results.some((site) => site.status !== "success");
+    if (hasFailure) {
+      process.exitCode = 1;
+    }
+  } finally {
+    clearTimeout(deadlineTimer);
   }
 }
 

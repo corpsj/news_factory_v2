@@ -21,7 +21,7 @@ const JEONNAM_DO_SELECTORS: SiteSelectorConfig = {
   title: ["td.title a", "td.subject a"],
   date: ["td"],
   dateColumnIndex: 3,
-  content: [".bbs_view_contnet", ".view_content", ".board_view_con"],
+  content: [".bbs_view_contnet", ".view_content", ".board_view_con"], // Note: 'contnet' matches the actual CSS class on jeonnam.go.kr (their typo)
 };
 
 const JEONNAM_SI_SELECTORS: SiteSelectorConfig = {

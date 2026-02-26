@@ -7,6 +7,6 @@ export const parseJeonnamDo: SiteParser = async (ctx) => {
     titleSelectors: ["td.title a", "td.subject a"],
     dateSelectors: ["td"],
     dateColumnIndex: 3,
-    contentSelectors: [".bbs_view_contnet", ".view_content", ".board_view_con"],
+    contentSelectors: [".bbs_view_contnet", ".view_content", ".board_view_con"], // Note: 'contnet' matches the actual CSS class on jeonnam.go.kr (their typo)
   });
 };

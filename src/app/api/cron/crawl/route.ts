@@ -67,10 +67,16 @@ export async function GET(request: Request) {
 
   const siteIds = settings?.enabled_site_ids;
 
+  // AbortController with 280-second deadline (just under Vercel's 300s limit)
+  const DEADLINE_MS = 280 * 1000;
+  const deadline = new AbortController();
+  const deadlineTimer = setTimeout(() => deadline.abort(), DEADLINE_MS);
+
   try {
     const result = await executePipeline({
       siteIds: siteIds && siteIds.length > 0 ? siteIds : undefined,
       verbose: true,
+      signal: deadline.signal,
     });
 
     const status = result.success ? 200 : 207;
@@ -94,5 +100,7 @@ export async function GET(request: Request) {
     const message = error instanceof Error ? error.message : "Unknown pipeline error";
     console.error("Pipeline execution failed:", message);
     return NextResponse.json({ error: message }, { status: 500 });
+  } finally {
+    clearTimeout(deadlineTimer);
   }
 }
