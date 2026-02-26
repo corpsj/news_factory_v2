@@ -1,6 +1,6 @@
 import { load } from "cheerio";
 import { parseKoreanDate } from "@/lib/crawl/date";
-import { cleanBodyHtml, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
+import { cleanBodyHtml, extractAttachments, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 const CONTENT_SELECTORS = [
@@ -96,7 +96,7 @@ export const parseGurye: SiteParser = async (ctx) => {
         title,
         body: stripTitleFromBody(cleanBodyHtml(extractDetailBody(detailHtml)), title),
         imageUrls: extractImages(detailHtml, detailUrl),
-        attachmentUrls: [],
+        attachmentUrls: extractAttachments(detailHtml, detailUrl),
         date: parseKoreanDate(dateText),
         originalLink: detailUrl,
       });

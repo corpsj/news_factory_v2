@@ -343,7 +343,7 @@ function extractImages(detailHtml: string, contentSelectors: string[], detailUrl
   return Array.from(urls);
 }
 
-function extractAttachments(detailHtml: string, detailUrl: string): string[] {
+export function extractAttachments(detailHtml: string, detailUrl: string): string[] {
   const $ = load(detailHtml);
   const attachments = new Set<string>();
 

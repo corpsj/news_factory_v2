@@ -1,7 +1,8 @@
 import axios from "axios";
 import { load } from "cheerio";
 import https from "node:https";
-import { isNonContentImage } from "@/lib/crawl/parsers/common";
+import { parseKoreanDate } from "@/lib/crawl/date";
+import { extractAttachments, isNonContentImage, stripNoiseFromBody } from "@/lib/crawl/parsers/common";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 type DamyangApiArticle = {
@@ -202,16 +203,17 @@ export const parseDamyang: SiteParser = async (ctx) => {
       continue;
     }
 
-    const body = item.dataContent?.trim() ?? "";
-    const date = (item.registerDate ?? "").trim();
+    const rawBody = item.dataContent?.trim() ?? "";
+    const body = stripNoiseFromBody(rawBody);
+    const date = parseKoreanDate((item.registerDate ?? "").trim());
 
     articles.push({
       originId: `damyang-${sid}`,
       source: ctx.site.name,
       title,
       body,
-      imageUrls: extractImageUrlsFromHtml(body, baseOrigin),
-      attachmentUrls: [],
+      imageUrls: extractImageUrlsFromHtml(rawBody, baseOrigin),
+      attachmentUrls: extractAttachments(rawBody, baseOrigin),
       date,
       originalLink: buildDetailUrl(baseOrigin, listParams, sid),
     });
