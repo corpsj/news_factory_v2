@@ -96,7 +96,8 @@ export async function processImages(options: ProcessImagesOptions): Promise<stri
 
   try {
     await Promise.all(tasks);
-  } catch {
+  } catch (error) {
+    console.error("[images] Image processing batch failed:", error);
     return publicUrlsByIndex.filter((value): value is string => Boolean(value));
   }
 

@@ -1,6 +1,6 @@
 import { load } from "cheerio";
 import { parseKoreanDate } from "@/lib/crawl/date";
-import { cleanBodyHtml, extractAttachments, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
+import { cleanBodyHtml, cleanTitle, extractAttachments, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 const CONTENT_SELECTORS = [
@@ -117,7 +117,7 @@ export const parseGwangjuEsNolist: SiteParser = async (ctx) => {
     const href = $(el).attr("href") ?? "";
     if (!linkPattern.test(href)) return;
 
-    const title = normalizeWhitespace($(el).text());
+    const title = cleanTitle(normalizeWhitespace($(el).text()));
     if (!title || title.length < 3) return;
 
     const match = href.match(/list_no=(\d+)/);

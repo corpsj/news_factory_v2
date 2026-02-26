@@ -246,11 +246,12 @@ function pickRows(listHtml: string, selectors: string[]) {
   return { $, rows: $([]) };
 }
 
-function cleanTitle(raw: string): string {
+export function cleanTitle(raw: string): string {
   let title = raw;
-  // Strip leading/trailing badge text (새로운글, 새글, new, etc.)
-  title = title.replace(new RegExp(`^${TITLE_BADGE_PATTERN.source}\\s*`), "").trim();
-  title = title.replace(new RegExp(`\\s*${TITLE_BADGE_PATTERN.source}$`), "").trim();
+  // Strip leading bracketed/bare badge text (새로운글, 새글, new, [새글], 【공지】, etc.)
+  title = title.replace(new RegExp(`^[\\[【(〔]*${TITLE_BADGE_PATTERN.source}[\\]】)〕]*\\s*`), "").trim();
+  // Strip trailing bracketed/bare badge text
+  title = title.replace(new RegExp(`\\s*[\\[【(〔]*${TITLE_BADGE_PATTERN.source}[\\]】)〕]*$`), "").trim();
   // Strip leading date that may have leaked from adjacent elements (e.g. 2026-02-26제목)
   title = title.replace(/^\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}/, "").trim();
   return title;

@@ -70,7 +70,7 @@ const HWASUN_SELECTORS: SiteSelectorConfig = {
   list: ["table tbody tr"],
   title: ["td a"],
   date: ["td"],
-  dateColumnIndex: 3,
+  dateColumnIndex: 4,
   content: [".boardR", ".view_content", ".board_contents"],
 };
 

@@ -1,6 +1,6 @@
 import { load } from "cheerio";
 import { parseKoreanDate } from "@/lib/crawl/date";
-import { cleanBodyHtml, extractAttachments, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
+import { cleanBodyHtml, cleanTitle, extractAttachments, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 const CONTENT_SELECTORS = [
@@ -80,7 +80,7 @@ export const parseGurye: SiteParser = async (ctx) => {
 
     const rawText = link.text().replace(/\s+/g, " ").trim();
     const dateMatch = rawText.match(/(\d{4}-\d{2}-\d{2})\s*$/);
-    const title = dateMatch ? rawText.replace(dateMatch[0], "").trim() : rawText;
+    const title = cleanTitle(dateMatch ? rawText.replace(dateMatch[0], "").trim() : rawText);
     const dateText = dateMatch ? dateMatch[1] : "";
 
     if (!title || title.length < 3) {

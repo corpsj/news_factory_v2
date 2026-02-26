@@ -1,6 +1,6 @@
 import { load } from "cheerio";
 import { parseKoreanDate } from "@/lib/crawl/date";
-import { cleanBodyHtml, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
+import { cleanBodyHtml, cleanTitle, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 const FILE_LINK_PATTERN = /\.(pdf|hwp|hwpx|doc|docx|xls|xlsx|zip|rar|7z|ppt|pptx)$/i;
@@ -145,7 +145,7 @@ export const parseNamgu: SiteParser = async (ctx) => {
 
     for (const selector of titleSelectors) {
       const link = row.find(selector).first();
-      title = normalizeWhitespace(link.text());
+      title = cleanTitle(normalizeWhitespace(link.text()));
       onclick = link.attr("onclick") ?? "";
       if (title && onclick) {
         break;

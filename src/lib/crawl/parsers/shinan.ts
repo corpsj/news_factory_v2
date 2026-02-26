@@ -1,6 +1,6 @@
 import { load } from "cheerio";
 import { parseKoreanDate } from "@/lib/crawl/date";
-import { cleanBodyHtml, extractAttachments, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
+import { cleanBodyHtml, cleanTitle, extractAttachments, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 function sleep(ms: number): Promise<void> {
@@ -77,7 +77,7 @@ export const parseShinan: SiteParser = async (ctx) => {
     if (!idMatch) continue;
     const articleId = idMatch[1];
 
-    const title = link.text().replace(/\s+/g, " ").trim();
+    const title = cleanTitle(link.text().replace(/\s+/g, " ").trim());
     if (!title || title.length < 3) continue;
 
     // 날짜: td 순서상 4번째 (0-indexed: 3)

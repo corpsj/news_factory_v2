@@ -72,10 +72,15 @@ async function insertArticle(
   const pressReleaseId = insertResponse.data.id;
 
   try {
+    const body = contentToArticleBody(article.body);
+    if (!body) {
+      console.warn(`[insertArticle] Empty body after processing for ${article.originId}`);
+    }
+
     const articleInsert = await deps.supabase.from("articles").insert({
       press_release_id: pressReleaseId,
       title: article.title,
-      body: contentToArticleBody(article.body),
+      body,
       images: article.imageUrls,
       category: "press_release",
       source: article.source,
