@@ -23,6 +23,10 @@ export async function processImages(options: ProcessImagesOptions): Promise<stri
   const siteId = originId.split("-")[0] ?? originId;
   const month = articleDate.slice(0, 7);
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+  if (!baseUrl) {
+    console.warn("[images] Missing SUPABASE_URL; skipping image processing");
+    return [];
+  }
   const limit = pLimit(IMAGE_CONCURRENCY);
   const publicUrlsByIndex: Array<string | null> = new Array(imageUrls.length).fill(null);
 
@@ -81,11 +85,6 @@ export async function processImages(options: ProcessImagesOptions): Promise<stri
 
         if (error) {
           throw new Error(error.message);
-        }
-
-        if (!baseUrl) {
-          console.warn("[images] Missing NEXT_PUBLIC_SUPABASE_URL; skipping public URL build:", path);
-          return;
         }
 
         publicUrlsByIndex[index] = `${baseUrl}/storage/v1/object/public/press-images/${path}`;
