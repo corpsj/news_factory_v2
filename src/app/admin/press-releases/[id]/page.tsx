@@ -168,9 +168,10 @@ export default async function PressReleaseDetailPage({
         <div className="mb-6">
           <h2 className="mb-3 text-xs uppercase tracking-wider text-white/30 font-medium">본문</h2>
           <div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-4">
-            <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/60">
-              {pr.content}
-            </p>
+            <div
+              className="prose prose-sm prose-invert max-w-none text-sm leading-relaxed text-white/60 [&_p]:mb-3 [&_p:last-child]:mb-0"
+              dangerouslySetInnerHTML={{ __html: pr.content }}
+            />
           </div>
         </div>
 
