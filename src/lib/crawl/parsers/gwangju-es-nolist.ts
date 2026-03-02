@@ -1,6 +1,28 @@
 import { load } from "cheerio";
 import { parseKoreanDate } from "@/lib/crawl/date";
 import { cleanBodyHtml, cleanTitle, extractAttachments, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
+
+const ES_NOLIST_TITLE_SELECTORS = [
+  ".board_view_head .subject", ".board_view_header .subject",
+  ".board_view_title", ".view_title",
+  "h3.subject", "h2.subject",
+  ".bbs_title", ".subject_title",
+];
+
+function isTruncated(title: string): boolean {
+  return /[.…]{2,}$/.test(title.trim());
+}
+
+function extractDetailTitleFromHtml(html: string): string | null {
+  const $ = load(html);
+  for (const selector of ES_NOLIST_TITLE_SELECTORS) {
+    const text = $(selector).first().text().replace(/\s+/g, " ").trim();
+    if (text && text.length > 5) {
+      return cleanTitle(text);
+    }
+  }
+  return null;
+}
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 const CONTENT_SELECTORS = [
@@ -138,13 +160,22 @@ export const parseGwangjuEsNolist: SiteParser = async (ctx) => {
     try {
       const detailHtml = await ctx.fetchHtml(detailUrl);
       const rawBody = extractDetailBody(detailHtml);
-      const body = stripTitleFromBody(cleanBodyHtml(rawBody), link.title);
+
+      let finalTitle = link.title;
+      if (isTruncated(link.title)) {
+        const detailPageTitle = extractDetailTitleFromHtml(detailHtml);
+        if (detailPageTitle && detailPageTitle.length > link.title.length) {
+          finalTitle = detailPageTitle;
+        }
+      }
+
+      const body = stripTitleFromBody(cleanBodyHtml(rawBody), finalTitle);
       const dateText = extractDateFromDetail(detailHtml);
 
       articles.push({
         originId: `${ctx.site.id}-${link.articleId}`,
         source: ctx.site.name,
-        title: link.title,
+        title: finalTitle,
         body,
         imageUrls: extractImages(detailHtml, detailUrl),
         attachmentUrls: extractAttachments(detailHtml, detailUrl),

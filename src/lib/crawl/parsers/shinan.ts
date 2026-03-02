@@ -1,6 +1,28 @@
 import { load } from "cheerio";
 import { parseKoreanDate } from "@/lib/crawl/date";
 import { cleanBodyHtml, cleanTitle, extractAttachments, isNonContentImage, stripTitleFromBody } from "@/lib/crawl/parsers/common";
+
+const SHINAN_TITLE_SELECTORS = [
+  ".board_view_title", ".view_title", "h3.subject", "h2.subject",
+  ".board_view h3", ".view_top h3", ".view_header h3",
+  ".bbs_title", ".subject_title", ".tit_view",
+  "#content h3", "#content h2",
+];
+
+function isTruncated(title: string): boolean {
+  return /[.…]{2,}$/.test(title.trim());
+}
+
+function extractDetailTitle(html: string): string | null {
+  const $ = load(html);
+  for (const selector of SHINAN_TITLE_SELECTORS) {
+    const text = $(selector).first().text().replace(/\s+/g, " ").trim();
+    if (text && text.length > 5) {
+      return cleanTitle(text);
+    }
+  }
+  return null;
+}
 import type { ParsedArticle, SiteParser } from "@/types/crawler";
 
 function sleep(ms: number): Promise<void> {
@@ -87,11 +109,20 @@ export const parseShinan: SiteParser = async (ctx) => {
     const detailUrl = ctx.site.detailUrlTemplate.replace("{id}", articleId);
     try {
       const detailHtml = await ctx.fetchHtml(detailUrl);
+
+      let finalTitle = title;
+      if (isTruncated(title)) {
+        const detailPageTitle = extractDetailTitle(detailHtml);
+        if (detailPageTitle && detailPageTitle.length > title.length) {
+          finalTitle = detailPageTitle;
+        }
+      }
+
       articles.push({
         originId: `${ctx.site.id}-${articleId}`,
         source: ctx.site.name,
-        title,
-        body: stripTitleFromBody(cleanBodyHtml(extractDetailBody(detailHtml)), title),
+        title: finalTitle,
+        body: stripTitleFromBody(cleanBodyHtml(extractDetailBody(detailHtml)), finalTitle),
         imageUrls: extractImages(detailHtml, detailUrl),
         attachmentUrls: extractAttachments(detailHtml, detailUrl),
         date: parseKoreanDate(dateText),
