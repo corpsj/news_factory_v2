@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { SITES } from "@/config/sites";
+import { SITES, SITES_BY_ID } from "@/config/sites";
 
 export type CrawlStatus = "success" | "failed" | "partial";
 export type HealthStatus = "healthy" | "warning" | "critical" | "unknown";
@@ -303,5 +303,122 @@ export async function getCrawlStatistics(
     total_articles_new: totalArticlesNew,
     avg_crawl_duration_ms: durationCount > 0 ? Math.round(totalDurationMs / durationCount) : 0,
     per_site: perSite,
+  };
+}
+
+export interface CrawlHistoryEntry {
+  status: CrawlStatus;
+  articles_found: number;
+  articles_new: number;
+  error_message: string | null;
+  started_at: string;
+  completed_at: string;
+  duration_ms: number;
+}
+
+export interface SiteCrawlHistory {
+  site_id: string;
+  site_name: string;
+  site_url: string;
+  health: HealthStatus;
+  total_crawls: number;
+  successful_crawls: number;
+  success_rate: number;
+  avg_duration_ms: number;
+  total_articles_found: number;
+  total_articles_new: number;
+  history: CrawlHistoryEntry[];
+}
+
+export async function getSiteCrawlHistory(
+  siteId: string,
+  limit = 20,
+  client?: SupabaseClient,
+): Promise<SiteCrawlHistory | null> {
+  const site = SITES_BY_ID.get(siteId);
+  if (!site) return null;
+
+  const supabase = getSupabaseClient(client);
+
+  const { data: logs, error } = await supabase
+    .from("crawl_logs")
+    .select("status, articles_found, articles_new, error_message, started_at, completed_at")
+    .eq("site_name", site.name)
+    .order("completed_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw new Error(`Failed to fetch crawl history for ${siteId}: ${error.message}`);
+  }
+
+  const typedLogs = (logs ?? []) as CrawlLogRow[];
+
+  let successful = 0;
+  let failed = 0;
+  let totalArticlesFound = 0;
+  let totalArticlesNew = 0;
+  let totalDurationMs = 0;
+  let durationCount = 0;
+  let consecutiveFailures = 0;
+  let countingFailures = true;
+
+  const history: CrawlHistoryEntry[] = typedLogs.map((log) => {
+    if (log.status === "success") successful++;
+    else if (log.status === "failed") failed++;
+    totalArticlesFound += log.articles_found ?? 0;
+    totalArticlesNew += log.articles_new ?? 0;
+
+    if (countingFailures) {
+      if (log.status === "failed") consecutiveFailures++;
+      else countingFailures = false;
+    }
+
+    const durationMs =
+      log.started_at && log.completed_at
+        ? calculateDurationMs(log.started_at, log.completed_at)
+        : 0;
+
+    if (durationMs > 0) {
+      totalDurationMs += durationMs;
+      durationCount++;
+    }
+
+    return {
+      status: log.status,
+      articles_found: log.articles_found ?? 0,
+      articles_new: log.articles_new ?? 0,
+      error_message: log.error_message,
+      started_at: log.started_at,
+      completed_at: log.completed_at,
+      duration_ms: durationMs,
+    };
+  });
+
+  const totalCrawls = typedLogs.length;
+  const latest = typedLogs[0] ?? null;
+
+  let health: HealthStatus = "unknown";
+  if (latest) {
+    if (latest.status === "success") {
+      health = "healthy";
+    } else if (latest.status === "partial") {
+      health = consecutiveFailures >= CONSECUTIVE_FAILURE_THRESHOLD ? "warning" : "healthy";
+    } else if (latest.status === "failed") {
+      health = consecutiveFailures >= CONSECUTIVE_FAILURE_THRESHOLD ? "critical" : "warning";
+    }
+  }
+
+  return {
+    site_id: site.id,
+    site_name: site.name,
+    site_url: site.listUrl,
+    health,
+    total_crawls: totalCrawls,
+    successful_crawls: successful,
+    success_rate: totalCrawls > 0 ? Math.round((successful / totalCrawls) * 10000) / 100 : 0,
+    avg_duration_ms: durationCount > 0 ? Math.round(totalDurationMs / durationCount) : 0,
+    total_articles_found: totalArticlesFound,
+    total_articles_new: totalArticlesNew,
+    history,
   };
 }
