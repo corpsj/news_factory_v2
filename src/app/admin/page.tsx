@@ -1,4 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
+import Link from "next/link";
+
+export const dynamic = "force-dynamic";
+
+function formatRelativeTime(date: Date): string {
+  const diff = Date.now() - date.getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "방금 전";
+  if (minutes < 60) return `${minutes}분 전`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}시간 전`;
+  const days = Math.floor(hours / 24);
+  return `${days}일 전`;
+}
 
 async function getDashboardStats() {
   const url = process.env.SUPABASE_URL;
@@ -43,14 +57,22 @@ async function getDashboardStats() {
 }
 
 const STAT_CARDS = [
-  { key: "pressReleases", label: "보도자료", icon: "◇", color: "from-blue-500/20 to-blue-600/5" },
-  { key: "articles", label: "기사", icon: "▤", color: "from-emerald-500/20 to-emerald-600/5" },
-  { key: "clients", label: "클라이언트", icon: "⊡", color: "from-violet-500/20 to-violet-600/5" },
-  { key: "crawl", label: "최근 수집", icon: "◫", color: "from-amber-500/20 to-amber-600/5" },
+  { key: "pressReleases", label: "보도자료", icon: "◇", color: "from-blue-500/20 to-blue-600/5", href: "/admin/press-releases" },
+  { key: "articles", label: "기사", icon: "▤", color: "from-emerald-500/20 to-emerald-600/5", href: "/admin/articles" },
+  { key: "clients", label: "클라이언트", icon: "⊡", color: "from-violet-500/20 to-violet-600/5", href: "/admin/clients" },
+  { key: "crawl", label: "수집 현황", icon: "◫", color: "from-amber-500/20 to-amber-600/5", href: "/admin/monitoring" },
 ] as const;
 
 export default async function AdminDashboardPage() {
   const stats = await getDashboardStats();
+
+  const recentCrawlDate = stats.recentCrawl ? new Date(stats.recentCrawl) : null;
+  const recentCrawlRelative = recentCrawlDate
+    ? formatRelativeTime(recentCrawlDate)
+    : "—";
+  const recentCrawlAbsolute = recentCrawlDate
+    ? recentCrawlDate.toLocaleString("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })
+    : "";
 
   const cardData = [
     { ...STAT_CARDS[0], value: stats.pressReleases.total, sub: "전체 수집" },
@@ -58,10 +80,8 @@ export default async function AdminDashboardPage() {
     { ...STAT_CARDS[2], value: stats.clients.total, sub: "등록됨" },
     {
       ...STAT_CARDS[3],
-      value: stats.recentCrawl
-        ? new Date(stats.recentCrawl).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
-        : "—",
-      sub: "마지막 실행",
+      value: recentCrawlRelative,
+      sub: recentCrawlAbsolute || "기록 없음",
     },
   ];
 
@@ -78,9 +98,10 @@ export default async function AdminDashboardPage() {
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {cardData.map((card) => (
-          <div
+          <Link
              key={card.key}
-             className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-6"
+             href={card.href}
+             className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-6 transition-all hover:bg-white/[0.05] hover:border-white/[0.10]"
            >
              <div className="flex items-center justify-between">
                <span className="text-lg text-white/20">{card.icon}</span>
@@ -90,7 +111,7 @@ export default async function AdminDashboardPage() {
                <p className="text-4xl font-light text-white">{card.value}</p>
                <p className="mt-1 text-sm text-white/40">{card.label}</p>
              </div>
-           </div>
+           </Link>
         ))}
       </div>
 
