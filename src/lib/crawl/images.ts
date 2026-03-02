@@ -3,9 +3,10 @@ import pLimit from "p-limit";
 import sharp from "sharp";
 
 const MAX_BYTES = 20 * 1024 * 1024;
-const MIN_DIMENSION = 50;
-const IMAGE_TIMEOUT_MS = 8000;
+const MIN_DIMENSION = 200;
+const IMAGE_TIMEOUT_MS = 15000;
 const IMAGE_CONCURRENCY = 2;
+const MAX_RETRIES = 2;
 
 
 export type ProcessImagesOptions = {
@@ -43,15 +44,28 @@ export async function processImages(options: ProcessImagesOptions): Promise<stri
       try {
         const referer = new URL(url).origin;
 
-        const buffer = await Promise.race([
-          fetchBinary(url, { referer }),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('[images] Download timeout')), IMAGE_TIMEOUT_MS),
-          ),
-        ]);
+        let buffer: Buffer | null = null;
+        for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+          try {
+            buffer = await Promise.race([
+              fetchBinary(url, { referer }),
+              new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error("[images] Download timeout")), IMAGE_TIMEOUT_MS),
+              ),
+            ]);
+            break;
+          } catch (dlError) {
+            if (attempt < MAX_RETRIES) {
+              await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+              continue;
+            }
+            throw dlError;
+          }
+        }
+
+        if (!buffer) return;
 
         if (buffer.byteLength > MAX_BYTES) {
-          console.warn("[images] Skipping oversized image:", url, buffer.byteLength);
           return;
         }
 
