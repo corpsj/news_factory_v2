@@ -3,6 +3,8 @@ import { getAllSiteCrawlStatus } from "@/lib/services/crawl-monitor";
 import type { HealthStatus } from "@/lib/services/crawl-monitor";
 import { MonitoringPanel } from "./monitoring-panel";
 
+export const dynamic = "force-dynamic";
+
 async function getMonitoringData() {
   try {
     const sites = await getAllSiteCrawlStatus();

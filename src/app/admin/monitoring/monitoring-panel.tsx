@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { HealthStatus, CrawlStatus, FailureReason } from "@/lib/services/crawl-monitor";
+import { SiteDetailDrawer } from "./site-detail-drawer";
 
 interface SiteStatus {
   site_id: string;
@@ -105,6 +106,7 @@ export function MonitoringPanel({ initial }: { initial: MonitoringData }) {
   const [loading, setLoading] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -126,6 +128,10 @@ export function MonitoringPanel({ initial }: { initial: MonitoringData }) {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const siteMap = new Map(data.sites.map((s) => [s.site_id, s]));
   const { summary } = data;
@@ -219,12 +225,11 @@ export function MonitoringPanel({ initial }: { initial: MonitoringData }) {
                   const cfg = HEALTH_CONFIG[site.health];
 
                   return (
-                    <a
+                    <button
+                      type="button"
                       key={site.site_id}
-                      href={site.site_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`group block rounded-xl border ${cfg.border} bg-white/[0.03] p-4 shadow-lg ${cfg.glow} transition-all duration-300 hover:bg-white/[0.06] hover:shadow-xl cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]`}
+                      onClick={() => setSelectedSiteId(site.site_id)}
+                      className={`group block w-full text-left rounded-xl border ${cfg.border} bg-white/[0.03] p-4 shadow-lg ${cfg.glow} transition-all duration-300 hover:bg-white/[0.06] hover:shadow-xl cursor-pointer focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]`}
                     >
                       <div className="mb-3 flex items-center justify-between">
                         <h4 className="text-sm font-medium text-white/90 truncate pr-2">
@@ -288,7 +293,7 @@ export function MonitoringPanel({ initial }: { initial: MonitoringData }) {
                           )}
                         </div>
                       )}
-                    </a>
+                    </button>
                   );
                 })}
               </div>
@@ -331,16 +336,15 @@ export function MonitoringPanel({ initial }: { initial: MonitoringData }) {
                     {groupSites.map((site) => {
                       const cfg = HEALTH_CONFIG[site.health];
                       return (
-                        <tr key={site.site_id} className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03]">
+                        <tr
+                          key={site.site_id}
+                          onClick={() => setSelectedSiteId(site.site_id)}
+                          className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03] cursor-pointer"
+                        >
                           <td className="px-5 py-3.5">
-                            <a
-                              href={site.site_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-white/80 hover:text-white transition-colors"
-                            >
+                            <span className="text-white/80">
                               {site.site_name}
-                            </a>
+                            </span>
                           </td>
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-1.5">
@@ -394,6 +398,11 @@ export function MonitoringPanel({ initial }: { initial: MonitoringData }) {
           );
         })}
       </div>
+
+      <SiteDetailDrawer
+        siteId={selectedSiteId}
+        onClose={() => setSelectedSiteId(null)}
+      />
     </div>
   );
 }
