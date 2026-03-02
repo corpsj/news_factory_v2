@@ -21,12 +21,17 @@ const FILE_LINK_PATTERN = /\.(pdf|hwp|hwpx|doc|docx|xls|xlsx|zip|rar|7z|ppt|pptx
  * - Site logos, watermarks, layout decorations
  */
 const NON_CONTENT_URL_PATTERNS = [
-  // 공공누리 license badges
+  // 공공누리 license badges (various naming conventions across municipalities)
   /img_open(?:type|code)\d*/i,
   /new_img_open(?:type|code)\d*/i,
   /gongnuri/i,
   /open_?type/i,
+  /openMark/i,
+  /publicMark/i,
+  /nuri_ai/i,
   /ccl[_/.\-]/i,
+  /kogl[_/.\-]/i,
+  /kogl\//i,
   // SNS / share icons
   /ico_sns_/i,
   /icon_sns/i,
@@ -41,6 +46,8 @@ const NON_CONTENT_URL_PATTERNS = [
   /qr[_\-.]?code/i,
   /qrcode/i,
   /qr[_\-]img/i,
+  // SVG images (typically icons/badges, not content)
+  /\.svg$/i,
   // Tiny images: WxHxQ format where H ≤ 5 (e.g. 924x1x85)
   /\/\d+x[1-5]x\d+\//,
 ];
@@ -212,6 +219,7 @@ const DEFAULT_CONTENT_SELECTORS = [
   ".bbs_content_detail",
   ".board_view_content",
   ".board_view",
+  "#board_view",
 ];
 
 function sleep(ms: number): Promise<void> {
@@ -310,6 +318,29 @@ function extractDate(
 function extractArticleId(href: string, idPattern: RegExp): string | null {
   const match = href.match(idPattern);
   return match?.[1] ?? null;
+}
+
+const DETAIL_TITLE_SELECTORS = [
+  ".board_view_title", ".view_title", "h3.subject", "h2.subject",
+  ".board_view h3", ".board_view h2", ".view_top h3", ".view_header h3",
+  ".bbs_title", ".subject_title", ".ttl", "h1.title",
+  "td.subject", ".board_view_header h3", ".bbs_view_title",
+  ".tit_view", ".view_tit", ".subject_view",
+];
+
+function isTruncated(title: string): boolean {
+  return /[.…]{2,}$/.test(title.trim());
+}
+
+function extractDetailTitle(detailHtml: string): string | null {
+  const $ = load(detailHtml);
+  for (const selector of DETAIL_TITLE_SELECTORS) {
+    const text = $(selector).first().text().replace(/\s+/g, " ").trim();
+    if (text && text.length > 5) {
+      return cleanTitle(text);
+    }
+  }
+  return null;
 }
 
 function extractDetailBody(detailHtml: string, contentSelectors: string[]): string {
@@ -446,11 +477,19 @@ export async function parseWithPattern(
       const detailHtml = await ctx.fetchHtml(detailUrl);
       const body = extractDetailBody(detailHtml, contentSelectors);
 
+      let finalTitle = title;
+      if (isTruncated(title)) {
+        const detailTitle = extractDetailTitle(detailHtml);
+        if (detailTitle && detailTitle.length > title.length) {
+          finalTitle = detailTitle;
+        }
+      }
+
       articles.push({
         originId: `${ctx.site.id}-${articleId}`,
         source: ctx.site.name,
-        title,
-        body: stripNoiseFromBody(stripTitleFromBody(body, title)),
+        title: finalTitle,
+        body: stripNoiseFromBody(stripTitleFromBody(body, finalTitle)),
         imageUrls: extractImages(detailHtml, contentSelectors, detailUrl),
         attachmentUrls: extractAttachments(detailHtml, detailUrl),
         date: parseKoreanDate(dateText),
