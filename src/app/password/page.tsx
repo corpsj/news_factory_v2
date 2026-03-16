@@ -14,16 +14,22 @@ export default function PasswordPage() {
     setError("");
     setLoading(true);
 
+    const trimmedPassword = password.trim();
+
     try {
       const res = await fetch("/api/auth/verify-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password: trimmedPassword }),
       });
+
+      const data = await res.json().catch(() => null);
 
       if (res.ok) {
         router.push("/admin");
         router.refresh();
+      } else if (res.status === 500) {
+        setError("서버 설정 오류입니다. 관리자에게 문의해주세요.");
       } else {
         setError("암호가 올바르지 않습니다.");
         setPassword("");
