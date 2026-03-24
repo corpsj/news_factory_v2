@@ -227,7 +227,7 @@ async function crawlSite(
             });
           } catch (imgError) {
             console.error(`[${site.id}] Image processing failed for ${article.originId}:`, imgError);
-            // fail-open: keep original imageUrls or empty array, continue to save article
+            article.imageUrls = [];
           }
         }
         const insertState = await insertArticle(deps, article);
