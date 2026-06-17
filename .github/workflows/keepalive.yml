@@ -1,0 +1,29 @@
+name: Keepalive
+
+# GitHub은 저장소가 60일간 활동(커밋/푸시)이 없으면 예약(schedule) 워크플로를
+# 자동으로 비활성화합니다. 그래서 수집 크론(cron-pipeline.yml)이 꺼져버립니다.
+# 이 워크플로가 약 2주마다 작은 커밋을 만들어 저장소를 '활성' 상태로 유지함으로써
+# 수집 크론이 꺼지지 않도록 합니다.
+
+on:
+  schedule:
+    - cron: "0 0 1,15 * *" # 매월 1일·15일 00:00 UTC (약 2주마다, 60일 제한 이내)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 활동 기록 갱신 후 커밋
+        run: |
+          mkdir -p .github
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/last-keepalive.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/last-keepalive.txt
+          git commit -m "chore: keepalive (예약 워크플로 유지) [skip ci]" || echo "변경 없음, 스킵"
+          git push
